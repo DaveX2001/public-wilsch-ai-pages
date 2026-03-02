@@ -56,7 +56,7 @@ und
 2.2 **Mitwirkungspflichten des Auftraggebers:**
 Der Auftraggeber verpflichtet sich:
 - SSH-Zugang zur relevanten Infrastruktur bereitzustellen
-- Störungen und Probleme per E-Mail an marius@wilsch-ai.com zu melden
+- Störungen und Probleme ausschließlich per E-Mail an marius@wilsch-ai.com zu melden
 - Einen primären Ansprechpartner zu benennen
 - Koordination mit dem eigenen IT-Dienstleister für Infrastrukturfragen sicherzustellen
 
@@ -70,7 +70,7 @@ Der Auftraggeber verpflichtet sich:
 ## §3 Vergütung
 
 3.1 **Bereitschaftspauschale:** 300,00 EUR netto pro Monat.
-Die Pauschale deckt die Bereitschaft des Auftragnehmers, die Aufrechterhaltung des institutionellen Wissens über die Systeme des Auftraggebers sowie die Vorarbeit für zukünftige Projekte (Pflichtenheft-Erstellung) ab.
+Die Pauschale deckt die Bereitschaft des Auftragnehmers sowie die Aufrechterhaltung des institutionellen Wissens über die Systeme des Auftraggebers ab.
 
 3.2 **Stundensatz (Time & Material):** 120,00 EUR netto pro Stunde.
 Wartungs- und Supportleistungen, die über die Bereitschaft hinausgehen, werden nach tatsächlichem Aufwand zu diesem Stundensatz abgerechnet. Die Abrechnung erfolgt in 30-Minuten-Takten. Der Auftragnehmer dokumentiert die geleisteten Stunden und legt diese dem Auftraggeber mit der Rechnung vor.
