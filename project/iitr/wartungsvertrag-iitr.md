@@ -3,12 +3,6 @@ publish: true
 ---
 
 # Wartungsvertrag (Dienstleistungsvertrag) — Wilsch AI × IITR
-[[client-iitr]]
-
-> **Status:** Entwurf
-> **Begleitdokument:** [Werkvertrag-Rahmenvereinbarung](werkvertrag-rahmenvereinbarung-iitr.md)
-
----
 
 Dieser Wartungsvertrag („Vertrag") wird geschlossen zwischen:
 
