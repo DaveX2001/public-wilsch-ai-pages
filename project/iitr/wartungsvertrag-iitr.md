@@ -147,7 +147,7 @@ USt-IdNr.: EE102934113
 
 ## §8 Vertraulichkeit
 
-Die Vertraulichkeitspflichten der Parteien richten sich nach der separat geschlossenen Geheimhaltungsvereinbarung (NDA) zwischen den Parteien.
+Beide Parteien verpflichten sich, vertrauliche Informationen der anderen Partei nur für die Zwecke dieses Vertrags zu verwenden und nicht an Dritte weiterzugeben. Die Vertraulichkeitspflichten bleiben für drei (3) Jahre nach Beendigung dieses Vertrags bestehen.
 
 ---
 
