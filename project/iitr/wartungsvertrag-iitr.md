@@ -115,9 +115,12 @@ Für Supportleistungen außerhalb der Geschäftszeiten gemäß §4.1 gelten folg
 
 6.3 **Bankverbindung des Auftragnehmers:**
 
-Wilsch AI Services OÜ<br>
-IBAN: BE32 9056 8928 1502<br>
-BIC/SWIFT: TRWIBEB1XXX<br>
+Wilsch AI Services OÜ
+
+IBAN: BE32 9056 8928 1502
+
+BIC/SWIFT: TRWIBEB1XXX
+
 Bank: Wise, Rue du Trône 100, 3rd floor, Brussels, 1050, Belgium
 
 6.4 **Umsatzsteuer-Identifikationsnummern:**

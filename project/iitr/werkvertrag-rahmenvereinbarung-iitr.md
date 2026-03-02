@@ -79,9 +79,12 @@ Die Abnahme erfolgt gemäß §4. Nach Abnahme wird das Projekt abgerechnet und d
 
 3.5 **Bankverbindung des Auftragnehmers:**
 
-Wilsch AI Services OÜ<br>
-IBAN: BE32 9056 8928 1502<br>
-BIC/SWIFT: TRWIBEB1XXX<br>
+Wilsch AI Services OÜ
+
+IBAN: BE32 9056 8928 1502
+
+BIC/SWIFT: TRWIBEB1XXX
+
 Bank: Wise, Rue du Trône 100, 3rd floor, Brussels, 1050, Belgium
 
 3.6 **Umsatzsteuer-Identifikationsnummern:**
