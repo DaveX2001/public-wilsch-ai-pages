@@ -53,7 +53,14 @@ und
 
 [⚠️ PLACEHOLDER: SCOPE_BOUNDARY — Die genaue Abgrenzung zwischen Applikation, Middleware (Betriebssystem, Netzwerkdienste) und Hardware/Netzwerk (Hetzner/Primeline) ist mit Ulrich zu klären. Insbesondere: Welche Infrastrukturschichten fallen in die Verantwortung des Auftragnehmers, welche verbleiben beim Hosting-Anbieter?]
 
-2.2 Nicht im Leistungsumfang enthalten sind:
+2.2 **Mitwirkungspflichten des Auftraggebers:**
+Der Auftraggeber verpflichtet sich:
+- SSH-Zugang zur relevanten Infrastruktur bereitzustellen
+- Störungen und Probleme per E-Mail an marius@wilsch-ai.com zu melden
+- Einen primären Ansprechpartner zu benennen
+- Koordination mit dem eigenen IT-Dienstleister für Infrastrukturfragen sicherzustellen
+
+2.3 Nicht im Leistungsumfang enthalten sind:
 - Hardware-Beschaffung und -austausch
 - Netzwerkinfrastruktur des Hosting-Anbieters
 - Leistungen, die gesondert über die Werkvertrag-Rahmenvereinbarung beauftragt werden
@@ -66,9 +73,9 @@ und
 Die Pauschale deckt die Bereitschaft des Auftragnehmers, die Aufrechterhaltung des institutionellen Wissens über die Systeme des Auftraggebers sowie die Vorarbeit für zukünftige Projekte (Pflichtenheft-Erstellung) ab.
 
 3.2 **Stundensatz (Time & Material):** 120,00 EUR netto pro Stunde.
-Wartungs- und Supportleistungen, die über die Bereitschaft hinausgehen, werden nach tatsächlichem Aufwand zu diesem Stundensatz abgerechnet. Der Auftragnehmer dokumentiert die geleisteten Stunden und legt diese dem Auftraggeber mit der Rechnung vor.
+Wartungs- und Supportleistungen, die über die Bereitschaft hinausgehen, werden nach tatsächlichem Aufwand zu diesem Stundensatz abgerechnet. Die Abrechnung erfolgt in 30-Minuten-Takten. Der Auftragnehmer dokumentiert die geleisteten Stunden und legt diese dem Auftraggeber mit der Rechnung vor.
 
-3.3 Die Bereitschaftspauschale wird monatlich in Rechnung gestellt. Stunden nach Aufwand werden zusammen mit der monatlichen Pauschale abgerechnet.
+3.3 Die Bereitschaftspauschale wird monatlich in Rechnung gestellt. Stunden nach Aufwand werden zusammen mit der monatlichen Pauschale abgerechnet. Jede Rechnung enthält: Datum, Dauer und Tätigkeitsbeschreibung je Einsatz.
 
 ---
 
@@ -76,7 +83,11 @@ Wartungs- und Supportleistungen, die über die Bereitschaft hinausgehen, werden 
 
 4.1 **Geschäftszeiten:** Montag bis Freitag, 08:00–18:00 Uhr MEZ/MESZ.
 
-4.2 **Reaktionszeit:** Der Auftragnehmer reagiert innerhalb von 24 Stunden (Geschäftszeiten) auf Supportanfragen des Auftraggebers. Die Reaktionszeit bezeichnet die erste qualifizierte Rückmeldung, nicht die Fehlerbehebung.
+4.2 **Reaktionszeiten nach Priorität:**
+- **Geschäftskritische Probleme** (Systemausfall, Datenverlust): Reaktion innerhalb von einem (1) Werktag
+- **Nicht-kritische Probleme:** Reaktion nach bestem Bemühen (typischerweise nächster Werktag)
+
+Die Reaktionszeit bezeichnet die erste qualifizierte Rückmeldung, nicht die Fehlerbehebung.
 
 4.3 **Erweiterte Erreichbarkeit:**
 
@@ -84,6 +95,8 @@ Für Supportleistungen außerhalb der Geschäftszeiten gemäß §4.1 gelten folg
 
 - Werktags außerhalb der Geschäftszeiten: +50% (180,00 EUR netto pro Stunde)
 - Sonn- und Feiertage: +100% (240,00 EUR netto pro Stunde)
+
+4.4 **Lösungszeit:** Die Fehlerbehebung erfolgt nach bestem Bemühen. Eine garantierte Lösungsfrist wird nicht vereinbart.
 
 ---
 
@@ -96,6 +109,8 @@ Für Supportleistungen außerhalb der Geschäftszeiten gemäß §4.1 gelten folg
 5.3 **Kündigung:** Jede Partei kann den Vertrag mit einer Frist von drei (3) Monaten zum Jahresende schriftlich kündigen.
 
 5.4 **Außerordentliche Kündigung:** Das Recht zur fristlosen Kündigung aus wichtigem Grund bleibt unberührt.
+
+5.5 **Übergabe bei Kündigung:** Bei Beendigung des Vertrags zahlt der Auftraggeber alle bis zum Beendigungszeitpunkt erbrachten Leistungen. Der Auftragnehmer übergibt alle im Rahmen des Vertrags erstellten Arbeitsergebnisse und Dokumentationen.
 
 ---
 
@@ -115,6 +130,8 @@ Bank: Wise, Rue du Trône 100, 3rd floor, Brussels, 1050, Belgium
 6.4 **Umsatzsteuer-Identifikationsnummern:**
 - Auftragnehmer: EE102934113
 - Auftraggeber: DE256675995
+
+6.5 **Verzugszinsen:** Bei Zahlungsverzug ist der Auftragnehmer berechtigt, Verzugszinsen in Höhe von acht (8) Prozentpunkten über dem jeweiligen Basiszinssatz der Europäischen Zentralbank sowie eine Mindestpauschale von 40,00 EUR gemäß der EU-Zahlungsverzugsrichtlinie (2011/7/EU) geltend zu machen.
 
 ---
 

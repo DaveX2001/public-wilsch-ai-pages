@@ -61,7 +61,14 @@ Der Auftragnehmer führt das Projekt gemäß dem Pflichtenheft aus. Die Parteien
 
 Die Zwei-Wochen-Abstimmungen dienen der Fortschrittskontrolle und Priorisierung — nicht der Neuverhandlung des Festpreises. Preisanpassungen erfolgen ausschließlich bei dokumentierten Änderungen des Leistungsumfangs (Änderungsantrag).
 
-### 2.4 Abnahme und Abrechnung
+### 2.4 Mitwirkungspflichten des Auftraggebers
+
+Der Auftraggeber verpflichtet sich:
+- Erforderliche Informationen, Daten und Zugänge rechtzeitig bereitzustellen
+- Einen primären Ansprechpartner für jedes Projekt zu benennen
+- Feedback und Abnahmeentscheidungen innerhalb der vereinbarten Fristen zu erteilen
+
+### 2.5 Abnahme und Abrechnung
 
 Die Abnahme erfolgt gemäß §4. Nach Abnahme wird das Projekt abgerechnet und der nächste Einzelauftrag kann beauftragt werden.
 
@@ -71,7 +78,7 @@ Die Abnahme erfolgt gemäß §4. Nach Abnahme wird das Projekt abgerechnet und d
 
 3.1 **Festpreis je Einzelauftrag:** Die Vergütung für jeden Einzelauftrag wird als Festpreis im jeweiligen Pflichtenheft vereinbart. Der Festpreis umfasst alle Leistungen, die zur Erfüllung des Pflichtenhefts erforderlich sind.
 
-3.2 **Abrechnung bei Lieferung:** Die Rechnungsstellung erfolgt nach Abnahme des jeweiligen Einzelauftrags gemäß §4.
+3.2 **Abrechnung bei Lieferung:** Die Rechnungsstellung erfolgt nach Abnahme des jeweiligen Einzelauftrags gemäß §4. Jede Rechnung enthält: Pflichtenheft-Referenz, vereinbarter Festpreis sowie Liefer- und Abnahmedatum.
 
 3.3 **Zahlungsziel:** Rechnungen sind innerhalb von dreißig (30) Tagen nach Rechnungsstellung fällig (netto).
 
@@ -87,6 +94,8 @@ Bank: Wise, Rue du Trône 100, 3rd floor, Brussels, 1050, Belgium
 3.6 **Umsatzsteuer-Identifikationsnummern:**
 - Auftragnehmer: EE102934113
 - Auftraggeber: DE256675995
+
+3.7 **Verzugszinsen:** Bei Zahlungsverzug ist der Auftragnehmer berechtigt, Verzugszinsen in Höhe von acht (8) Prozentpunkten über dem jeweiligen Basiszinssatz der Europäischen Zentralbank sowie eine Mindestpauschale von 40,00 EUR gemäß der EU-Zahlungsverzugsrichtlinie (2011/7/EU) geltend zu machen.
 
 ---
 
@@ -124,6 +133,8 @@ Bank: Wise, Rue du Trône 100, 3rd floor, Brussels, 1050, Belgium
 6.3 **Kündigung:** Jede Partei kann den Rahmenvertrag mit einer Frist von drei (3) Monaten zum Jahresende schriftlich kündigen. Laufende Einzelaufträge werden bis zur Fertigstellung fortgeführt und gemäß den vereinbarten Konditionen abgerechnet.
 
 6.4 **Außerordentliche Kündigung:** Das Recht zur fristlosen Kündigung aus wichtigem Grund bleibt unberührt.
+
+6.5 **Übergabe bei Kündigung:** Bei Beendigung des Vertrags zahlt der Auftraggeber alle bis zum Beendigungszeitpunkt erbrachten und abgenommenen Leistungen. Der Auftragnehmer übergibt alle im Rahmen des Vertrags erstellten Arbeitsergebnisse und Dokumentationen.
 
 ---
 
