@@ -2,8 +2,7 @@
 publish: true
 ---
 
-# Werkvertrag-Rahmenvereinbarung — Wilsch AI × IITR
-
+# Werkvertrag-Rahmenvereinbarung
 Diese Rahmenvereinbarung („Vertrag") wird geschlossen zwischen:
 
 **IITR Datenschutz GmbH** („Auftraggeber")

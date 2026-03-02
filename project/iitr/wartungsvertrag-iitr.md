@@ -2,8 +2,7 @@
 publish: true
 ---
 
-# Wartungsvertrag (Dienstleistungsvertrag) — Wilsch AI × IITR
-
+# Wartungsvertrag (Dienstleistungsvertrag)
 Dieser Wartungsvertrag („Vertrag") wird geschlossen zwischen:
 
 **IITR Datenschutz GmbH** („Auftraggeber")
