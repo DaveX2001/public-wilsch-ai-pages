@@ -125,7 +125,7 @@ Bank: Wise, Rue du Trône 100, 3rd floor, Brussels, 1050, Belgium
 
 USt-IdNr.: EE102934113
 
-6.5 **Verzugszinsen:** Bei Zahlungsverzug ist der Auftragnehmer berechtigt, Verzugszinsen in Höhe von acht (8) Prozentpunkten über dem jeweiligen Basiszinssatz der Europäischen Zentralbank sowie eine Mindestpauschale von 40,00 EUR gemäß der EU-Zahlungsverzugsrichtlinie (2011/7/EU) geltend zu machen.
+6.4 **Verzugszinsen:** Bei Zahlungsverzug ist der Auftragnehmer berechtigt, Verzugszinsen in Höhe von acht (8) Prozentpunkten über dem jeweiligen Basiszinssatz der Europäischen Zentralbank sowie eine Mindestpauschale von 40,00 EUR gemäß der EU-Zahlungsverzugsrichtlinie (2011/7/EU) geltend zu machen.
 
 ---
 
