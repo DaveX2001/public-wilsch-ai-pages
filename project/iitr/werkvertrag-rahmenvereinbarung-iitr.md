@@ -5,7 +5,7 @@ publish: true
 # Werkvertrag-Rahmenvereinbarung — Wilsch AI × IITR
 [[client-iitr]]
 
-> **Status:** Entwurf — Platzhalter (⚠️) vor Unterzeichnung zu klären.
+> **Status:** Entwurf
 > **Begleitdokument:** [Wartungsvertrag](wartungsvertrag-iitr.md)
 
 ---

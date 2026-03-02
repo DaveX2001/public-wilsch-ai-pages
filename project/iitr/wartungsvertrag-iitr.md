@@ -5,7 +5,7 @@ publish: true
 # Wartungsvertrag (Dienstleistungsvertrag) — Wilsch AI × IITR
 [[client-iitr]]
 
-> **Status:** Entwurf — Platzhalter (⚠️) vor Unterzeichnung zu klären.
+> **Status:** Entwurf
 > **Begleitdokument:** [Werkvertrag-Rahmenvereinbarung](werkvertrag-rahmenvereinbarung-iitr.md)
 
 ---
@@ -51,7 +51,7 @@ und
 
 **b) Scope-Abgrenzung:**
 
-[⚠️ PLACEHOLDER: SCOPE_BOUNDARY — Die genaue Abgrenzung zwischen Applikation, Middleware (Betriebssystem, Netzwerkdienste) und Hardware/Netzwerk (Hetzner/Primeline) ist mit Ulrich zu klären. Insbesondere: Welche Infrastrukturschichten fallen in die Verantwortung des Auftragnehmers, welche verbleiben beim Hosting-Anbieter?]
+Die genaue Abgrenzung zwischen Applikationsschicht, Middleware und Infrastruktur wird in einem persönlichen Gespräch mit dem Auftraggeber festgelegt und als Vertragsergänzung dokumentiert.
 
 2.2 **Mitwirkungspflichten des Auftraggebers:**
 Der Auftraggeber verpflichtet sich:
