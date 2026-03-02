@@ -150,7 +150,7 @@ Die Vertraulichkeitspflichten der Parteien richten sich nach der separat geschlo
 
 9.4 **Unabhängiger Auftragnehmer:** Der Auftragnehmer erbringt seine Leistungen als selbständiger Unternehmer. Ein Arbeitsverhältnis wird durch diesen Vertrag nicht begründet. Der Auftragnehmer ist für seine steuerlichen und sozialversicherungsrechtlichen Verpflichtungen selbst verantwortlich.
 
-9.5 **Anwendbares Recht:** Dieser Vertrag unterliegt dem Recht der Europäischen Union. Gerichtsstand ist München.
+9.5 **Anwendbares Recht:** Dieser Vertrag unterliegt dem Recht der Bundesrepublik Deutschland. Gerichtsstand ist München.
 
 ---
 
