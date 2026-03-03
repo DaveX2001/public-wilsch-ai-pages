@@ -25,6 +25,24 @@ This is your "owner's manual" for the Junior Architect position. It tells you:
 
 ---
 
+## Open Problems (2026-03-03)
+
+Known issues that affect your daily work. These are being fixed by the System Engineer — until then, you need to handle them manually.
+
+**1. `/capture` uses reference files instead of skills**
+
+`/capture` reads `design-doc-workflow.md` and `meeting-agenda-workflow.md` as raw reference files instead of invoking them as skills. This means the AI sometimes misses methodology updates that live in the skill but not the reference file. **Workaround:** If the AI writes a design doc section that doesn't follow the 4-section structure, or a meeting agenda that batches discussion topics — correct it. The methodology is right, the tool is reading a stale source.
+
+**2. `/probe` auto-advances past items during PROBE**
+
+The AI sometimes skips ahead to the next SURFACE item without waiting for your "Next." This violates the one-by-one principle — you own advancement, not the AI. **Workaround:** If the AI moves on before you clicked "Next," tell it: "I didn't say Next — go back to S{N}." The reframe "what would a stranger still not understand?" was added to fix this, but it still happens intermittently.
+
+**3. Multi-epic projects**
+
+How extraction passes work when a project spans multiple epics is undefined. Currently handled ad-hoc.
+
+---
+
 ## Section 1–3: Company-Wide (TBD)
 
 _To be created: Company Story, Products & Services, Policies_
@@ -259,7 +277,7 @@ Next start: [where next session should begin]
 
 **Step 1: Prepare**
 
-Your meeting agenda already exists — it was created during the last extraction pass (Step 4: Capture). Each topic has a **"To resolve:"** anchor.
+Your meeting agenda was created during your last extraction pass (Step 4: Capture). When `/capture` found Undefined markers in the design doc, it produced a meeting agenda with a discussion topic for each one. Each topic has a **"To resolve:"** anchor.
 
 Open the published meeting agenda before the meeting.
 
@@ -347,9 +365,9 @@ AI creates the epic in `DaveX2001/deliverable-tracking` with proper title, label
 
 **Step 4: Handoff**
 
-Post a comment on the epic with the decomposition approach — how you'd suggest the Developer breaks this into sub-issues.
-
 Flag to Solution Architect for review. SA confirms the epic is Developer-ready.
+
+The Developer owns decomposition — they break the epic into sub-issues based on their own reading of the design doc. The JA's job ends at handoff.
 
 ---
 
@@ -401,18 +419,6 @@ Flag to Solution Architect for review. SA confirms the epic is Developer-ready.
 | [hippocampus](https://github.com/MariusWilsch/junior-architect-position-plugin) | AI-invoked skill | Document creation + publishing |
 | [conversation-reader](https://github.com/MariusWilsch/junior-architect-position-plugin) | AI-invoked skill | Prior session context |
 | [read-transcript](https://github.com/MariusWilsch/junior-architect-position-plugin) | AI-invoked skill | Transcript mining |
-
----
-
-## Gaps to Fill (Future Sessions)
-
-### Process Gaps
-- [ ] **Blocked/Stuck:** Escalation path when source material is insufficient
-- [ ] **Project index maintenance:** How to keep the artifact index current as passes produce new docs
-- [ ] **Multi-epic projects:** How extraction passes work when a project spans multiple epics
-
-### Skill Gaps
-- [ ] **Epic creation integration:** Automate the two-gate verification in `/deliverable-tracking`
 
 ---
 
