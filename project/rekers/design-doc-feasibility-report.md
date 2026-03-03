@@ -304,33 +304,103 @@ The Kriteriennachweis documents (Part 2) were produced using the current model v
 
 **What we're testing:** Whether a local vision-language model on IBM Power 10 can extract the same 9 criteria from the same project PDFs and produce comparable Kriteriennachweis output. Not a chat system — batch processing with tolerance for longer runtimes.
 
-**UNDEFINED — model selection:** Initial research identified multimodal vision-language models available as open weights with Ollama/GGUF support: Qwen2.5-VL (7B/32B), Qwen3-VL (8B/32B), InternVL3 (8B/14B). Multimodal is required — the 5x criteria extraction advantage from visual PDF reading (Part 2) depends on it. Model selection needs deeper evaluation: ppc64le compatibility, German language quality, prompt eval performance on Power 10, and actual output quality against the existing Kriteriennachweis. RAM sizing (~10-12 GB at 7B Q4_K_M) fits Power 10 comfortably.
+**Model selection — priority stack:**
 
-**UNDEFINED — architecture:** Script-driven pipeline (Python orchestrates, model handles extraction only) vs agentic harness (Open Code, Aider, or Qwen's own tooling driving the full playbook). Trade-off: script is more reliable with smaller models but less flexible; harness lets the user insert a prompt and iterate. Needs deeper evaluation in next pass.
+| Priority | Model | Architecture | Size (Q4_K_M) | Rationale |
+|----------|-------|-------------|---------------|-----------|
+| Primary | [Qwen3.5-9B](https://ollama.com/library/qwen3.5) | Native early-fusion multimodal | ~6 GB | Latest (Mar 2, 2026). Jointly trained on text + image tokens — outperforms Qwen3-VL on visual understanding benchmarks. |
+| Fallback 1 | [Qwen3-VL 8B](https://ollama.com/library/qwen3-vl) | Encoder-based vision | ~6 GB | Stable (Oct 2025). Proven Ollama integration, GGUF published. |
+| Fallback 2 | [Qwen2.5-VL 7B](https://ollama.com/library/qwen2.5-vl) | Encoder-based vision | ~5 GB | Most proven. Used as baseline in prior sessions. |
 
-**Initial performance projection:**
+Multimodal is required — the 5x criteria extraction advantage from visual PDF reading (Part 2) depends on it. All candidates fit Power 10's 123 GB RAM comfortably. The primary model (Qwen3.5) uses early-fusion training where text and image tokens are learned jointly, eliminating the quality drop seen in bolt-on vision encoders at smaller model sizes. Fallback order: try primary, fall to next if ppc64le build fails or vision quality is insufficient.
 
-| Platform | Prompt Eval | 1 Project (50 pages) | 14 Projects |
-|----------|------------:|---------------------:|------------:|
-| Power 10 — current (5 CPUs, 55 tok/s) | 55 tok/s | ~60 min | ~14 hours |
-| Power 10 — optimized target (500 tok/s) | 500 tok/s | ~6.7 min | ~1.5 hours |
-| M3 Ultra 512GB (Metal GPU, reference) | 1,470 tok/s | ~2.3 min | ~32 min |
+**Architecture — script-driven pipeline:** Python orchestrates the full extraction workflow; the model handles criteria extraction only. The Ralph playbook's logic (file patterns, priority ordering, stop conditions) is deterministic — encoding it in a script is more reliable than asking a 9B model to reason about orchestration.
 
-Assumptions: ~4,000 image tokens per PDF page, 50 priority pages per project. Primary bottleneck is prompt eval for image input — token generation speed is adequate. Known ppc64le issue: llama.cpp defaults to 1 thread on Power architecture (GitHub #9623), must be explicitly configured.
+| Step | Owner | What happens |
+|------|-------|-------------|
+| File inventory | Script | Glob project directory, categorize by type (PDF/EML/XLSX) |
+| EML extraction | Script | Parse email body text, extract attachments to disk |
+| XLSX parsing | Script | openpyxl reads Kranliste, Leistungsverzeichnis |
+| PDF rendering | Script | Render pages to images at configurable DPI (default: 110) |
+| Priority ordering | Script | Apply Ralph playbook file patterns (Angebot*, *Grundriss*, *Kran*) |
+| Criteria extraction | **Model** | Receive page image or text, return structured criteria per the 9-criterion schema |
+| Result assembly | Script | Merge per-file extractions into Kriteriennachweis markdown |
+
+Fresh context per extraction call — no accumulated state between files. The model sees one input (page image, email text, or parsed data) and returns criteria found. Context is cleared between calls, keeping prompts simple and model load predictable.
+
+**Measured performance** (qwen3-vl:8b on Power 10, March 2026):
+
+Server: AlmaLinux 10 (ppc64le), POWER10 5 cores × 8 SMT = 40 threads, 123 GB RAM, 2.9 GHz. Ollama v0.13.5 (locally built container). Backend: `libggml-cpu-power10.so` with VSX/MMA active, FlashAttention enabled.
+
+| Config | Resolution | Image tokens/page | Prompt eval | Gen | Per page | Throughput |
+|--------|-----------|-------------------|-------------|-----|----------|------------|
+| 20T × 1 parallel | 72 dpi | 525 | 24.3 tok/s | 13.9 tok/s | 63s | 1.0 pg/min |
+| 20T × 1 parallel | 110 dpi | 1,154 | 21.6 tok/s | 12.2 tok/s | 172s | 0.35 pg/min |
+| 20T × 1 parallel | 150 dpi | 2,045 | 18.6 tok/s | 10.4 tok/s | 386s | 0.16 pg/min |
+| **20T × 2 parallel** | **72 dpi** | **525** | **24.3 tok/s** | **13.9 tok/s** | **67s / 2 pages** | **~1.8 pg/min** |
+| 40T × 1 parallel | 72 dpi | 525 | 29.3 tok/s | 6.5 tok/s | 58s | 1.0 pg/min |
+| 40T × 1 parallel | 150 dpi | 2,040 | 22.7 tok/s | 5.6 tok/s | 377s | 0.16 pg/min |
+
+**Optimal config: 20 threads × 2 parallel requests at 110 dpi.** More threads improve prompt eval but degrade token generation due to SMT contention. Parallel requests nearly double throughput without increasing CPU above 50%.
+
+**Project-level time estimates** (110 dpi, 20T × 2parallel):
+
+| Scenario | Pages/project | Per project | 14 projects |
+|----------|--------------|-------------|-------------|
+| All deduped pages | ~275 avg | ~6.5 hrs | ~91 hrs (~4 days) |
+
+File inventory (sampled from 2 projects): projects contain 61–91 PDFs each, but ~50% are EML attachment duplicates (`_1`, `_2` suffixes). Large documents dominate page counts — Vorfertigungspläne (93–99 pages) and Leistungsverzeichnisse (99 pages) inflate totals. Deduped priority page count averages ~275 per project. The 50-page estimate from the initial projection significantly underestimated actual data volume.
+
+**Threading:** llama.cpp defaults to 1 thread on Power architecture (GitHub [#9623](https://github.com/ggml-org/llama.cpp/issues/9623)) — marked stale upstream, no fix merged. Workaround: set `OLLAMA_NUM_THREADS` explicitly. Default (1 thread) gives ~10x worse performance than configured (10+ threads). This applies to all llama.cpp-based runtimes (Ollama, llama.cpp, llama-cpp-python).
 
 **Strategic context:** This benchmark is an internal investment trigger for Thomas and Ulrich. The performance table makes the case visible: current speed processes 14 projects overnight, optimization brings it to under two hours. Feeds into the IBM Power AI Inference Optimization Initiative ([#713](https://github.com/DaveX2001/deliverable-tracking/issues/713)) and the broader product line question: Power 10 as deployment target for operations below a complexity threshold, M3/M5 Ultra for operations above it.
 
-**Quality benchmark:** A/B comparison — current model output (existing Kriteriennachweis) vs Power 10 model output (same project, same PDFs). At least one project, preferably more. Quality is subjective; criteria hit rate provides a quantitative anchor.
+**Quality benchmark — A/B comparison:**
 
-**UNDEFINED — deeper investigation needed** (→ next extraction pass):
-1. Model candidates — ppc64le validation, German output quality, actual benchmarking on Power 10
-2. PDF-to-image rendering on ppc64le — library availability (poppler)
-3. Ollama vision API on ppc64le — multimodal endpoint untested on Power architecture
-4. Prompt design — Ralph playbook prompts need adaptation for smaller model
-5. Extraction scope — PDFs only, or include EML body and XLSX reading?
-6. Multi-turn vs single-turn — iterative extraction (like Ralph) or one-pass?
-7. Runtime tolerance — Ulrich validation: what processing time is acceptable?
-8. Libel engagement — Power 10 hardware optimization, timing TBD
+Gold standard: the existing 14 Kriteriennachweis documents produced by the frontier model via the Ralph playbook. The local model processes the same projects from the same files.
+
+| Metric | Method | Threshold |
+|--------|--------|-----------|
+| Criteria hit rate | Count criteria found (local) vs found (frontier), per project | ≤20% degradation acceptable (e.g., 4/5 where frontier found 5/5) |
+| Value correctness | Spot-check extracted values against source documents | Manual review on a sample — not automated |
+| Sample size | Minimum 1 project, target 3+ | More projects = higher confidence, but each takes ~6.5 hrs |
+
+Runtime is a measured metric, not a pass/fail threshold. The validation measures processing time per project and reports it. Ulrich determines production viability from the measured results — runtime tolerance is not a validation blocker.
+
+**Extraction design — matching the Ralph playbook scope:**
+
+The Ralph playbook processes all file types: PDFs (visual reading), EML body text, and XLSX files (Kranliste, Leistungsverzeichnis). The local model validation uses the same scope for a fair A/B comparison.
+
+| Source type | Script preparation | Model input | Prompt |
+|------------|-------------------|-------------|--------|
+| PDF pages | Render to image at 110 dpi (configurable) | Page image | "Extract criteria from this document page" + 9-criterion schema with hints |
+| EML body | Parse text from email | Body text | "Extract criteria from this email" + schema |
+| XLSX | openpyxl → structured text | Parsed cell data | "Extract criteria from this data" + schema |
+
+Processing: all priority files per project, no early stopping. This is a benchmark — processing time itself is a metric. The script feeds files in Ralph playbook priority order (Angebote → Plans → Specialized) but does not skip files when criteria are found. Deduplication of `_1`/`_2` EML attachment duplicates is handled at the script level before model invocation.
+
+**Validated on Power 10** (March 2026 — SSH investigation on `wph-ki-tst`):
+
+| Item | Status | Evidence |
+|------|--------|----------|
+| Ollama on ppc64le | ✅ Running | Locally built container v0.13.5, `libggml-cpu-power10.so` loaded |
+| Vision API | ✅ Works | qwen3-vl:8b correctly reads German Angebot PDFs, identifies "REKERS Betonwerk GmbH" |
+| PDF rendering | ✅ Works | pdftoppm (poppler) renders at 72/110/150 dpi, all resolutions produce valid image tokens |
+| Threading workaround | ✅ Applied | `OLLAMA_NUM_THREADS=20` confirmed via 50% CPU utilization (20/40 threads) |
+| Parallel inference | ✅ Works | `OLLAMA_NUM_PARALLEL=2` nearly doubles throughput (2 pages in 67s vs 1 in 63s) |
+| German text extraction | ✅ Partial | Model reads document headers, project names, section titles correctly. Full criteria extraction not yet benchmarked. |
+
+**Inference runtime stack:**
+
+| Tier | Runtime | Use case |
+|------|---------|----------|
+| Primary | Ollama (already installed on Power 10) | Server + HTTP API, vision model support, simplest setup |
+| Fallback | llama.cpp direct (build from source with `-mcpu=power10 -O3`) | More control over threading, MMA optimization |
+| Integration | llama-cpp-python (embed in script) | No separate server process, tighter Python integration |
+
+All llama.cpp-based runtimes share the same underlying binary and the same threading issue workaround. The Ollama container already includes the Power10-optimized backend (`libggml-cpu-power10.so`), but building from source with explicit `-mcpu=power10` flags may unlock additional MMA performance.
+
+**Undefined — Libel kernel optimization engagement:** [#713](https://github.com/DaveX2001/deliverable-tracking/issues/713) (IBM Power AI Inference Optimization Initiative) runs parallel to this validation. Libel's kernel-level optimization targets the 10x speedup from current to optimized performance. Engage ASAP — does not block #952 validation but determines production viability. → Meeting agenda (Thomas/Ulrich coordination).
 
 ---
 
@@ -358,3 +428,4 @@ Assumptions: ~4,000 image tokens per PDF page, 50 priority pages per project. Pr
 - `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-WILSCH-AI-INTERNAL--soloforce/cb7381c0-65f8-42cd-bf0a-a6a09bbfe357.jsonl` (Part 1 extraction pass — 16 uncertainties resolved)
 - `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-REKERS--poc/772b96f8-d646-428c-bde6-9eeddf0418b5.jsonl` (Part 2 extraction pass — 12 uncertainties resolved, evidence template formalized)
 - `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-REKERS--poc/a661e34f-b89f-48bf-bc6c-bd590536fae4.jsonl` (Part 7 extraction pass — local model feasibility, Power 10 benchmarks)
+- `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-REKERS--poc/5459d299-6d80-466e-aca9-bedb19f41f8f.jsonl` (Part 7 extraction pass 2 — model selection, architecture, Power 10 SSH benchmarks, file inventory)
