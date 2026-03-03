@@ -279,13 +279,27 @@ Cutover-Strategie: Erst Gmail-Testkonto, dann IONOS-Produktion. Altes System (WI
 **Code:** `app/services/data/data_extraction_service.py` (Zeilen 375–450 — Mittelwertbildung), `app/services/data/calculation_service.py` (Zeilen 87–121 — Rückmultiplikation), `app/services/document/strategies/packing_list_excel_strategy.py` (Zeilen 190–200 — Zellwerte ohne Rundung)
 **Issue:** [#655](https://github.com/DaveX2001/deliverable-tracking/issues/655)
 
-**#585: Veterinary BUSAN — Integrationsumfang definieren**
+**#585: Veterinary BUSAN — Integrationsumfang definieren (abgeschlossen)**
 
-Konstantin sandte `Veterinary BUSAN.docx` (Beispiel-Dokument, 03.12.2025). VET-Dokumenttyp (`VetExcelStrategy`) existiert bereits im Code und generiert Veterinärzertifikate. Zu klären: Stimmt der aktuelle VET-Output mit dem Beispiel-Dokument überein?
+Konstantin sandte `Veterinary BUSAN.docx` (Beispiel-Dokument, 03.12.2025) — ein Anschreiben an die Veterinärbehörde ("Sehr geehrte Frau Rieder, wir bitten Sie höflich um Ausstellung folgender Dokumente: VETERINARY CERTIFICATE"). Das Dokument ist eine Word-Datei (.docx), kein Excel-Template. "BUSAN" bezieht sich auf den Zielhafen (Busan, Südkorea) in den Lieferbedingungen (CIF BUSAN).
 
-**Undefined:** (A) VET-Template-Review — Vergleich des generierten VET-Outputs mit dem Beispieldokument `Veterinary BUSAN.docx`. Abweichungen dokumentieren. → Developer Spec-Design
+**VET-Template-Review (abgeschlossen):** Vergleich des `VetExcelStrategy`-Outputs mit dem Beispieldokument ergibt: Alle 7 dynamischen Felder, die das System befüllt, stimmen mit dem BUSAN-Referenzdokument überein.
 
-**Undefined:** (B) Rezept/Material-Datenintegration — JSON-Datenstruktur vereinbart (Recipe ID → Materials Array → Material ID + Percentage + Ebenen/Vormischungen). 500MB+ Datenlieferung ausstehend. Beziehung zum VET-Dokument unklar. → Tiefere Analyse nötig
+| Feld | VetExcelStrategy | BUSAN.docx |
+|------|-----------------|------------|
+| Ballen + Einheit | ✅ B28 | "8 BUNDLES" |
+| Produktbeschreibung | ✅ B29 | "UKR. GREY DUCK DOWN ABT.57%" |
+| Bruttogewicht | ✅ B31 (deutsches Format) | "4,541.60KGS GROSS" |
+| Nettogewicht | ✅ B32 (deutsches Format) | "4,504.40KGS NET" |
+| Marks/Partienummer | ✅ C33 | "MARKS: 37101" |
+| Containernummer | ✅ dynamische Suche | "KOCU 423033-2" |
+| Siegelnummer | ✅ dynamische Suche | "GW342782" |
+
+Vier weitere Felder im BUSAN-Dokument (Empfänger/Consignee, Lieferbedingungen/CIF, Ausstellungsdatum, Sterilisierungsvermerk) werden von Konstantin im Excel-Template vorausgefüllt — keine Systemverantwortung.
+
+**Ergebnis:** Kein Codeänderungsbedarf. VET-Dokumenttyp ist vollständig.
+
+**Korrektur: Rezept/Material-Datenintegration entfernt.** Die JSON-Datenstruktur (Recipe ID → Materials Array) und die 500MB+ Datenlieferung gehören zum AVO-Projekt (Empfänger: Mattis von Stevendaal, AVO). Der Eintrag wurde durch eine fehlerhafte Transcript-Zuordnung dem ROHDEX-Issue #585 zugewiesen. Verifiziert anhand der E-Mail "Abstimmung zum Aufbau der JSON-Datei" (Thomas Erhard → Mattis.vonStevendaal@avo.de). Kein Bezug zu ROHDEX Veterinärdokumenten.
 
 **Datenquellen:** 📧 [VETERINÄR Email (03.12.2025)](https://mail.google.com/mail/u/0/#all/19ae34999468ca08) — Anhang: `Veterinary BUSAN.docx`
 **Code:** `app/services/document/strategies/VetExcelStrategy` (strukturell identisch mit DISPO)
@@ -311,3 +325,4 @@ Konstantin sandte `Veterinary BUSAN.docx` (Beispiel-Dokument, 03.12.2025). VET-D
 - **Email Thread (VPN):** [Migration VPN Troubleshooting (Feb 26 — Mar 2)](https://mail.google.com/mail/u/0/#all/19c9530e9b21c06b) — WatchGuard → OpenVPN switch, Keeper-Links, Geo-Blocking-Fix
 - **Session (Extraction Pass 2 — VPN/SSH Zugang):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/3b53456f-4ba4-41a5-a16d-207a99ba8e42.jsonl
 - **Session (Extraction Pass 3 — Tara #655):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/93486107-19c1-4502-8861-c22d37d87e60.jsonl
+- **Session (Extraction Pass 4 — BUSAN #585):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/8c4a1a6d-6f2f-4e45-9588-1f321e7027c6.jsonl
