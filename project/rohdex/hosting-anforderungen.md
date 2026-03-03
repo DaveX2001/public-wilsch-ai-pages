@@ -78,11 +78,52 @@ Das System ist ein einzelner Docker-Container (FastAPI, Python 3.11+) ohne Daten
 | Backups | Täglich ab 22:00 (VM-Level, durch Gmelch) |
 | Ausgehend | Sicherheitskritische Anwendungen + Länder (RU, CN etc.) gesperrt — IONOS-Mailserver (DE) nicht betroffen |
 
-**Zugang:**
-- **VPN:** WatchGuard SSL-VPN-Client → `217.92.100.123:443`
-- **SSH:** Über VPN-Tunnel zu `192.168.44.11`
-- **Credentials:** psst-Vault (global, Tag `rohdex`) — Details in Rohdex CLAUDE.md
-- **Support:** Projektbezogen → Sikander Wenzel direkt. Supportanfragen → support@gmelch-itsysteme.de
+#### Zugang einrichten (Developer)
+
+**Schritt 1: OpenVPN installieren (macOS)**
+
+```bash
+brew install openvpn
+```
+
+Pfad nach Installation: `/opt/homebrew/opt/openvpn/sbin/openvpn` (Apple Silicon) bzw. `/usr/local/opt/openvpn/sbin/openvpn` (Intel).
+
+**Schritt 2: VPN-Konfiguration**
+
+Die OpenVPN-Konfigurationsdatei `rohdex-vpn.ovpn` wird nicht im Repository gespeichert (gitignored). Datei von bestehendem Entwickler anfordern — enthält Serverzertifikate und Cipher-Konfiguration.
+
+VPN-Server: `217.92.100.123:443` (WatchGuard, Gmelch IT)
+Credentials: `.env`-Datei, Variablen `WATCH_GUARD_VPN_USERNAME` und `WATCH_GUARD_VPN_PASSWORD`.
+
+**Undefined:** OpenVPN 2.7 erfordert eine Cipher-Anpassung in der `.ovpn`-Datei. Die genaue Konfiguration ist in der Datei enthalten — ohne Anpassung schlägt die Verbindung fehl.
+
+```bash
+sudo /opt/homebrew/opt/openvpn/sbin/openvpn --config rohdex-vpn.ovpn
+```
+
+Verbindung steht wenn `Initialization Sequence Completed` erscheint. Terminal offen lassen — VPN läuft im Vordergrund.
+
+**Schritt 3: SSH-Zugang**
+
+SSH-Config-Eintrag erstellen (`~/.ssh/config`):
+
+```
+Host RDX-APP-01
+    HostName 192.168.44.11
+    User wilsch
+```
+
+**Passwort-Authentifizierung (Fallback):** Passwort in `.env` als `UBUNTU_PW`. Funktioniert sofort nach VPN-Verbindung.
+
+**SSH-Key-Authentifizierung (empfohlen):** Nach erstem Passwort-Login SSH-Key hinterlegen:
+
+```bash
+ssh-copy-id RDX-APP-01
+```
+
+Danach passwortloser Zugang. VPN muss immer aktiv sein — `192.168.44.11` ist nur über den VPN-Tunnel erreichbar.
+
+**Support:** Projektbezogen → Sikander Wenzel (sw@gmelch-itsysteme.de) direkt. Supportanfragen → support@gmelch-itsysteme.de
 
 **Verantwortungsteilung (geklärt durch SLA v4 §1.3):**
 - **Gmelch IT:** Infrastruktur — Server-Uptime, OS-Updates, Backups, Netzwerk, Docker-Engine
@@ -103,7 +144,41 @@ Das System ist ein einzelner Docker-Container (FastAPI, Python 3.11+) ohne Daten
 | Bugfix Tara-Berechnung (→ Part 5, #655) | ~1h |
 | Puffer für Unvorhergesehenes | ~1h |
 
-**Deployment-Methode:** Repo auf Server klonen (`git clone`) + `make deploy`. Alternativ: pre-built image via `docker save/load` falls Git-Zugang von VM problematisch.
+**Vorab-Prüfungen (nach VPN+SSH-Zugang, vor Migration):**
+
+| Prüfung | Kommando | Erwartung |
+|---------|----------|-----------|
+| Docker-Gruppe | `groups wilsch \| grep docker` | `wilsch` ist Mitglied — kein `sudo` für Docker nötig |
+| Ausgehender Git-Zugang | `git ls-remote https://github.com/MariusWilsch/rohdex-mvp.git` | Verbindung erfolgreich — GitHub nicht durch Firewall blockiert |
+| Festplattenplatz | `df -h /` | Mindestens 10 GB frei für Docker-Images und Logs |
+
+**Deployment-Methode (empfohlen): Git Clone + Deploy Key**
+
+Repository ist privat (`MariusWilsch/rohdex-mvp`). Zugang auf RDX-APP-01 via GitHub Deploy Key einrichten:
+
+1. SSH-Key auf Server generieren: `ssh-keygen -t ed25519 -C "rdx-app-01"`
+2. Public Key als Deploy Key im Repository hinterlegen (Settings → Deploy Keys, Read-Only)
+3. `git clone git@github.com:MariusWilsch/rohdex-mvp.git`
+4. `.env` in Repository-Root kopieren
+5. `make deploy`
+
+Updates: `git pull && make deploy`
+
+**Fallback: Docker Image Transfer (falls Git-Zugang scheitert)**
+
+Lokal bauen und per SSH übertragen:
+
+```bash
+# Lokal
+docker build -t rohdex-backend:latest .
+docker save rohdex-backend:latest | gzip > rohdex.tar.gz
+scp rohdex.tar.gz RDX-APP-01:~/
+
+# Auf Server
+docker load < rohdex.tar.gz
+```
+
+`docker-compose.yml` + `.env` separat auf den Server kopieren, dann `docker compose up -d`.
 
 **Dead-Code-Cleanup (vor Migration):**
 - AI-Pfad entfernen: `ai_data_extraction_service.py`, OpenRouter/Langfuse/Helicone Dependencies, DOCX-Handling
@@ -217,3 +292,5 @@ Konstantin sandte `Veterinary BUSAN.docx` (Beispiel-Dokument, 03.12.2025). VET-D
 - **Session (Design Doc Creation):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/eb15ce95-2336-43e6-baa8-a92e2e6b1adf.jsonl
 - **Session (Extraction Pass 1 — Test-Rubrik):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/4eacfe98-8591-469f-9930-2e91a9468c40.jsonl
 - **Codebase:** [MariusWilsch/rohdex-mvp](https://github.com/MariusWilsch/rohdex-mvp) — Strategy-Dateien, Evaluation-Datasets, ADR-014
+- **Email Thread (VPN):** [Migration VPN Troubleshooting (Feb 26 — Mar 2)](https://mail.google.com/mail/u/0/#all/19c9530e9b21c06b) — WatchGuard → OpenVPN switch, Keeper-Links, Geo-Blocking-Fix
+- **Session (Extraction Pass 2 — VPN/SSH Zugang):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/3b53456f-4ba4-41a5-a16d-207a99ba8e42.jsonl
