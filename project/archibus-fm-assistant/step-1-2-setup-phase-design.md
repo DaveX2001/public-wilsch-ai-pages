@@ -300,7 +300,16 @@ Per-enum-field translation tables confirmed during Step 2. Every client value th
 
 **Backpressure updates the contract.** When the BEM API rejects an enum value, the AI corrects the contract's enum rules — not just the individual JSON node. This fixes the root cause: all rows with that value get the corrected translation, including buildings not yet processed. Data-specific errors (e.g., name too long) are fixed per-node.
 
-**Undefined:** Contract consumption interface — in Claude Code (development), the AI calls the CLI via terminal. In deployed environments (BruceBEM chat), the AI has no terminal access and needs an MCP tool that accepts the contract and executes Step 3 programmatically. CLI for dev, MCP for production — the interface design is TBD.
+**Contract consumption interface.** The three contract elements above (hierarchy assignments, field mappings, enum rules) reach Step 3 through a single-shot stateless interface. The same Python code powers both environments — CLI and MCP are thin wrappers around identical functions that read the contract and apply its rules mechanically.
+
+| Environment | Interface | Invocation |
+|-------------|-----------|------------|
+| **Development** (Claude Code) | CLI command | `uv run archibus push data.xlsx --contract contract.json --building "Building A"` |
+| **Production** (BruceBEM chat) | MCP tool | AI calls `step3_execute(contract, excel, building, mode)` |
+
+**Input (both interfaces):** mapping contract JSON (containing the hierarchy, field mappings, and enum rules defined in this section) + source Excel path + building name + mode (validate or import). **Output (both interfaces):** structured API response — success with import details, or error with `{field, value, reason, valid_values}` for AI self-correction.
+
+The backpressure loop lives in the AI layer, not in the tool. The tool executes one round trip: read the contract's rules → build JSON from them → send to API → return response. The AI reads the response, decides whether to correct the contract and retry, and calls the tool again if needed. The tool never modifies the contract — it consumes it mechanically on each invocation. *(Confirmed: David, Mar 3 2026 — extraction pass 6)*
 
 #### Data Type Detection (Step 0)
 
@@ -602,3 +611,4 @@ When the BEM database already contains location assets (buildings, floors, rooms
 - **Transcript:** [Rein <> Marius (Feb 27, 2026)](https://app.fireflies.ai/view/01KJFJ49ZFV2VWS7E811W7DJ6Z)
 - **Session:** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-MariusWilsch--archibus-bulk-import/b1add1e7-2807-4c2b-9cc7-1df0be954eb9.jsonl
 - **Reference:** [Anthropic Skill Best Practices — Progressive Disclosure](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/71694ab4-1303-48d1-8912-c2193b65802f.jsonl

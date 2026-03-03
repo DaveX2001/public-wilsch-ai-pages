@@ -49,7 +49,7 @@ Das System ist ein einzelner Docker-Container (FastAPI, Python 3.11+) ohne Daten
 1. IMAP-Polling holt E-Mails mit Excel-Anhängen (.xlsx, .csv) ab
 2. Datenextraktion: Skriptbasierte Verarbeitung (openpyxl/csv — deterministisch)
 3. Berechnungen: Python-basierte Kalkulationslogik
-4. Dokumentgenerierung: 9 Excel-Vorlagentypen (Mail-Avis, VGM, Packliste, etc.)
+4. Dokumentgenerierung: 8 Excel-Vorlagentypen (Mail-Avis, VGM, Packliste, etc.)
 5. SMTP-Versand: Fertige Dokumente per E-Mail zurück an Absender
 
 **Externe Abhängigkeiten:**
@@ -98,7 +98,7 @@ Das System ist ein einzelner Docker-Container (FastAPI, Python 3.11+) ohne Daten
 | Umgebungsvariablen setzen (E-Mail, Monitoring) | ~0,5h |
 | E-Mail-Konnektivität verifizieren (IMAP + SMTP) | ~0,5h |
 | DNS/SSL-Konfiguration falls erforderlich | ~0,5h |
-| Funktionstest aller 9 Verarbeitungsschritte | ~2h |
+| Funktionstest (→ Test-Rubrik unten) | ~2h |
 | Inbetriebnahme und Übergabe | ~1h |
 | Bugfix Tara-Berechnung (→ Part 5, #655) | ~1h |
 | Puffer für Unvorhergesehenes | ~1h |
@@ -115,6 +115,56 @@ Das System ist ein einzelner Docker-Container (FastAPI, Python 3.11+) ohne Daten
 - IMAP: `imap.ionos.de:993` (TLS) — Polling alle ~60 Sekunden
 - SMTP: `smtp.ionos.de:587` (TLS)
 - Ordner: `Processed`, `Skipped` (automatisch angelegt)
+
+#### Test-Rubrik
+
+**Validierungskriterien:** Jeder Dokumenttyp wird auf drei Ebenen geprüft:
+- **Werte:** Korrekte Zahlen, Berechnungen, Dezimalstellen
+- **Formatierung:** Deutsche Zahlenformate (`11.982,30`), Zellstile, Schriftarten
+- **Struktur:** Zellpositionen, Zeilenanzahl, Layout bei dynamischen Inhalten
+
+Detaillierte Validierungsmethodik: ADR-014 (Visual Regression Testing) im Repository.
+
+**Ground Truth:** Evaluation-Datasets (`evaluation/`) mit Input- und erwarteten Output-Dateien. Bereitgestellt von Konstantin Fitermann (Rohdex) als WAHRHEITSDATEI — verifizierte Kundendaten aus realen Aufträgen.
+
+**Phase 1: Automatisierte Tests (~5 Min)**
+
+`make test` auf RDX-APP-01 ausführen. Pytest validiert Zellplatzierung und Formaterhaltung für alle Dokumenttypen. Grün = Code funktioniert auf neuer Infrastruktur.
+
+**Phase 2: End-to-End-Verifikation (~1h)**
+
+Cutover-Strategie: Erst Gmail-Testkonto, dann IONOS-Produktion. Altes System (WILSCH-AI-SERVER) läuft während der Tests weiter — kein Produktionsrisiko.
+
+| Schritt | Aktion | Erwartung |
+|---------|--------|-----------|
+| 1 | System auf RDX-APP-01 mit `WHICH_IMAP="GMAIL"` deployen | Container läuft, pollt Gmail-Konto |
+| 2 | Test-Email an `rohdexautomation@gmail.com` mit Pacific-Dataset (1 Produkt) | System verarbeitet, sendet 8 Dokumente zurück |
+| 3 | Output gegen Expected Output (`evaluation/Pacific/`) vergleichen | Werte + Format + Struktur stimmen überein |
+| 4 | Test-Email mit Nishikawa-Dataset (2 Produkte) | System verarbeitet dynamische Produktblöcke korrekt |
+| 5 | Output gegen Expected Output (`evaluation/Nishikawa/`) vergleichen | Werte + Format + Struktur stimmen überein |
+| 6 | `WHICH_IMAP` auf `"IONOS"` umschalten, alten Server stoppen | System pollt `export-ki@rohdex.com` auf RDX-APP-01 |
+
+**Dokumenttypen im Test (8 implementierte Typen):**
+
+| # | Dokumenttyp | Tier | Testfokus |
+|---|------------|------|-----------|
+| 1 | Mail-Avis | Einfach | 2 Zellen (C12, E16) korrekt befüllt |
+| 2 | VGM | Einfach | 6 Zellen korrekt, deutsches Zahlenformat |
+| 3 | CTR AVIS | Einfach | 2 Zellen korrekt befüllt |
+| 4 | DISPO | Mittel | Produktblöcke dynamisch eingefügt, Format erhalten |
+| 5 | VET | Mittel | Produktblöcke wie DISPO, Veterinärzertifikat-Felder |
+| 6 | Non-Wood | Mittel | Dynamische Zeileneinfügung, Holzfrei-Erklärung |
+| 7 | Invoice | Mittel | Produktzeilen in Tabelle, HopLion-Variante automatisch geroutet¹ |
+| 8 | Packing List | Komplex | Bundle-Rekonstruktion, Tara-Werte gerundet (→ #655) |
+
+¹ HopLion-Variante (`InvoiceHopLionExcelStrategy`) wird automatisch erkannt wenn Zelle A5 "HOP LION FEATHER WORKS CORP." enthält. Gleicher Code-Pfad, kein separater Test nötig.
+
+**Nicht im Test:** GW-List — geplant aber nicht implementiert (keine Strategy-Datei im Code). Falls benötigt → separates Feature-Issue.
+
+**Pass/Fail-Kriterien:**
+- `make test`: Alle Pytest-Tests grün
+- E2E: Output-Dokumente stimmen mit Expected Output überein (Werte + Format + Struktur)
+- Verantwortung: Developer führt Tests durch, Auftraggeber (Konstantin) bestätigt Inbetriebnahme
 
 ### Part 4: SLA-Modell
 
@@ -164,4 +214,6 @@ Konstantin sandte `Veterinary BUSAN.docx` (Beispiel-Dokument, 03.12.2025). VET-D
 - **Code Analysis:** Codebase at `~/Documents/projects/billable/ROHDEX/` — AI-Pfad nie getriggert (production validated)
 - **Issue:** [#909 Dokumentenverarbeitung SLA & Wartung](https://github.com/DaveX2001/deliverable-tracking/issues/909) (Epic)
 - **Sub-Issues:** [#961 Migration](https://github.com/DaveX2001/deliverable-tracking/issues/961), [#655 Tara Fix](https://github.com/DaveX2001/deliverable-tracking/issues/655), [#585 BUSAN](https://github.com/DaveX2001/deliverable-tracking/issues/585)
-- **Session:** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/eb15ce95-2336-43e6-baa8-a92e2e6b1adf.jsonl
+- **Session (Design Doc Creation):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/eb15ce95-2336-43e6-baa8-a92e2e6b1adf.jsonl
+- **Session (Extraction Pass 1 — Test-Rubrik):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/4eacfe98-8591-469f-9930-2e91a9468c40.jsonl
+- **Codebase:** [MariusWilsch/rohdex-mvp](https://github.com/MariusWilsch/rohdex-mvp) — Strategy-Dateien, Evaluation-Datasets, ADR-014
