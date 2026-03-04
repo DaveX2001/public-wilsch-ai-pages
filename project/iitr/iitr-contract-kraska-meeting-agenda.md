@@ -71,10 +71,43 @@ Beide Vertragsentwürfe (Wartungsvertrag + Werkvertrag-Rahmenvereinbarung) wurde
 **To resolve:** Offene Fragen oder Anpassungswünsche des Auftraggebers zu den
 Vertragsentwürfen identifizieren.
 
+### 4. Hetzner-Konto und Produktionsserver — Zugangsbereinigung
+⏱️ 3 Min.
+
+Neben dem VPN existieren zwei weitere Zugangspunkte zum Produktionssystem: das
+Hetzner-Konto (Serververwaltung) und der direkte SSH-Zugang auf dem Server selbst.
+Das Hetzner-Konto ist durch Zwei-Faktor-Authentifizierung gesichert und liegt in
+IITRs Verantwortung als Kontoinhaber.
+
+- Repository- und Staging-Zugänge sind bereits gesperrt (3 Repos entzogen,
+  Staging SSH key-only, veraltete Nutzer entfernt)
+- Hetzner-Kontoverwaltung liegt bei IITR — Passwortrotation dort ist eine IITR-Aufgabe
+- Server-Audit (SSH-Schlüssel, Nutzerkonten, Anwendungszugänge) kann erst nach
+  Wiederherstellung des VPN-Zugangs erfolgen
+
+**To resolve:** Ob IITR die Hetzner-Zugangsdaten unabhängig prüft und rotiert, oder
+ob dies Teil des Server-Audits nach VPN-Wiederherstellung sein soll.
+
+### 5. SSL-VPN-Migration zu IPsec — Pilotnutzer-Phase abschließen
+⏱️ 5 Min.
+
+Im Januar 2026 kündigte SpaceNet die Ablösung der SSL-VPN durch IPsec DialIn an
+(Ticket #202601080215). Roman hat gegenüber SpaceNet bestätigt, dass VPN weiterhin
+benötigt wird — die Pilotnutzer-Phase blieb jedoch bei Schritt 1 stehen. Aktuell
+ist das Produktionssystem für niemanden extern erreichbar: Verbindungsversuche über
+die bestehende SSL-VPN-Konfiguration laufen ins Timeout.
+
+- Roman war im E-Mail-Verkehr als VPN-Nutzer gelistet (CC auf SpaceNet-Korrespondenz)
+- SpaceNet benötigt einen benannten Pilotnutzer für die neue IPsec-Einwahl
+- Nach Romans Ausscheiden sollte er kein neues VPN-Profil erhalten
+
+**To resolve:** Wer kontaktiert SpaceNet zur Wiederaufnahme der IPsec-Migration und
+stellt sicher, dass das neue Profil nur an autorisierte Nutzer verteilt wird.
+
 ## Meeting-Format
 
 - **Art:** Vertragsbesprechung (Marius × Sebastian Kraska, ggf. Eckehard Kraska + Stellmacher)
-- **Dauer:** 30 Min.
+- **Dauer:** 38 Min.
 - **Zoom:** https://us06web.zoom.us/j/9440418944
 - **Erwartung:** Kraska hat die beiden Vertragsentwürfe (Wartungsvertrag + Werkvertrag) vom 2. März gesichtet
 - **Ergebnis:** Scope-Grenze definiert (Vertragsergänzung §2.1), offene Fragen geklärt, nächste Schritte zur Unterzeichnung
@@ -82,9 +115,12 @@ Vertragsentwürfen identifizieren.
 ## Verknüpfungen
 
 - **Issue:** [#954 — Prepare extension contract for signing](https://github.com/DaveX2001/deliverable-tracking/issues/954)
+- **Issue:** [#963 — Revoke Roman's system access + password rotation](https://github.com/DaveX2001/deliverable-tracking/issues/963)
+- **Email:** [SpaceNet VPN-Migration — SSL→IPsec (Jan 8–20)](https://mail.google.com/mail/u/0/#all/19b9e05c4ff33b11)
 - **Design Doc:** [IITR Contract Extension — Commercial Framework](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/iitr/iitr-contract-extension-framework)
 - **Transkript:** [Marius × Ulrich — Contract Extension Pricing Strategy (27. Feb.)](https://app.fireflies.ai/view/01KJEVQ0Q6XWZNZP9P1FTPB2VW)
 - **Email:** [Sebastian Kraska — u.a. Staging System, Vergütung (Mar 3)](https://mail.google.com/mail/u/0/#all/19cb5178aea60dd3)
 - **Email:** [Sebastian Kraska — Austausch KI-System (Mar 3)](https://mail.google.com/mail/u/0/#all/19cb5170512d9850)
 - **Session:** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/9f14b021-2a4f-4da9-8925-b30c9eb7d426.jsonl
 - **Session:** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/2c6e2b5f-7d4a-493a-8bc7-d441c20c6090.jsonl
+- **Session:** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-MariusWilsch--archibus-bulk-import/ef894185-0251-4ebf-8d42-5e08e3b9961c.jsonl
