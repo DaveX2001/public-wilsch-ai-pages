@@ -42,7 +42,9 @@ Infrastrukturebenen, jede mit einem anderen Verantwortlichen:
 - Wenn Primeline bei einem Hardware-Ausfall langsam reagiert, ist IITR offline. Die Vertragssprache bestimmt, ob das Marius' Haftung ist oder nicht
 - Ulrich hat das im Gespräch am 27. Feb. als "riesiges Risiko" eingestuft, wenn der Vertrag keine klare Grenze zieht
 
-**To resolve:** Die vertragliche Haftungsgrenze — für welche Ebenen Marius verantwortlich ist, und explizite Ausschlusssprache für Ausfälle der Drittanbieter-Infrastruktur.
+**To resolve:**
+- Welche Infrastrukturebenen der Wartungsvertrag abdeckt — Applikation und Middleware (Docker, OS, Nginx, GPU-Treiber, Speicher, Firewall) vs. Hardware und externes Netzwerk (Primeline, Hetzner)
+- Bei Ausfällen außerhalb des Vertragsumfangs — übernimmt Marius die Fehlererkennung und Weiterleitung an den zuständigen Drittanbieter, oder koordiniert IITR die eigenen Lieferantenbeziehungen direkt?
 
 ### 2. Staging-System — Reaktion auf Stellmacher-Meldung
 ⏱️ 5 Min.
