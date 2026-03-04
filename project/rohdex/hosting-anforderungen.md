@@ -92,10 +92,18 @@ Pfad nach Installation: `/opt/homebrew/opt/openvpn/sbin/openvpn` (Apple Silicon)
 
 Die OpenVPN-Konfigurationsdatei `rohdex-vpn.ovpn` wird nicht im Repository gespeichert (gitignored). Datei von bestehendem Entwickler anfordern — enthält Serverzertifikate und Cipher-Konfiguration.
 
-VPN-Server: `217.92.100.123:443` (WatchGuard, Gmelch IT)
+VPN-Server: `217.92.100.123:443` (OpenVPN, Gmelch IT — WatchGuard-Appliance mit OpenVPN-Protokoll)
 Credentials: `.env`-Datei, Variablen `WATCH_GUARD_VPN_USERNAME` und `WATCH_GUARD_VPN_PASSWORD`.
 
-**Undefined:** OpenVPN 2.7 erfordert eine Cipher-Anpassung in der `.ovpn`-Datei. Die genaue Konfiguration ist in der Datei enthalten — ohne Anpassung schlägt die Verbindung fehl.
+**OpenVPN 2.7 Cipher-Konfiguration:** Die `.ovpn`-Datei enthält folgende Cipher-Einstellungen für OpenVPN 2.7 Kompatibilität:
+
+```
+cipher AES-256-CBC
+data-ciphers AES-256-GCM:AES-128-GCM:AES-256-CBC
+auth SHA256
+```
+
+`data-ciphers` ersetzt das veraltete `ncp-ciphers` ab OpenVPN 2.7. Ohne diese Zeile schlägt die Cipher-Negotiation fehl. Die `.ovpn`-Datei enthält auch `verify-x509-name` mit WatchGuard-Zertifikat — nicht ändern.
 
 ```bash
 sudo /opt/homebrew/opt/openvpn/sbin/openvpn --config rohdex-vpn.ovpn
@@ -241,6 +249,22 @@ Cutover-Strategie: Erst Gmail-Testkonto, dann IONOS-Produktion. Altes System (WI
 - E2E: Output-Dokumente stimmen mit Expected Output überein (Werte + Format + Struktur)
 - Verantwortung: Developer führt Tests durch, Auftraggeber (Konstantin) bestätigt Inbetriebnahme
 
+**Acceptance Criteria pro Dokumenttyp:**
+
+Jeder der 8 Dokumenttypen folgt dem gleichen AC-Muster:
+
+> **Given:** Input-Datei aus `evaluation/{Dataset}/input/` + zugehörige Log-CSV
+> **When:** Entsprechende Strategy verarbeitet den Input
+> **Then:** Output stimmt zellgenau mit `evaluation/{Dataset}/expected_output/{Typ}.xlsx` überein (Werte + Format + Struktur)
+
+Beispiel — **Mail-Avis (Tier: Einfach):**
+Given `MailAvis.xlsx` + `Log_37342.csv` aus Pacific-Dataset → When `MailAvisExcelStrategy` verarbeitet → Then C12 und E16 in Output = `MailAvis_2510155.xlsx`. Zwei Zellen, binärer Vergleich.
+
+Beispiel — **Packing List (Tier: Komplex):**
+Given `Vorlage Packliste BUNDLES.xlsx` + `Log_37342.csv` aus Pacific-Dataset → When `PackingListExcelStrategy` verarbeitet → Then Bundle-Rekonstruktion korrekt, Tara-Werte auf 1 Dezimalstelle gerundet (→ #655), Gesamtsumme = Log-Summe.
+
+Developer definiert pro Dokumenttyp einen konkreten AC basierend auf diesem Muster und der Testfokus-Spalte oben. 8 ACs insgesamt — einer pro Zeile in der Tabelle.
+
 ### Part 4: SLA-Modell
 
 **Superseded:** Retainer-Modell (525/325 EUR/Monat) durch SLA v4 ersetzt.
@@ -311,7 +335,7 @@ Vier weitere Felder im BUSAN-Dokument (Empfänger/Consignee, Lieferbedingungen/C
 
 - **Transcript:** [Rohdex Call — Hosting Requirements (Feb 18, 10 min)](https://app.fireflies.ai/view/01KHRFX1ESBZ7CJ8Z4X69CS4XK) — Anforderungen und Hosting-Optionen besprochen
 - **Email Thread:** [Migration Programm ROHDEX (Feb 25-26)](https://mail.google.com/mail/u/0/#all/19c9530e9b21c06b) — Konstantin → Sikander → Marius: VM-Vorbereitung, VPN-Zugang, Server-Details
-- **VPN Credentials:** [Keeper Link (Feb 26)](https://mail.google.com/mail/u/0/#all/19c9a93fce2727cf) — WatchGuard SSL-VPN
+- **VPN Credentials:** [Keeper Link (Feb 26)](https://mail.google.com/mail/u/0/#all/19c9a93fce2727cf) — OpenVPN SSL-VPN
 - **SSH Credentials:** [Keeper Link (Feb 26)](https://mail.google.com/mail/u/0/#all/19c9a955f43ac511) — Ubuntu-Benutzer RDX-APP-01
 - **SLA v4:** [Wartungsvertrag (signed 26.02.2026)](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rohdex/sla-v4-wartungsvertrag)
 - **Tara Bug:** [Email (Feb 24)](https://mail.google.com/mail/u/0/#all/19c8f8c66c05d43d) — Input/Output-Daten zum Tara-Problem
@@ -322,7 +346,9 @@ Vier weitere Felder im BUSAN-Dokument (Empfänger/Consignee, Lieferbedingungen/C
 - **Session (Design Doc Creation):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/eb15ce95-2336-43e6-baa8-a92e2e6b1adf.jsonl
 - **Session (Extraction Pass 1 — Test-Rubrik):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/4eacfe98-8591-469f-9930-2e91a9468c40.jsonl
 - **Codebase:** [MariusWilsch/rohdex-mvp](https://github.com/MariusWilsch/rohdex-mvp) — Strategy-Dateien, Evaluation-Datasets, ADR-014
-- **Email Thread (VPN):** [Migration VPN Troubleshooting (Feb 26 — Mar 2)](https://mail.google.com/mail/u/0/#all/19c9530e9b21c06b) — WatchGuard → OpenVPN switch, Keeper-Links, Geo-Blocking-Fix
+- **Email Thread (VPN):** [Migration VPN Troubleshooting (Feb 26 — Mar 2)](https://mail.google.com/mail/u/0/#all/19c9530e9b21c06b) — OpenVPN setup, Keeper-Links, Geo-Blocking-Fix
+- **OpenVPN Config:** [rohdex-vpn.ovpn (Google Drive)](https://drive.google.com/file/d/1g2r7GJcug9iVcybXay1ZZyJoKE7Gf4iF/view) — Cipher-Konfiguration für OpenVPN 2.7
 - **Session (Extraction Pass 2 — VPN/SSH Zugang):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/3b53456f-4ba4-41a5-a16d-207a99ba8e42.jsonl
 - **Session (Extraction Pass 3 — Tara #655):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/93486107-19c1-4502-8861-c22d37d87e60.jsonl
 - **Session (Extraction Pass 4 — BUSAN #585):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/8c4a1a6d-6f2f-4e45-9588-1f321e7027c6.jsonl
+- **Session (Extraction Pass 5 — SA Feedback):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/290d1003-c3e9-443c-99f3-bfb8b3a81bb0.jsonl
