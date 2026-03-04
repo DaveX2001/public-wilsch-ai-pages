@@ -92,7 +92,7 @@ The medium shift matters. In-chat, the user reads section-by-section. Published,
 
 **The user is the state machine.** No formal "done" labels. The user reads the published artifact and knows — "this feels right" or "not yet." AI publishes and presents. The human judges.
 
-**End with the next start.** Every session ends with a clear pointer to where the next extraction pass should begin. One pass per session — the next session starts with orientation, not discovery.
+**End with the next start.** Every session ends with a clear pointer to where the next extraction pass should begin. Use `sequential_thinking` to reason about next-pass scope based on what was discussed this session — make the scope traceable to specific session content, not a generic "continue where we left off." One pass per session — the next session starts with orientation, not discovery.
 
 **Gate:** User satisfied. Re-entry decision made visible.
 

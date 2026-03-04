@@ -104,9 +104,16 @@ The auto-renew eliminates administrative burden. No quarterly re-signing needed.
 bi-weekly meetings serve as informal review — if either party is unhappy, it surfaces
 in the meetings long before formal cancellation.
 
-**Undefined:** Weekend SLA coverage and pricing — see [Meeting Agenda Topic 2](#2-weekend-sla-coverage-pricing).
+**Extended hours (resolved):** The Bereitschaftspauschale covers business hours only
+(Mon–Fri 8–18 CET). Weekend and holiday incidents are available at premium rates — +50%
+werktags outside business hours (180 EUR/h), +100% Sonn- und Feiertage (240 EUR/h) — but
+without a standing weekend SLA commitment. The surcharge structure incentivizes IITR to use
+business hours while preserving emergency access. Contract sent March 2 with this structure.
 
-**Undefined:** Betreuung scope boundary (application vs. OS vs. middleware layers) — see [Meeting Agenda Topic 1](#1-betreuung-scope-boundary-and-liability).
+**Undefined:** Betreuung scope boundary — Marius's position is application + middleware
+(Docker daemon, OS services, Nginx, SSL, disk, GPU/CPU config), with explicit exclusion of
+hardware (Primeline warranty) and network (Hetzner SLA). Awaiting Kraska's agreement in
+meeting March 4. See [Meeting Agenda Topic 1](#1-betreuung-scope-boundary-and-liability).
 
 ### 4. Werkvertrag — Pricing Model
 
@@ -170,3 +177,6 @@ direct relationship. Next project depends on IITR's priorities after DS-Kit is d
   - [DS-Kit Extension Pflichtenheft](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/iitr/pflichtenheft-dskit-navigation-extension)
 - **Issue:** [#954 — Prepare extension contract for signing](https://github.com/DaveX2001/deliverable-tracking/issues/954)
 - **Session:** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/9f14b021-2a4f-4da9-8925-b30c9eb7d426.jsonl
+- **Email:** [Sebastian Kraska — u.a. Staging System, Vergütung (Mar 3)](https://mail.google.com/mail/u/0/#all/19cb5178aea60dd3) — confirms March 4 meeting, contract review
+- **Email:** [Sebastian Kraska — Austausch KI-System (Mar 3)](https://mail.google.com/mail/u/0/#all/19cb5170512d9850) — Zoom invite for March 4
+- **Session:** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/2c6e2b5f-7d4a-493a-8bc7-d441c20c6090.jsonl

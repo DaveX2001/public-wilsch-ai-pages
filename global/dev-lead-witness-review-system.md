@@ -68,7 +68,7 @@ The AI presents steps one-by-one to the human. The human executes each step, rep
 |---|-------|------|
 | 1 | PR exists (on the code repo, open — not draft) | Hard — no PR → no witness |
 | 2 | Spec review completed (ACs in tracking.md) | Hard — no spec → no tour |
-| 3 | Witness report posted (developer ran deep witness) | Soft — absence is the finding |
+| 3 | Witness report posted (developer ran deep witness) | Hard — no witness → nothing to spot-check |
 | 4 | Deployed to staging | Hard — nothing to witness |
 | 5 | Implementation conversations linked | Soft — limits teaching depth |
 | 6 | tracking.md in the code repo (co-located with implementation) | Soft — absence is the finding |

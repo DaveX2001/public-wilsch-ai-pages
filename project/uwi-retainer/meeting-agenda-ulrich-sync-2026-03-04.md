@@ -12,6 +12,8 @@ Retainer-Housekeeping und zwei Entscheidungspunkte. Gemeinsamer Durchgang des UW
 1. **Retainer-Backlog bereinigen** — Disposition aller 21 Sub-Issues (11 abgeschlossen, 10 offen)
 2. **IITR-Vertrag → Unterschrift** — Platzhalter aufgelöst, bereit für nächsten Schritt
 3. **Versicherungsrechnungen** — Geschäftsregel für Allianz-Style Abrechnungen im System
+4. **BrokerBin Listing** — Scope und Preisvorstellungen für IBM-Komponentenverkauf
+5. **Private AI Workspace** — Weiterführen, umlenken oder schließen
 
 ## Pre-Read
 
@@ -88,15 +90,39 @@ Frau Klärl hat eine fehlende Allianz ESA Rechnung gemeldet ([#1016](https://git
 
 **To resolve:** Geschäftsregel für Versicherungsrechnungen — manuell erfassen, zusammengesetzten Schlüssel verwenden (Police + Zeitraum), oder Allianz um eindeutige Referenzen bitten.
 
+### 4. BrokerBin Account + IBM-Komponentenlisting
+⏱️ 5 min
+
+Ulrich hat den Verkauf von zwei IBM POWER Komponenten über BrokerBin beauftragt ([#1036](https://github.com/DaveX2001/deliverable-tracking/issues/1036)). David ist zugewiesen — vor Start braucht er bestätigten Scope und Kontodaten.
+
+- **Zwei Komponenten:** EC5W (6.4TB NVMe) + ESJD (3.7TB SSD)
+- **Kontoeröffnung:** Kostenlos, aber telefonische Firmenverifizierung nötig (1 Werktag)
+- **Noch offen:** Keine DoD definiert, Preisvorstellungen und Listing-Details fehlen
+
+**To resolve:** Bestätigung der Listing-Priorität und Preisvorstellungen für die beiden Komponenten — was soll David konkret einstellen.
+
+### 5. Private AI Workspace — Weiterführen, Umlenken oder Schließen
+⏱️ 5 min
+
+Das Angebot für eine private AI-Arbeitsumgebung mit OpenWebUI + Ollama ([#735](https://github.com/DaveX2001/deliverable-tracking/issues/735)) steht seit Februar offen — ohne Scope, ohne DoD, ohne klare Richtung. Bevor weitere Kapazität gebunden wird, braucht es eine bewusste Entscheidung.
+
+- **Angebot:** Lokale KI-Umgebung für UWI (Chat, Dokumentenverarbeitung, Suche)
+- **Abhängigkeit:** Mac Studio Beschaffung ([#917](https://github.com/DaveX2001/deliverable-tracking/issues/917)) — Hardware-Entscheidung offen (DGX Spark vs Mac Studio)
+- **Seit 5 Tagen:** Schließung angekündigt falls kein Interesse — Entscheidung noch ausstehend
+
+**To resolve:** Klare Disposition — weiterführen mit definiertem Scope, in ein anderes Format umlenken, oder als nicht mehr relevant schließen.
+
 ## Meeting Format
 
 - **Typ:** Review + Entscheidung
-- **Dauer:** 30 min
+- **Dauer:** 40 min
 - **Vorbereitung:** Retainer-Epic [#650](https://github.com/DaveX2001/deliverable-tracking/issues/650) durchsehen
-- **Ergebnis:** Bereinigte Issue-Liste, Vertragsfreigabe IITR, Geschäftsregel Versicherungsrechnungen
+- **Ergebnis:** Bereinigte Issue-Liste, Vertragsfreigabe IITR, Geschäftsregel Versicherungsrechnungen, BrokerBin Scope bestätigt, AI Workspace Entscheidung
 
 ## Related
 
 - **Retainer Epic:** [#650](https://github.com/DaveX2001/deliverable-tracking/issues/650)
 - **IITR Vertrag:** [#954](https://github.com/DaveX2001/deliverable-tracking/issues/954)
 - **Insurance Billing:** [#1016](https://github.com/DaveX2001/deliverable-tracking/issues/1016)
+- **BrokerBin:** [#1036](https://github.com/DaveX2001/deliverable-tracking/issues/1036)
+- **AI Workspace:** [#735](https://github.com/DaveX2001/deliverable-tracking/issues/735)
