@@ -305,20 +305,20 @@ Per-enum-field translation tables confirmed during Step 2. Every client value th
 | Environment | Interface | How |
 |-------------|-----------|-----|
 | **Production** (BruceBEM chat) | MCP tool | AI calls `step3_execute(contract, excel, building, mode)` via LibreChat mcpServer (streamable-http) |
-| **Development** (Claude Code) | MCP tool | Claude Code connects to the same FastMCP server directly |
+| **Development** (Claude Code) | MCP tool | Claude Code connects via `mcpServers` config (stdio or streamable-http) to the same FastMCP server |
 | **Scripted testing** | Auto-generated CLI | `fastmcp generate-cli` produces typed CLI from MCP tool schema |
 
 Bulk import runs as a **separate MCP server** from the existing BruceBEM work request tools — different user personas (FM implementers vs building occupants), different repos, independent deployment. LibreChat registers both servers; the AI agent accesses tools from all registered servers transparently.
 
-**Input:** mapping contract JSON (containing the hierarchy, field mappings, and enum rules defined in this section) + source Excel path + building name + mode (validate or import). **Output:** structured API response — success with import details, or error with `{field, value, reason, valid_values}` for AI self-correction.
+**Input:** mapping contract JSON (containing the hierarchy, field mappings, and enum rules defined in this section) + source Excel path + building name + mode (validate or import). **Output:** structured API response — success with import details, or error with `{id, field, value, reason, valid_values}` for AI self-correction.
 
 The backpressure loop lives in the AI layer, not in the tool. The tool executes one round trip: read the contract's rules → build JSON from them → send to API → return response. The AI reads the response, decides whether to correct the contract and retry, and calls the tool again if needed. The tool never modifies the contract — it reads and applies the rules on each invocation without interpretation or modification. The AI corrects the contract between invocations and passes the updated version. *(Confirmed: David, Mar 3 2026 — extraction pass 6. Updated: David, Mar 4 2026 — extraction pass 7)*
 
 #### Model Requirements
 
-The pipeline targets small-model compatibility for production deployment. Development uses Claude Sonnet for rapid iteration. Production targets Qwen 3.5 (9B preferred, 30B-A3B acceptable) via OpenRouter (development API access) or self-hosted on RunPod (production). FP8 quantization is the standard; FP4 is a future optimization on Blackwell-architecture GPUs.
+The pipeline targets small-model compatibility for production deployment. Development uses Claude Sonnet for rapid iteration. Production targets Qwen 3.5 (9B preferred, 30B-A3B acceptable) via OpenRouter (development API access). Future: self-hosted on RunPod with FP8 quantization (standard) or FP4 (Blackwell-architecture GPUs). OpenRouter abstracts quantization — the design constraint is small-model compatibility (9B), not quantization specifics.
 
-This model target constrains the design: API error responses must be structured and unambiguous (`{field, value, reason, valid_values}`) so a 9B model can execute the backpressure loop — reading errors, correcting the contract, and retrying — without large-model reasoning. The tool's structured output format serves both correctness (traceable errors) and small-model compatibility (no interpretation required). *(Source: Marius, Mar 4 2026 — #852 comment)*
+This model target constrains the design: API error responses must be structured and unambiguous (`{id, field, value, reason, valid_values}`) so a 9B model can execute the backpressure loop — reading errors, correcting the contract, and retrying — without large-model reasoning. The tool's structured output format serves both correctness (traceable errors) and small-model compatibility (no interpretation required). *(Source: Marius, Mar 4 2026 — #852 comment)*
 
 #### Data Type Detection (Step 0)
 
@@ -624,3 +624,4 @@ When the BEM database already contains location assets (buildings, floors, rooms
 - **Reference:** [FastMCP v3 Documentation](https://gofastmcp.com/) — generate-cli, providers, authentication
 - **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/71694ab4-1303-48d1-8912-c2193b65802f.jsonl
 - **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/986d5873-591d-4309-b641-7feacf9378ef.jsonl
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/0914cc69-d3b3-4937-838c-d3140990c480.jsonl
