@@ -50,7 +50,7 @@ After 5+ passes on CCI #604 Theme 1 (JA /probe auto-advance), the behavior persi
 ### Part 1: Methodology Foundation Refresh
 
 The original manage-artifact was built on two sources:
-- **ADR 001 + 002** (from Anthropic's September 2024 Deep Dive video): prompt engineering principles, iterative development, 10-component template, 4-stage progression
+- **ADR 001 + 002** (from [Prompting 101 | Code w/ Claude](https://www.youtube.com/watch?v=ysPbXH0LpIE), ~Aug 2025): prompt engineering principles, iterative development, 10-component template, 4-stage progression
 - **Meincke et al. 2025**: persuasion principles (Authority, Commitment, Social Proof)
 
 Since December 2025, Anthropic has published updated guidance that may invalidate assumptions in the current methodology. Best practices may also shift with each model generation — what works for Claude 4.6 may behave differently on the next generation. The methodology needs to be model-aware, not model-locked.

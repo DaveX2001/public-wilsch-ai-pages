@@ -74,5 +74,6 @@ Structure follows [MG-0080 Operations Manuals](https://www.emyth.com) (E-Myth Ma
 | System Engineer Operations Manual | TBD | — |
 | CCI Board Structure Design | Draft | [cci-board-structure-design](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/soloforce/cci-board-structure-design) |
 | /improve-system Architecture | Draft | [improve-system-architecture](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/improve-system-architecture) |
+| Manage-Artifact v2 Design | Draft | [manage-artifact-v2-design](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/manage-artifact-v2-design) |
 
 **Logic:** MG-0080 Operations Manuals guide. Systems section is the "tool kit" — all processes and procedures for running the position.
