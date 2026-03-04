@@ -151,26 +151,20 @@ To decide which artifact type is the right fix, the methodology needs a mapping 
 | **Protocol** | Persistent behavior — the AI always does X wrong regardless of context or which command is running | Output formatting, git conventions, investigation delegation |
 | **Hook** | Enforcement — instruction-based compliance isn't reliable enough, need a structural guarantee | Blocking tool calls without prerequisites, auto-formatting |
 
-**Undefined:** This mapping is a first hypothesis. Each artifact type likely has sub-categories and edge cases. What belongs in a command vs. a protocol when the behavior spans multiple commands? What belongs in a skill vs. a command when the process is interactive AND produces an artifact? Need empirical validation from existing artifacts that work well (Developer position) vs. ones that don't (CCI #604).
+**Related:** [ADR-008: Distinguish Workflows, Protocols, and Agents](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/distinguish-workflows-protocols-agents-ai-systems) defines the architectural hierarchy (Protocol → Agent → Workflow). This ADR predates the artifact type routing table but establishes the conceptual framework for why different artifact types exist and what layer they operate at.
+
+**Undefined:** This mapping is a first hypothesis. Each artifact type likely has sub-categories and edge cases. What belongs in a command vs. a protocol when the behavior spans multiple commands? What belongs in a skill vs. a command when the process is interactive AND produces an artifact? Need empirical validation from existing artifacts that work well (Developer position) vs. ones that don't (CCI #604). Cross-reference with ADR-008's architectural hierarchy.
 
 ### Part 3: The Evidence-to-Fix Methodology
 
-Current workflow: rubber-duck → clarity phases → micro-iteration → test. This is ad hoc. A systematic methodology needs three phases with clear questions at each step:
+Current workflow: rubber-duck → clarity phases → micro-iteration → test. This is ad hoc. A systematic methodology needs diagnostic questions that guide the fix process. The following questions are hypotheses — not yet validated through empirical data or external methodology. They need cross-referencing against the Tier 1 sources and cookbooks.
 
-**Diagnosis phase:**
-1. Observe the behavior failure (from conversation evidence)
-2. Classify: which artifact type? which enforcement mechanism? (→ Part 2)
-3. Root cause: is this an instruction problem, a tool contract problem, or a model capability ceiling?
-4. If instruction: is it phrasing, placement, or structural?
-
-**Fix phase:**
-5. Apply the minimal change — small enough to attribute the outcome
-6. Prefer structural fixes over instruction patches (tool contract changes, hooks)
-7. Prefer positive specification over prohibition ("do X" not "don't do Y")
-
-**Verification phase:**
-8. Session C — organic verification in real work
-9. Binary verdict: fixed or not fixed. If not, structured feedback on what persists.
+**Diagnostic questions to investigate:**
+- Which artifact type should fix this? (→ Part 2 mapping)
+- Is this an instruction problem, a tool contract problem, or a model capability ceiling?
+- If instruction: is it phrasing, placement, or structural?
+- How minimal can the change be while still being attributable in Session C?
+- Is the current [prompt template](https://github.com/veloxforce/claude-user-configs/blob/main/templates/anthropic-prompt-template.md) (10-component Anthropic structure) still the right framework, or does it need updating for Claude 4.6 and agentic contexts?
 
 **Undefined:** The evaluator-optimizer pattern from Anthropic's cookbooks (separate evaluator with binary verdict + structured feedback + memory of prior attempts) could formalize the verification step. Needs investigation after consuming Tier 1 sources.
 
