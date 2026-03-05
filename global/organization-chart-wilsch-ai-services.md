@@ -66,7 +66,7 @@ flowchart TD
     BK --> AIBK
 
     AIMKT["Autonomous Marketer<br/><i>(AI) × N</i>"]
-    AICODE["Autonomous Coder<br/><i>(AI) × N</i>"]
+    AICODE["Ralph Jr.<br/><i>(AI) × N</i>"]
 
     CMKR --> AIMKT
     DEV --> AICODE
@@ -116,7 +116,7 @@ flowchart TD
 | Agent Type | Orchestrated By | Work |
 |------------|-----------------|------|
 | **Autonomous Marketer** | Content Marketer | Content drafts, graphics, video |
-| **Autonomous Coder** | Developer | Code production in non-interactive mode |
+| **Ralph Jr.** | Developer | Code production in non-interactive mode |
 | **AI Bookkeeping Agent** | Bookkeeper | Invoice processing, expense categorization |
 
 ---
@@ -137,7 +137,7 @@ flowchart TD
 | Position | Interactive | Orchestration |
 |----------|-------------|---------------|
 | **Junior Architect** | ✅ Yes | ❌ No (design requires human thinking) |
-| **Developer** | ✅ Yes | ✅ Yes (Autonomous Coders) |
+| **Developer** | ✅ Yes | ✅ Yes (Ralph Jr.s) |
 | **Content Marketer** | ✅ Yes | ✅ Yes (Autonomous Marketers) |
 | **Bookkeeper** | ✅ Yes | ✅ Yes (AI Bookkeeping Agents) |
 
@@ -173,7 +173,7 @@ flowchart TD
 **Accountable for:**
 - Improvement Loop (programming wrong AI behavior → deterministically right)
 - Unified AI behavior across ALL positions
-- Affects: Autonomous Coders, Autonomous Marketers, AI Bookkeeping Agents
+- Affects: Ralph Jr.s, Autonomous Marketers, AI Bookkeeping Agents
 
 **Work type:** Strategic only (ON the system, not IN it)
 
