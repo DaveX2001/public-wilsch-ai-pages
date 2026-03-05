@@ -138,7 +138,24 @@ Hooks always work because they bypass instruction compliance entirely. Commands 
 
 The first diagnostic question in any fix session should be: **is this behavior best addressed through instructions (command/skill/protocol) or enforcement (hook)?** Some behaviors may be structurally unfixable through instructions alone.
 
-**Undefined:** Should some behaviors currently encoded as commands/protocols be converted to hooks instead? The /probe auto-advance (CCI #604) might be structurally unfixable through instructions — a hook that enforces the gate could be more reliable.
+### The Three Dimensions of Instruction Artifacts
+
+Beyond enforcement mechanism, each instruction-based artifact type governs a different dimension of AI behavior. This dimensional mapping is the foundation for evidence-to-fix routing (Part 3).
+
+| Artifact Type | Dimension | Governs | Fix when... |
+|--------------|-----------|---------|-------------|
+| **Protocol** | Thinking | Beliefs, mental models, hidden reasoning | AI reasons toward the wrong action |
+| **Command** | Doing | Steps, gates, workflow lifecycle | AI skips a step or takes a shortcut |
+| **Skill** | Knowing | Domain knowledge, experience, reference | AI lacks knowledge to do its job |
+| **Hook** | Enforcement | Structural guarantees | Instructions can't reliably ensure compliance |
+
+**The principle: "When we get thinking right, we get behavior right."** The AI's decisions happen in the hidden thinking trace (native thinking, sequential thinking, interleaved reasoning) before visible output. Protocol shapes this layer. Commands shape what the AI does after thinking. Skills provide what the AI needs to know. When thinking is correct, doing follows naturally. When thinking is wrong, no amount of procedural instruction overrides it.
+
+**Evidence:** CCI #604 Theme 1 — five procedural fix passes targeting the /probe command failed to resolve JA auto-advance behavior. Conversation-reader analysis of two Session C conversations (9f14b021, 5459d299) revealed the AI's thinking trace explicitly reasoned: "This is resolved. Let me move to the next item." The belief ("user answered = item done") overrode the procedural instruction ("don't advance"). The fix needed to target protocol (thinking), not command (doing).
+
+**Architectural implication:** The Developer protocol is pure thinking-layer — behavioral principles only, procedural detail lives in commands. The JA protocol mixes thinking and doing — procedural rules embedded alongside behavioral principles. This mixing gives JA fixes higher blast radius: every fix touches the core protocol, potentially destabilizing other behaviors. Separating these layers is a prerequisite for reliable instruction fixes.
+
+The /probe auto-advance (CCI #604) was initially hypothesized as potentially unfixable through instructions. Dimensional analysis (above) revealed it as a thinking-layer problem misdiagnosed as a doing-layer problem — procedural fixes targeted the wrong dimension. Whether a hook is still needed remains open after attempting a protocol-level (thinking) fix.
 
 **Undefined:** The interaction between instruction layers (CLAUDE.md + skills + commands + output styles) is underspecified by Anthropic. When these conflict, which wins? This matters for diagnosing fix failures — the fix might be correct but overridden by a competing instruction.
 
@@ -146,9 +163,9 @@ To decide which artifact type is the right fix, the methodology needs a mapping 
 
 | Artifact Type | What It Fixes | Example |
 |--------------|--------------|---------|
-| **Command** | Interactive workflow — the AI doesn't follow the right steps when the user triggers a specific process | /capture gate loop, /probe question format |
-| **Skill** | Manufacturing/production — the AI doesn't know HOW to build a specific kind of artifact | Prepackaged thinking for design docs, meeting agendas |
-| **Protocol** | Persistent behavior — the AI always does X wrong regardless of context or which command is running | Output formatting, git conventions, investigation delegation |
+| **Command** | Doing — the AI doesn't follow the right steps when the user triggers a specific process | /capture gate loop, /probe question format |
+| **Skill** | Knowing — the AI doesn't know HOW to build a specific kind of artifact | Prepackaged thinking for design docs, meeting agendas |
+| **Protocol** | Thinking — the AI believes the wrong thing regardless of context or which command is running | Output formatting, git conventions, investigation delegation |
 | **Hook** | Enforcement — instruction-based compliance isn't reliable enough, need a structural guarantee | Blocking tool calls without prerequisites, auto-formatting |
 
 **Related:** [ADR-008: Distinguish Workflows, Protocols, and Agents](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/distinguish-workflows-protocols-agents-ai-systems) defines the architectural hierarchy (Protocol → Agent → Workflow). This ADR predates the artifact type routing table but establishes the conceptual framework for why different artifact types exist and what layer they operate at.
@@ -157,10 +174,27 @@ To decide which artifact type is the right fix, the methodology needs a mapping 
 
 ### Part 3: The Evidence-to-Fix Methodology
 
-Current workflow: rubber-duck → clarity phases → micro-iteration → test. This is ad hoc. A systematic methodology needs diagnostic questions that guide the fix process. The following questions are hypotheses — not yet validated through empirical data or external methodology. They need cross-referencing against the Tier 1 sources and cookbooks.
+Current workflow: rubber-duck → clarity phases → micro-iteration → test. The first diagnostic step is now validated. Remaining questions are hypotheses that need cross-referencing against Tier 1 sources.
 
-**Diagnostic questions to investigate:**
-- Which artifact type should fix this? (→ Part 2 mapping)
+### Step 1: Dimensional Diagnosis (Validated)
+
+**The question:** "Is this a thinking problem, a doing problem, or a knowing problem?"
+
+**Method:** Use conversation-reader to extract the thinking trace from the failure moment in the Session C conversation. Read the AI's hidden reasoning (native thinking, sequential thinking, interleaved thinking) immediately before the failure.
+
+**Classification signals:**
+
+| Signal | Thinking (Protocol) | Doing (Command) | Knowing (Skill) |
+|--------|-------------------|-----------------|-----------------|
+| Thinking trace | AI reasoned TOWARD wrong action | No reasoning — just skipped | AI searched but couldn't find |
+| Fix persistence | Procedural fixes don't stick | Procedural fix works immediately | Adding reference resolves it |
+| In-session correction | Adjusts after told WHY | Adjusts after shown WHAT | Adjusts after given knowledge |
+
+**Validated against:** Two Session C conversations from CCI #604 (9f14b021, 5459d299). Both showed the AI reasoning "this is resolved, let me move on" in the thinking trace — a thinking problem misdiagnosed as a doing problem for 5 fix passes.
+
+### Step 2+: Remaining Diagnostic Questions (Hypotheses)
+
+- Which artifact type should fix this? (→ Part 2 dimensional mapping)
 - Is this an instruction problem, a tool contract problem, or a model capability ceiling?
 - If instruction: is it phrasing, placement, or structural?
 - How minimal can the change be while still being attributable in Session C?
@@ -195,7 +229,10 @@ Patterns surfaced from Anthropic's engineering blog and academic research. These
 
 ## Source
 
-- **Session:** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/d2fa50bf-8e4c-4419-973b-acbc80736827.jsonl
+- **Session (Pass 1):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/d2fa50bf-8e4c-4419-973b-acbc80736827.jsonl
+- **Session (Pass 2):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/4ca3eeb3-c387-47ff-8a38-9e6d206e4ce4.jsonl
+- **Evidence Sessions:** 9f14b021 (IITR #954, Session C1), 5459d299 (REKERS, Session C2) — dimensional diagnosis validation
+- **External:** [Orchestration Workflow](https://github.com/shanraisshan/claude-code-best-practice/blob/main/orchestration-workflow/orchestration-workflow.md) — Command → Agent → Skill pattern
 - **Position Epic:** [CCI #600 — System Engineer](https://github.com/DaveX2001/claude-code-improvements/issues/600)
 - **Release Epic Evidence:** [CCI #604 — JA Lifecycle Violations](https://github.com/DaveX2001/claude-code-improvements/issues/604) (47 comments, 5+ fix passes)
 - **Current manage-artifact:** `~/.claude/skills/manage-artifact/SKILL.md` (created Dec 12, 2025)
