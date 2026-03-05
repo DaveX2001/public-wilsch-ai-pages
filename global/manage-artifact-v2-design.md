@@ -157,7 +157,9 @@ Beyond enforcement mechanism, each instruction-based artifact type governs a dif
 
 The /probe auto-advance (CCI #604) was initially hypothesized as potentially unfixable through instructions. Dimensional analysis (above) revealed it as a thinking-layer problem misdiagnosed as a doing-layer problem — procedural fixes targeted the wrong dimension. Whether a hook is still needed remains open after attempting a protocol-level (thinking) fix.
 
-**Undefined:** The interaction between instruction layers (CLAUDE.md + skills + commands + output styles) is underspecified by Anthropic. When these conflict, which wins? This matters for diagnosing fix failures — the fix might be correct but overridden by a competing instruction.
+The mechanical precedence between instruction layers IS specified by Anthropic: settings follow Managed → CLI → Local → Shared → User; CLAUDE.md loads with project > user precedence; skill name collisions resolve enterprise > personal > project. Output styles modify the system prompt directly while CLAUDE.md arrives as a user message after it ([source](https://docs.anthropic.com/en/docs/claude-code/output-styles#output-styles-vs-claude-md-vs-append-system-prompt)).
+
+**Undefined:** What remains unspecified is **behavioral conflict resolution at runtime** — when a CLAUDE.md protocol and a skill's instructions give contradictory behavioral guidance, Anthropic's docs explicitly state: "Claude may pick one arbitrarily" ([source](https://docs.anthropic.com/en/docs/claude-code/memory#choose-where-to-put-claude-md-files)). This matters for diagnosing fix failures — the fix might be correct but overridden by a competing instruction in a different layer. The "pick arbitrarily" admission confirms this is intentionally unspecified, not undiscovered documentation.
 
 To decide which artifact type is the right fix, the methodology needs a mapping from failure domain to artifact type. Initial framing:
 
