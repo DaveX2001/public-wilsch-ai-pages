@@ -94,27 +94,32 @@ Only external events (client loss, legal disputes, team exits) are truly unstabl
 
 The monthly plan is strategy. The Shutdown Ritual is the enforcement mechanism — the operational trigger that makes the plan real.
 
-**Reframe:** The nightly ritual question changes from "which 3 issues tomorrow?" to "which 3 issues serve this month's plan?"
+**Reframe:** The ritual question evolved from "which package do I work on?" (worker framing) to three CEO questions — one per time block. The CEO does not execute packages directly; the CEO enables workers, pushes deadlines, and manages flow. The package model persists — position improvement remains a byproduct of project work — but the relationship to packages shifted from inside (executing) to above (enabling and directing).
+
+**Trigger:** Post-grooming, not standalone evening habit. Grooming provides the latest board state — what's in review, what's blocked, what David is picking up next. The ritual is the closing 10 minutes of grooming, not a separate habit. One behavioral trigger, not two. Night-before timing gives overnight incubation for strategic decisions (Block 2) while capturing current board state for operational triage (Block 1).
+
+**Three time blocks, each with a fixed responsibility:**
+
+| Block | Responsibility | Ritual Question |
+|-------|---------------|-----------------|
+| **Block 1 — Enable Worker** | Review David's output + VP/Delivery prep | "What's priority to review?" + "What do I prep so grooming has assignables?" |
+| **Block 2 — Own Work** | Milestone-driven execution + lead pipeline | "Which 1-2 milestones do I pick by proximity?" + "Any lead needs action?" |
+| **Manager Block** | Manager-labeled issues + fire handling | Board scan of manager items, pick top items |
+
+**Block 1 — Enable Worker (morning).** Two sequential modes. First: review column items, priority sequenced by docket and milestone proximity. Single terminal, single focus, 1-2 hours. Second: VP/Delivery prep on 1-2 epics — unblock sub-issues so grooming has assignable work in the worker column. Multi-terminal: one for the epic (VP/Delivery work), one for the connected position. The package model stays intact — unblocking Archibus exercises the Developer position, unblocking Rekers exercises the full pipeline. Position work is not planned separately; it happens when you work on the package.
+
+**Block 2 — Own Work (later).** Milestone-driven. Scan milestones sorted by due date — closest milestone determines focus. Pick 1-2 milestones for CEO action: client contacts, emails, direct execution, whatever moves the project forward. Existing work (milestones) is prioritized over lead work. Secondary: scan issues with the `lead` label — if a lead needs conversion action (contract drafting, follow-up, proposal), it enters Block 2 alongside milestone work. Most days, the lead scan yields nothing.
+
+**Manager Block (2 hours).** Manager-labeled issues and fires. Open the board filtered by `manager` label, scan, pick top items. Fires — urgent items that don't fit milestone structure — live here, not in maker blocks. The manager block is reactive by nature: context-switching is expected, short tasks are normal.
+
+**Forcing function integration:** Milestones replace meeting cadences as the primary forcing function for Block 2. Each milestone has a due date — proximity determines urgency automatically. The docket still narrows the space (only docket packages have milestones), but within that space, milestone dates drive selection, not instinct. See [Stakes Visibility: A Forcing Function for Task Prioritization](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/stakes-visibility-forcing-function) for the underlying framework.
 
 **Accountability loop:**
-1. Monthly plan sets the target (packages for the month)
-2. Shutdown Ritual shows yesterday's progress AND selects tomorrow's work
-3. Selection evaluates against the monthly plan
-4. If no issues serve the plan → create new ones, or the plan is wrong
-
-Without this connection, the monthly plan is a document. With it, every evening forces a check against the plan.
-
-**Ritual redesign:** The ritual operates on two tracks — proactive and reactive — at the package level, not the issue level.
-
-**Proactive track (package selection):** Open the monthly plan → select tomorrow's package from the docket. One package gets both maker blocks. The "why" column reinforces the meaning connection nightly: this daily work → this package → this position → the vision.
-
-**Reactive track (fire scan):** Scan across all client labels for urgent items — SLA violations, blockers, client fires. Fires live outside the package system. They are manager-time items that take up one of the terminal slots — not maker-time interrupts. The physical book gets: tomorrow's package + any burning issues within it.
-
-**External forcing functions drive urgency within the package.** Each project has a meeting cadence that creates deadline pressure without adding dates to the stateless plan: Archibus (weekly all-hands), UWI (daily sync), AVO/Rekers (biweekly meetings), SLA projects (reactive triage). The plan narrows the space; the forcing function provides urgency within that space. Together, the ritual selection becomes obvious. See [Stakes Visibility: A Forcing Function for Task Prioritization](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/stakes-visibility-forcing-function) for the underlying framework.
-
-**Undefined:** Fire handling policy — how fires consume manager-time terminal slots and whether priority ordering within manager time is needed. Deferred to empirical (first month's run). → [Meeting Agenda](monthly-planning-system-meeting-agenda)
-
-**Undefined:** Forcing function integration — how the [stakes visibility framework](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/stakes-visibility-forcing-function) maps to the per-package meeting cadences and influences nightly package selection. → [Meeting Agenda](monthly-planning-system-meeting-agenda)
+1. Monthly plan sets the target (docket packages for the month)
+2. Grooming surfaces David's state — what's finishing, what's blocked, what's next
+3. Ritual (post-grooming, 10 min) sequences tomorrow: Block 1 reviews + VP/Delivery epics, Block 2 milestones + leads
+4. Morning execution follows the sequence — no planning, pure execution
+5. If no work serves the plan → the plan needs updating, or new sub-issues need creation
 
 ### Part 5: Position Progress & the Router
 
@@ -293,6 +298,7 @@ All three must pass. This mirrors the three-layer evaluation for new work (Part 
 - **Session:** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/af0f8b80-edc4-4aaa-8b99-b107cf4b48a9.jsonl` (extraction pass 2 — plan artifact format, stateless principle, pre-decisions, evaluation stack)
 - **Session:** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/2f8d924c-21df-4bb1-b1cb-46f2b645b257.jsonl` (extraction pass 3 — hypothesis, March walkthrough, shutdown ritual redesign, revenue model, forcing functions)
 - **Session:** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/053c839f-9e9b-4426-aa96-eba196931a4f.jsonl` (extraction pass 4 — revenue model, client walkthrough, lead triage)
+- **Session:** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/cd49cdfd-e1fd-4dce-933e-a28c9300db07.jsonl` (extraction pass 5 — shutdown ritual CEO evolution, block responsibilities, milestone-driven Block 2, post-grooming trigger)
 - **Fireflies:** https://app.fireflies.ai/view/xkn-ucts-pps::01KJ1YM415CRH4KJG7QKX2RHJV (revenue reasoning conversation)
 - **Data Artifacts:**
   - [Stakes Visibility: Forcing Function](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/stakes-visibility-forcing-function)
