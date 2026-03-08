@@ -2,19 +2,19 @@
 publish: true
 ---
 
-# Meeting Agenda: Staging Email Mailbox — Rohdex
+# Meeting Agenda: Gmelch IT Network Access — RDX-APP-01
 [[project-rohdex]]
 
 ## Meeting Goal
 
-Resolve the external dependency blocking full E2E staging: a second IONOS mailbox dedicated to the staging environment.
+Clarify the network change request needed for Gmelch IT to enable git-pull deployment from RDX-APP-01 (Path B improvement).
 
-1. **Mailbox creation path** — who requests it, through which channel, and expected timeline
-2. **Mailbox specification** — address format, IMAP/SMTP credentials handoff
+1. **Request framing** — what Marius communicates to Sikander
+2. **Feasibility signal** — whether this is straightforward or politically complex
 
 ## Pre-Read
 
-- [CI/CD & Staging Design Doc](ci-cd-staging-design) — Part 1: Staging Email Isolation explains why a second mailbox is needed
+- [CI/CD & Staging Design Doc](ci-cd-staging-design) — Part 2: Path B explains why GitHub access would improve the deployment workflow
 
 ---
 
@@ -22,23 +22,23 @@ Resolve the external dependency blocking full E2E staging: a second IONOS mailbo
 
 *Starting points for discussion, not limited to these.*
 
-### 1. IONOS mailbox creation for staging
+### 1. Minimal network changes for git-pull from RDX-APP-01
 ⏱️ 10 min
 
-The Dokumentenverarbeitung system moves emails out of INBOX after processing. Two instances polling the same mailbox means the first one to poll consumes the email. A dedicated staging mailbox eliminates this race condition entirely — the env vars already support pointing each environment at a different address.
+RDX-APP-01 currently has no outbound access to GitHub (Gmelch IT firewall). Production deployment works today via rsync-push over VPN (Path A). Enabling git-pull would simplify deployment and open the door for CI/CD automation.
 
-- Wilsch AI does not have IONOS admin access — cannot create mailboxes
-- During migration, Roman and Manuel Primke (Gmelch IT) handled IONOS email configuration
-- Konstantin (Rohdex) has been the coordination point for infrastructure requests
-- The staging mailbox only needs IMAP + SMTP access (same as production)
+- Required: outbound HTTPS (port 443) to `github.com` and `*.githubusercontent.com`
+- Required: DNS resolution for these domains from RDX-APP-01
+- Optional: outbound SSH (port 22) to `github.com` if SSH clone is preferred
+- Gmelch IT's current policy blocks "security-critical" outbound traffic and certain countries — GitHub (US/CDN) may or may not fall under their rules
 
-**To resolve:** The channel and contact for requesting a new IONOS mailbox, and expected turnaround time for provisioning.
+**To resolve:** The exact framing and channel for requesting this network change from Sikander Wenzel at Gmelch IT.
 
 ## Meeting Format
 
-- **Type:** Quick coordination (async or 5-min sync)
-- **Expectation:** Marius confirms who to contact and initiates the request
-- **Outcome:** Mailbox request submitted, expected delivery date known
+- **Type:** Quick coordination (async or 5-min sync with Marius)
+- **Expectation:** Marius reviews the technical requirements and decides how to approach Sikander
+- **Outcome:** Request either submitted or deferred with reasoning
 
 ## Related
 
