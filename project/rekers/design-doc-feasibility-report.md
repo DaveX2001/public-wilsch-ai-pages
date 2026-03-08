@@ -379,6 +379,86 @@ The Ralph playbook processes all file types: PDFs (visual reading), EML body tex
 
 Processing: all priority files per project, no early stopping. This is a benchmark — processing time itself is a metric. The script feeds files in Ralph playbook priority order (Angebote → Plans → Specialized) but does not skip files when criteria are found. Deduplication of `_1`/`_2` EML attachment duplicates is handled at the script level before model invocation.
 
+**POC Validation — Happy-Case Design (Project 35764)**
+
+The general architecture above describes the full production pipeline. Before building it, a POC validates the core hypothesis: can a 9B vision model extract the same criteria that the frontier model found via the Ralph playbook? The POC isolates extraction quality from file selection — file selection is a separate engineering problem solved later.
+
+**Ralph → Script transformation:** The Ralph playbook uses a frontier model to both orchestrate (decide which files to read, in what order, when to stop) AND extract (read documents, identify criteria, write evidence). The POC script replaces orchestration with deterministic Python; the 9B model handles only extraction — receiving one page image per call and returning structured criteria.
+
+**Validation target:** Project 35764 (Neubau Werkhalle van Eckendonk). Gold standard: [Kriteriennachweis 35764](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rekers/criteria-evidence-35764) — 8/9 criteria found by the frontier model. Chosen for its rich documentation and manageable file count.
+
+**Three-lane architecture:**
+
+*Lane 1 — Pre-work (done once, before script runs):*
+
+| Step | What | Output |
+|------|------|--------|
+| EML extraction | Extract attachments from EMLs to disk | `_extracted/` dirs (already done for all 14 projects) |
+| Hash dedup | md5 hash all PDFs, keep one per unique hash | 113 files → 66 unique (43 PDFs + 20 EMLs + 3 XLSX) |
+| CSV context | Feed Anfragen.csv header + project row as prompt context | ~630 chars — model receives structured data alongside page images |
+
+Dedup uses content hashing only — no filename-based suffix stripping. Hash comparison is both simpler and more accurate: suffix-named files (e.g., `Lageplan_1.pdf`) sometimes contain genuinely different content from their base version. Hash dedup keeps these; suffix dedup would incorrectly remove them. Validated on 35764: suffix+hash yields 63 files, hash-only yields 66 — the 3 extras have confirmed different content.
+
+*Lane 2 — Orchestration (Python script):*
+
+| Step | What | Detail |
+|------|------|--------|
+| O1: Read manifest | Load JSON manifest | `{"pdfs": [...], "emls": [...]}` — file paths grouped by type, human-reviewable |
+| O2: Render PDFs | pdftoppm at 72 dpi | One PNG per page. Start at 72 dpi (~525 image tokens/page), escalate to 110 dpi only if extraction quality drops |
+| O3: EMLs | Skipped for POC | All criteria in 35764 came from PDFs. EMLs are forwarding correspondence — criteria-rich data is in the PDF attachments already in `_extracted/` |
+| O4: Call Ollama | POST /api/generate per page | JSON mode (`format: "json"`), full prompt per call (stateless), CSV row as context |
+| O5: Persist JSONL | Append each result incrementally | Crash-safe at ~4.2 hr runtime. Each line: `{"file": "path", "page": N, "response": {...}, "timing": {...}}` |
+
+No aggregation or report assembly in the script. The JSONL output is the deliverable — analysis and comparison against the gold standard happen externally (via Claude or manual review).
+
+*Lane 3 — AI (model's job per call):*
+
+Input: one page image (72 dpi PNG, base64) + prompt (CSV context + 6-criterion schema in German). Output: JSON per the extraction schema. The model extracts criteria or returns an empty array for noise pages.
+
+Per-page JSON schema:
+
+```json
+{
+  "criteria": [
+    {
+      "name": "Höhe",
+      "value": "14,35 m (First); OK-Stütze +13,35 m",
+      "passage": "Gesamthöhe 14,35"
+    }
+  ]
+}
+```
+
+- `name`: one of 6 extraction criteria (Gebäudetyp, Höhe, Kran, Dachlasten, Baustoff, Dachbegrünung)
+- `value`: extracted value in original language/units
+- `passage`: supporting text from the page
+- Empty `criteria: []` for noise pages (Fugenschnur specs, invoices, contracts)
+
+The 3 CSV criteria (Bauort, Kundenreferenz, Kalkulatorenwissen) are excluded from extraction — already known from Anfragen.csv. The CSV row is included as prompt context only.
+
+**Project 35764 — validated file inventory:**
+
+| Metric | Value |
+|--------|-------|
+| Total files (all types) | 113 |
+| After hash dedup (PDFs only) | 43 unique PDFs |
+| Total pages | 239 |
+| Criteria-relevant PDFs (Ralph-pattern match) | ~20 |
+| Noise PDFs (no pattern match) | ~23 |
+
+No noise filtering — the model processes all 43 PDFs (239 pages). Noise handling is part of the test: the model must return empty arrays for pages containing sealant specs, invoices, or contract documents. File selection intelligence is a later engineering problem.
+
+**Runtime projections (Project 35764, Power 10):**
+
+| DPI | Per page | 239 pages | With 2× parallel |
+|-----|----------|-----------|-------------------|
+| 72 dpi | 63s | ~4.2 hrs | ~2.2 hrs |
+| 110 dpi | 172s | ~11.4 hrs | ~5.7 hrs |
+
+POC starts at 72 dpi. If extraction quality is insufficient (criteria hit rate drops >20% vs gold standard), escalate to 110 dpi and re-run.
+
+**Machines:** Power 10 (current: 5 cores × 8 SMT = 40 threads, 123 GB RAM), Mac Studio (128 GB RAM, Apple Silicon — benchmarks pending), MacBook Pro (128 GB RAM — fallback). Power 10 benchmarks exist; Mac Studio benchmarks to be run after script is operational.
+
 **Validated on Power 10** (March 2026 — SSH investigation on `wph-ki-tst`):
 
 | Item | Status | Evidence |
@@ -429,3 +509,4 @@ All llama.cpp-based runtimes share the same underlying binary and the same threa
 - `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-REKERS--poc/772b96f8-d646-428c-bde6-9eeddf0418b5.jsonl` (Part 2 extraction pass — 12 uncertainties resolved, evidence template formalized)
 - `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-REKERS--poc/a661e34f-b89f-48bf-bc6c-bd590536fae4.jsonl` (Part 7 extraction pass — local model feasibility, Power 10 benchmarks)
 - `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-REKERS--poc/5459d299-6d80-466e-aca9-bedb19f41f8f.jsonl` (Part 7 extraction pass 2 — model selection, architecture, Power 10 SSH benchmarks, file inventory)
+- `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-REKERS--poc/50ea279f-b40e-4985-80cb-26f328aa43f5.jsonl` (Part 7 extraction pass 3 — POC validation script design, three-lane architecture, 35764 file inventory + hash dedup)
