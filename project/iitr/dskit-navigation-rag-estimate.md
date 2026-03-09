@@ -31,7 +31,7 @@ Rebuild the DS-Kit Navigation system using PageIndex (vectorless, tree-based ret
 |--------------|-----|-----|-------|
 | Infrastructure (PageIndex + Ollama + OpenWebUI + test harness w/ LLM judge) | 6h | 8h | Test harness includes working evaluation judge |
 | Data preparation (PDF, templates ZIP, web chapters, CSV) | 4h | 6h | Anwenderleitfaden PDF on server; web chapters re-extracted cleanly |
-| Tree index generation + validation | 3h | 4h | Dual-model: 30B-A3B for tree gen, 9B for runtime |
+| Tree index generation + validation | 3h | 4h | Qwen 3.5 9B with think:false |
 | Evaluation + iteration (>90% target) | 8h | 12h | Purely RAG iteration — harness built in Pkg 1 |
 | Deployment + documentation | 1h | 2h | Staging IS production |
 | **Total** | **22h** | **32h** | |
@@ -54,18 +54,3 @@ Rebuild the DS-Kit Navigation system using PageIndex (vectorless, tree-based ret
 - Keycloak authentication
 - Images/screenshots in responses
 
----
-
-## Design Doc — Extraction Pass Handoff
-
-The [Design Doc](dskit-navigation-design.md) was written for the previous Typesense approach. The following sections need extraction passes before implementation can begin:
-
-| Section | What needs updating | Priority |
-|---------|-------------------|----------|
-| **Approach** (3 workstreams) | Replace Typesense pipeline with PageIndex tree generation workflow | High |
-| **Current Deployment** | Update container list — PageIndex replaces Typesense + TEI stack | High |
-| **Success Definition** | Confirm 28/29 target still holds with PageIndex retrieval | Medium |
-| **Source — Data Files** | ~~Verify all source data accessible~~ ✅ Verified 2026-03-09 — all 29 Quelle mapped | Done |
-| **Undefined: dual-answer trigger** | Resolve "when to include navigation guidance" — PageIndex tree path may solve this naturally | Low |
-
-**Approach:** Each section gets its own extraction pass (SCOPE → SURFACE → RESOLVE → UPDATE → ASSESS). Start with Approach — it defines the implementation path.
