@@ -57,9 +57,15 @@ IITR-STAGING hosts the target deployment. Old DS-Kit containers (Typesense, Open
 
 **New stack (to deploy):**
 - PageIndex (open-source, MIT) — tree index generation + retrieval
-- Qwen 3.5 via Ollama — tree traversal + answer generation
+- Qwen 3.5 9B via Ollama — tree traversal + answer generation + tree index generation (single model)
 - OpenWebUI — chat interface (retained from previous deployment)
-- Test harness — automated 29-question evaluation
+- Test harness — automated 29-question evaluation with LLM judge
+
+**Validated (2026-03-09):**
+- **PageIndex runs fully local** — 2 patches needed: (1) tiktoken fallback in `utils.py` (`cl100k_base` for Qwen model names), (2) `OPENAI_BASE_URL` env var for Ollama routing
+- **Qwen 3.5 9B single model** — produces valid structured JSON with `think:false`. Tested against Qwen 3 30B-A3B: 9B wins because `think:false` is ignored on Qwen 3, consuming all tokens on thinking. 9B also produces richer titles and summaries.
+- **All 29 test questions sourced** — Navigationssystem FAQ (19/29), Anwenderleitfaden PDF (3/29), DS-Kit Oberfläche chapters (7/29). Full mapping in [epic #959 comment](https://github.com/DaveX2001/deliverable-tracking/issues/959#issuecomment-4021675769).
+- **Source data organized** — [Drive folder](https://drive.google.com/drive/folders/1gnxBulrnkGh-Oyly_jabofNo4SVivQhR) with INPUT/ (knowledge base) and TEST_RUBRIK/ (evaluation rubric)
 
 ---
 
