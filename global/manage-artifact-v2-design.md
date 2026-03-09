@@ -127,7 +127,7 @@ Tier 1 sources consumed and cross-referenced against existing methodology. Five 
 
 | # | Technique | Source | Mechanism |
 |---|-----------|--------|-----------|
-| 1 | Persona selection | [Anthropic PSM](https://www.anthropic.com/research/persona-selection-model) | Identity framing selects holistic persona from pretraining space — not compliance |
+| 1 | Persona selection | [Anthropic PSM](https://www.anthropic.com/research/persona-selection-model) ([deep dive](https://alignment.anthropic.com/2026/psm/)) | Identity framing selects holistic persona from pretraining space — not compliance |
 | 2 | WHY over WHAT | [Best Practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) + [Codified Context](https://arxiv.org/abs/2602.20478) | Explanations create generalizable heuristics. Rules only cover anticipated cases |
 | 3 | Thinking is promptable | [Adaptive Thinking](https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking) | Native interleaved thinking shaped through system prompt — guide WHAT to think about |
 | 4 | Right altitude | [Context Engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) | Not too prescriptive (brittle), not too vague (no signal) |
@@ -233,7 +233,7 @@ The rule "user clicks Next" didn't enter the thinking trace — it was absent, n
 
 **The contrast:** Beliefs create internal arguments that persist under pressure. Rules create compliance targets that fold under pattern-matching.
 
-**14-principle scorecard:** Dev = 12/14. JA = 3/14 full, 4/14 partial. The JA protocol's bones are there (identity, some WHY, authority model). The fix is separation: extract procedures into commands, strengthen the principles that are partially present.
+The JA protocol's bones are there (identity, some WHY, authority model). The fix is separation: extract procedures into commands, strengthen the principles that are partially present.
 
 **Undefined:** Artifact type sub-categories and edge cases. What belongs in a command vs. a protocol when the behavior spans multiple commands? What belongs in a skill vs. a command when the process is interactive AND produces an artifact? Need empirical validation from existing artifacts that work well (Developer position) vs. ones that don't (CCI #604). Cross-reference with ADR-008's architectural hierarchy.
 
@@ -309,8 +309,8 @@ Patterns surfaced from Anthropic's engineering blog and academic research. These
 - **Session (Pass 3):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/d9255fc6-0f63-48c1-8813-02ee8e34e039.jsonl
 - **Dev session analyzed:** 34d514fe-a8ee-4a46-87b9-9105b43d676f (DaveX2001, #1056 implementation — 83% belief-based thinking)
 - **Interpretability transcript:** [How Models Think](https://youtu.be/fGKNUvivvnc) (Anthropic team — Jack, Emanuel, Josh)
-- **Anthropic sources (Pass 3):** [Adaptive Thinking](https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking), [Best Practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices), [Context Engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents), [PSM](https://www.anthropic.com/research/persona-selection-model)
-- **Academic (Pass 3):** [Codified Context](https://arxiv.org/abs/2602.20478) (283 sessions), [ContextCov](https://arxiv.org/abs/2603.00822) (723 repos)
+- **Anthropic sources (Pass 3):** [Adaptive Thinking](https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking), [Best Practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices), [Context Engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents), [PSM](https://www.anthropic.com/research/persona-selection-model) ([deep dive](https://alignment.anthropic.com/2026/psm/))
+- **Academic (Pass 3):** [Codified Context](https://arxiv.org/abs/2602.20478) (283 sessions), [ContextCov](https://arxiv.org/abs/2603.00822) (723 repos), [Deliberative Alignment](https://arxiv.org/abs/2412.16339) (reasoning over specs in thinking)
 - **Position Epic:** [CCI #600 — System Engineer](https://github.com/DaveX2001/claude-code-improvements/issues/600)
 - **Release Epic Evidence:** [CCI #604 — JA Lifecycle Violations](https://github.com/DaveX2001/claude-code-improvements/issues/604) (47 comments, 5+ fix passes)
 - **Current manage-artifact:** `~/.claude/skills/manage-artifact/SKILL.md` (created Dec 12, 2025)
