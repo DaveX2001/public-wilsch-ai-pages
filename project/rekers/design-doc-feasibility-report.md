@@ -457,7 +457,7 @@ No noise filtering — the model processes all 43 PDFs (239 pages). Noise handli
 
 POC starts at 72 dpi. If extraction quality is insufficient (criteria hit rate drops >20% vs gold standard), escalate to 110 dpi and re-run.
 
-**Machines:** Power 10 (current: 5 cores × 8 SMT = 40 threads, 123 GB RAM), second Power 10 (specs TBD — potentially more cores/threads, pending [#713](https://github.com/DaveX2001/deliverable-tracking/issues/713) Libel engagement), Mac Studio (128 GB RAM, Apple Silicon — benchmarks pending), MacBook Pro (128 GB RAM — fallback). Power 10 benchmarks exist; Mac Studio and second Power 10 benchmarks to be run after script is operational.
+**Machines:** Power 10 (current: 5 cores × 8 SMT = 40 threads, 123 GB RAM), second Power 10 (specs TBD — potentially more cores/threads, pending [#866](https://github.com/DaveX2001/deliverable-tracking/issues/866)), Mac Studio (128 GB RAM, Apple Silicon — benchmarks pending), MacBook Pro (128 GB RAM — fallback). Power 10 benchmarks exist; Mac Studio and second Power 10 benchmarks to be run after script is operational.
 
 **Validated on Power 10** (March 2026 — SSH investigation on `wph-ki-tst`):
 
