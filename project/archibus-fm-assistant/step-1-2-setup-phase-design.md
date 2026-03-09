@@ -53,11 +53,11 @@ Column names alone are insufficient. Client data uses domain-specific naming (e.
 
 **Scope boundary:** AI maps only what exists in the client's data. It does not suggest adding hierarchy levels that the data doesn't contain. The value proposition is translating client data into BEM's language, not restructuring the client's data model.
 
-**Non-contiguous hierarchies:** BEM's data model supports level-skipping — a Room can be a direct child of a Building with no intermediate Floor. The AI works with what the client provides: if the data has no floor column, the hierarchy is Building → Room. No phantom levels, no proposals to add missing layers. *(Confirmed: Rein, Feb 27 2026)*
+**Non-contiguous hierarchies:** BEM's data model supports level-skipping — a Room can be a direct child of a Building with no intermediate Floor. The AI works with what the client provides: if the data has no floor column, the hierarchy is Building → Room. No container levels, no proposals to add missing layers. *(Confirmed: Rein, Feb 27 2026)*
 
 **Rejection flow:** If the implementer disagrees, they provide context ("AREA means campus zones, not buildings") and the AI re-proposes. The correction loop is conversational — no re-upload, no UI reassignment. Loop runs until explicit confirmation.
 
-**Output:** Confirmed mapping of client columns → BEM hierarchy levels. Step 3 uses this mapping to generate phantom location assets (Building, Floor, Room records that don't exist in the client's Excel but are required by BEM's parent-child structure).
+**Output:** Confirmed mapping of client columns → BEM hierarchy levels. Step 3 uses this mapping to generate container assets (Building, Floor, Room records that don't exist in the client's Excel but are required by BEM's parent-child structure).
 
 #### Proposal Artifact
 
@@ -604,6 +604,8 @@ When the BEM database already contains location assets (buildings, floors, rooms
 
 Defines how to witness the Setup Phase pipeline. One evaluation surface: the **contract output** — the mapping contract JSON compared against a known-good expected contract for the CAFM sample. Same input, same BEM reference data → same contract. The output is deterministic.
 
+**Audience:** The witness ceremony's ultimate goal is to impress Miguel (Product Owner), not just pass a technical check. Miguel cares about intelligent results — readable asset names, no process leakage, no template-feeling rigidity. The SA reviews technically first; Miguel judges whether the system is ready for client-facing demos.
+
 #### Environment
 
 [LibreChat](https://www.librechat.ai/) — deployed locally, connected to the Anthropic API (Sonnet). The AI runs in an isolated chat environment that doesn't know it's being tested. LibreChat's native [MCP support](https://www.librechat.ai/docs/features/mcp) connects the archibus-bulk-import FastMCP server. A LibreChat [agent](https://www.librechat.ai/docs/features/agents) provides the pre-prompted persona with MCP tools attached.
@@ -639,6 +641,10 @@ A run **passes** when the AI's contract output matches `data/expected-contract.j
 
 A run **fails** when any element deviates from the expected contract. Failures are findings routed to prompt refinement — the Dev Lead never fixes the prompt directly.
 
+**Rubric evolution:** Exact-match is the starting rubric. If enum mappings prove non-deterministic across runs (e.g., the AI reasonably maps the same value to different BEM enums), the rubric evolves to structure-exact with SA-judged enum tolerance. Start strict, loosen based on evidence.
+
+**Test scope:** The first witness ceremony tests against ONE golden contract (`cafm-asset-upload-sample.xlsx`). When Mujahid delivers additional CAFM examples, new golden contracts are created and added to the test suite. Additive — new examples do not block the first ceremony.
+
 #### Optional Spot-Checks
 
 | Spot-Check | How | What to verify |
@@ -650,6 +656,38 @@ A run **fails** when any element deviates from the expected contract. Failures a
 Spot-checks are optional — the Dev Lead picks based on judgment.
 
 *(Source: Extraction pass 2026-03-08 — SA feedback on test rubric. Resolutions: contract output as sole evaluation surface, LibreChat as isolated test environment, golden contract as git-committed JSON file, exact-match evaluation, conversation quality deferred to fine-tuning phase.)*
+
+#### Prompt Architecture
+
+The Step 2 prompt (`prompts/step-2.md`) serves as the managed artifact stand-in until the real managed artifact system is implemented. It encodes both behavioral and mechanical guidance.
+
+**Behavioral layer (PSM-derived):** The AI's persona emerges from its operating environment, not a label. The ETL agent is a character who:
+- Knows BEM deeply — confident, decisive, explains rationale without being asked
+- Adapts to arbitrary input — no rigidity, no template-feeling interactions
+- Improves data intelligently — does not pass through raw Excel values; adds semantic understanding
+
+These traits follow Anthropic's Persona Selection Model: the AI behaves like a competent human colleague in this environment. Designing interactions that match how you would brief a senior CAFM data engineer is effective, not naive.
+
+**Mechanical layer (10-section recipe):** The prompt follows Anthropic's prompt engineering structure:
+
+| Section | Content for Step 2 |
+|---------|-------------------|
+| 1. Task context | Column classification: map client Excel → BEM schema |
+| 2. Tone context | PSM persona traits (above) |
+| 3. Background data | BEM context (fields, types, enums) via MCP tool |
+| 4. Rules | Mapping categories, exclusion rules, enum handling |
+| 5. Examples | Golden contract JSON (`data/expected-contract.json`) |
+| 6. Conversation history | N/A (single-turn classification) |
+| 7. Immediate task | "Classify these columns" with Excel analysis output |
+| 8. Think step by step | Explicit reasoning before committing mappings |
+| 9. Output formatting | JSON contract structure (3 elements) |
+| 10. Prefilled response | Opening JSON brace to anchor output format |
+
+**Anti-hallucination:** The prompt instructs the AI to say "I don't know" for uncertain mappings (flag as `excluded` with reasoning), answer only when confident in the BEM field match, and think before committing — reasoning traces surface in the conversation for implementer review.
+
+**XML structure:** All context sections use XML delimiters (`<bem_context>`, `<excel_analysis>`, `<mapping_rules>`) for clear boundaries and token efficiency.
+
+*(Source: Extraction pass 2026-03-09 — PSM behavioral model + Anthropic prompt engineering recipe. Miguel transcript: audience expectations.)*
 
 ---
 
@@ -680,3 +718,7 @@ Spot-checks are optional — the Dev Lead picks based on judgment.
 - **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/0914cc69-d3b3-4937-838c-d3140990c480.jsonl
 - **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/831e4df9-3e17-4516-87f3-e27d5cc65115.jsonl
 - **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/0ffc456e-f9f5-49dc-bcd1-cb55c815b788.jsonl
+- **Transcript:** [AI Data Entry Demo (Feb 23, 2026)](https://github.com/user-attachments/files/25829896/AI.Data.Entry.Demo.Transcript.-.Meeting.Report.txt) — Miguel's ETL expectations, audience criteria, terminology ("container" not "phantom")
+- **Reference:** [Anthropic PSM — Persona Selection Model](https://alignment.anthropic.com/2026/psm/) — behavioral layer for prompt architecture
+- **Reference:** [Anthropic Prompt Engineering Course](https://www.youtube.com/watch?v=ysPbXH0LpIE) — 10-section mechanical prompt recipe
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/d39c2d40-a2af-4063-ae8e-ebacd36a83ae.jsonl
