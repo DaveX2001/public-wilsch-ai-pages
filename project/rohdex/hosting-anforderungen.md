@@ -321,7 +321,9 @@ Konstantin sandte `Veterinary BUSAN.docx` (Beispiel-Dokument, 03.12.2025) — ei
 
 Vier weitere Felder im BUSAN-Dokument (Empfänger/Consignee, Lieferbedingungen/CIF, Ausstellungsdatum, Sterilisierungsvermerk) werden von Konstantin im Excel-Template vorausgefüllt — keine Systemverantwortung.
 
-**Ergebnis:** Kein Codeänderungsbedarf. VET-Dokumenttyp ist vollständig.
+**Ergebnis:** Kein Codeänderungsbedarf am bestehenden VET-Excel-Output.
+
+**Undefined:** VET-Ausgabeformat — Ob VET-Output zusätzlich als DOCX generiert werden soll (aktuell nur Excel). Konstantin sandte BUSAN.docx als Beispiel, unklar ob als gewünschtes Ausgabeformat oder nur als Referenz. Bei Bestätigung: ~4–7h Aufwand (€360–630). → [Meeting Agenda: VET DOCX + Invoice](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rohdex/vet-docx-invoice-agenda) Topic 1
 
 **Korrektur: Rezept/Material-Datenintegration entfernt.** Die JSON-Datenstruktur (Recipe ID → Materials Array) und die 500MB+ Datenlieferung gehören zum AVO-Projekt (Empfänger: Mattis von Stevendaal, AVO). Der Eintrag wurde durch eine fehlerhafte Transcript-Zuordnung dem ROHDEX-Issue #585 zugewiesen. Verifiziert anhand der E-Mail "Abstimmung zum Aufbau der JSON-Datei" (Thomas Erhard → Mattis.vonStevendaal@avo.de). Kein Bezug zu ROHDEX Veterinärdokumenten.
 
@@ -352,3 +354,4 @@ Vier weitere Felder im BUSAN-Dokument (Empfänger/Consignee, Lieferbedingungen/C
 - **Session (Extraction Pass 3 — Tara #655):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/93486107-19c1-4502-8861-c22d37d87e60.jsonl
 - **Session (Extraction Pass 4 — BUSAN #585):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/8c4a1a6d-6f2f-4e45-9588-1f321e7027c6.jsonl
 - **Session (Extraction Pass 5 — SA Feedback):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/290d1003-c3e9-443c-99f3-bfb8b3a81bb0.jsonl
+- **Session (Extraction Pass 6 — Meeting Agenda Reformat + Undefined B Correction):** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/3060c61b-9d4e-4f7d-8f2f-eb6a9b170fec.jsonl
