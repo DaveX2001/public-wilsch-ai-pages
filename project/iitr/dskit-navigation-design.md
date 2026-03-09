@@ -62,8 +62,7 @@ After container removal: `docker system prune` to reclaim ~690 GB (unused images
 |-----------|---------|
 | GPU | NVIDIA RTX 4000 SFF Ada, 20 GB VRAM |
 | Ollama | v0.17.7 in Docker (`rag-staging-ollama`, port 11436) |
-| Qwen 3.5 9B | Pulled, benchmarked — 0.76s/call with think:false |
-| Qwen 3.5 4B | Pulled, benchmarked — 0.67s/call with think:false |
+| Qwen 3.5 9B | Single model for all pipeline stages. Tree traversal: 0.76s/call (think:false, forced by Ollama structured output). Full pipeline: ~8.5s (5 traversal calls + answer generation). Answer generation uses think:true for +25% instruction-following quality ([source](https://qwenlm.github.io/blog/qwen3/)). |
 | OpenWebUI | Port 3002 — IITR Keycloak SSO + OTEL configured (`rag-staging-openwebui`) |
 | Langfuse | Port 3003 — LLM tracing (web, worker, ClickHouse, Postgres, Redis, MinIO) |
 | MetaMCP | Port 12008 — MCP proxy/manager |
@@ -85,7 +84,7 @@ After container removal: `docker system prune` to reclaim ~690 GB (unused images
 
 **Validated (2026-03-09):**
 - **PageIndex runs fully local** — 2 patches needed: (1) tiktoken fallback in `utils.py` (`cl100k_base` for Qwen model names), (2) `OPENAI_BASE_URL` env var for Ollama routing
-- **Qwen 3.5 9B single model** — produces valid structured JSON with `think:false`. Tested against Qwen 3 30B-A3B: 9B wins because `think:false` is ignored on Qwen 3, consuming all tokens on thinking. 9B also produces richer titles and summaries.
+- **Qwen 3.5 9B single model** — produces valid structured JSON with `think:false`. Tested against Qwen 3 30B-A3B: 9B wins because `think:false` is ignored on Qwen 3, consuming all tokens on thinking. 9B also produces richer titles and summaries. Split config: `think:false` for tree traversal (Ollama forces this for structured output — [#10929](https://github.com/ollama/ollama/issues/10929)), `think:true` for answer generation (IFEval: 0.92 vs 0.69 non-thinking — [Qwen3 blog](https://qwenlm.github.io/blog/qwen3/)).
 - **All 29 test questions sourced** — Navigationssystem FAQ (19/29), Anwenderleitfaden PDF (3/29), DS-Kit Oberfläche chapters (7/29). Full mapping in [epic #959 comment](https://github.com/DaveX2001/deliverable-tracking/issues/959#issuecomment-4021675769).
 - **Source data organized** — [Drive folder](https://drive.google.com/drive/folders/1gnxBulrnkGh-Oyly_jabofNo4SVivQhR) with INPUT/ (knowledge base) and TEST_RUBRIK/ (evaluation rubric)
 
@@ -142,8 +141,7 @@ Run the test harness against the 29-question set with Quelle-mapped expected ans
 
 - Retrieval prompts (tree traversal instructions)
 - Answer generation prompts (format, language, detail level)
-- Model selection (Qwen 3.5 4B vs 9B — 4B faster, 9B may be more accurate on edge cases)
-- `think:false` confirmed for tree traversal; evaluate whether answer generation benefits from thinking
+- `think:false` for tree traversal, `think:true` for answer generation (decided — see Infrastructure Baseline)
 
 Target: ≥26/29 (>90%). Present sample answers to Stellmacher for qualitative review at bi-weekly meeting (Mar 17).
 
@@ -221,7 +219,7 @@ The Source column enables systematic validation: compare the PageIndex tree trav
 **PageIndex:**
 - [GitHub repo](https://github.com/VectifyAI/PageIndex) — MIT, open-source, vectorless tree-based RAG
 - [Docs](https://docs.pageindex.ai/) — framework reference, cookbooks, tutorials
-- Benchmark: Qwen 3.5 4B/9B with think:false on IITR-STAGING (RTX 4000 SFF Ada, 20 GB)
+- Benchmark: Qwen 3.5 9B with think:false on IITR-STAGING (RTX 4000 SFF Ada, 20 GB)
 
 **Reference Documents:**
 - [Test Analysis](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/iitr/dskit-rag-test-analysis) — question-by-question verification (prior Typesense attempt)
@@ -237,3 +235,4 @@ The Source column enables systematic validation: compare the PageIndex tree trav
 - Pass 1 extraction (Approach): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/80abc9d7-5b68-42f4-8d65-c159fb0cb0e8.jsonl
 - Pass 2 extraction (Current Deployment): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/ca51af04-8bef-46c9-b294-b7a2c161da01.jsonl
 - Pass 3 extraction (Test Rubric): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/42a08f93-6d0e-4049-8015-1e9910c597bb.jsonl
+- Pass 4 extraction (Qwen Model): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/a084b417-c473-471e-8ff2-5c647ccc572a.jsonl
