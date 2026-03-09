@@ -39,9 +39,24 @@ This project rebuilds the navigation system using PageIndex — a vectorless, tr
 
 ## Infrastructure Baseline
 
-IITR-STAGING hosts the target deployment. Old DS-Kit containers (Typesense, OpenWebUI, TEI, Pipelines) are being retired.
+IITR-STAGING hosts the target deployment. A server audit (2026-03-09) found 11 Docker stacks running ~70 containers — far more than previously documented. This includes orphaned experiments, crash-looping services, and three overlapping observability stacks. Cleanup is a prerequisite for deploying the new PageIndex stack.
 
-**Available now:**
+**Retire (cleanup first):**
+
+| Stack | Why | Compose File |
+|-------|-----|-------------|
+| IITR-RAG-V2 (Typesense, OpenWebUI :3006, Pipelines) | Replaced by PageIndex | `/home/shared/projects/IITR-RAG-V2/docker-compose.yml` |
+| DS-Kit clone (all stopped) | Duplicate of RAG-V2 | `/opt/dskit-rag/docker-compose.yml` |
+| Chunkr (~47 containers, crash-looping) | Dependencies stopped 5 months ago, burning CPU | `/home/shared/projects/IITR-RAG-V2/services/chunkr/compose.yaml` |
+| RAG-Dev (OpenWebUI :3001, Ollama, Qdrant) | Dev environment, not needed | `/home/shared/projects/IITR-RAG-V1/docker-compose.dev.yml` |
+| Langfuse-POC (orphaned, compose file deleted) | Experiment containers still running | Compose deleted — stop manually |
+| SigNoz (APM, ClickHouse, Zookeeper) | Consolidating to Langfuse only | `/home/shared/projects/signoz/deploy/docker/docker-compose.yaml` |
+| OpenLIT (LLM observability, ClickHouse) | Overlaps with Langfuse | `/home/shared/projects/openlit/docker-compose.yml` |
+| Trieve (orphaned volumes only) | No containers, 7 dangling volumes | Volumes only — `docker volume rm` |
+
+After container removal: `docker system prune` to reclaim ~690 GB (unused images, volumes, build cache). All old data (Typesense indexes, Qdrant vectors, Chunkr parsed docs) is disposable — PageIndex replaces all prior retrieval approaches. No external IITR systems depend on this staging server.
+
+**Production stack (after cleanup):**
 
 | Component | Details |
 |-----------|---------|
@@ -49,16 +64,23 @@ IITR-STAGING hosts the target deployment. Old DS-Kit containers (Typesense, Open
 | Ollama | v0.17.7 in Docker (`rag-staging-ollama`, port 11436) |
 | Qwen 3.5 9B | Pulled, benchmarked — 0.76s/call with think:false |
 | Qwen 3.5 4B | Pulled, benchmarked — 0.67s/call with think:false |
+| OpenWebUI | Port 3002 — IITR Keycloak SSO + OTEL configured (`rag-staging-openwebui`) |
+| Langfuse | Port 3003 — LLM tracing (web, worker, ClickHouse, Postgres, Redis, MinIO) |
+| MetaMCP | Port 12008 — MCP proxy/manager |
 
 **Access:**
 - SSH: `ssh marius@IITR-STAGING`
 - Ollama API: `http://localhost:11436/api/generate`
-- Docker compose: `/home/shared/projects/IITR-RAG-V1/docker-compose.yml`
+- Production compose: `/home/shared/projects/IITR-RAG-V1/docker-compose.staging.yml`
+- Langfuse compose: `/home/shared/projects/langfuse/docker-compose.yml`
+- MetaMCP compose: `/home/shared/projects/metamcp/docker-compose.yml`
+
+**Cleanup sequence:** Retire all stacks in the table above → `docker system prune` → verify production stack healthy → then proceed to Approach Phase 1 (Infrastructure Setup) for PageIndex deployment.
 
 **New stack (to deploy):**
 - PageIndex (open-source, MIT) — tree index generation + retrieval
 - Qwen 3.5 9B via Ollama — tree traversal + answer generation + tree index generation (single model)
-- OpenWebUI — chat interface (retained from previous deployment)
+- OpenWebUI — chat interface (retained on port 3002, reconfigure backend from Flask proxy to PageIndex)
 - Test harness — automated 29-question evaluation with LLM judge
 
 **Validated (2026-03-09):**
@@ -152,3 +174,4 @@ Target: ≥26/29 (>90%). Present sample answers to Stellmacher for qualitative r
 - Original design: /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-IITR--IITR-NAVIGATION/46a000cb-3044-40d7-adaf-e30987553859.jsonl
 - Zielkorridor extraction: /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/a868fafa-95e4-413d-95c8-f50bd3ff3ed4.jsonl
 - Pass 1 extraction (Approach): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/80abc9d7-5b68-42f4-8d65-c159fb0cb0e8.jsonl
+- Pass 2 extraction (Current Deployment): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/ca51af04-8bef-46c9-b294-b7a2c161da01.jsonl
