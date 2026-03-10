@@ -42,7 +42,7 @@ Court Judgments and Masterfragen are not replaced by PageIndex — different pro
 | Element | Definition |
 |---------|-----------|
 | **Goal** | Navigation system is production-ready: accurate answers with chapter-referenced navigation on the 29-question test set |
-| **Success** | Test harness scores ≥26/29 (>90%) across 4 evaluation dimensions (see Test Rubric). Answers include chapter reference from tree traversal path. Stellmacher/Kraska validate answer quality via sample review at bi-weekly meetings. |
+| **Success** | Test harness scores ≥26/29 (>90%) across 4 evaluation dimensions (see Test Rubric). Answers include chapter reference from tree traversal path. Stellmacher validates answer quality directly in the system (OpenWebUI). |
 | **Done test** | Stellmacher sends a question to the navigation system, receives a chapter-referenced answer, and confirms it is correct — without developer involvement. |
 
 ---
@@ -83,7 +83,7 @@ Feed all source documents to PageIndex for tree index generation. Ingest full do
 
 ### Part 3: Test Rubric
 
-Automated evaluation of the navigation system against the 29-question test set using an LLM judge.
+Automated evaluation of the navigation system against the 29-question test set using an LLM judge. LLM judge uses the existing [Testfragen CSV](https://docs.google.com/spreadsheets/d/1PDSzSH0zrwEVoJ2MirBpr0c6gTuWQlwn2K6cjVXxBjI/edit) (expected answers) and [Test Set with Quelle](https://docs.google.com/spreadsheets/d/1gKLPVazIDCVQtpZaR509-NbiVZbjEnmkY44raMdbM2A/edit?gid=492982273) (source mapping) as reference data.
 
 **4 evaluation dimensions:**
 
@@ -91,14 +91,14 @@ Automated evaluation of the navigation system against the 29-question test set u
 |---|-----------|----------|-----------|
 | 1 | **Content Accuracy** | User-intent standard (non-specialist perspective) | Key information present in the answer |
 | 2 | **Format** | Dual-answer structure (general answer + navigation hint) | Both parts present |
-| 3 | **Chapter Reference** | Answer text + tree traversal path verification | Chapter reference correct, no false positives |
+| 3 | **Chapter Reference** | Answer text + tree traversal path verification | Chapter reference correct, no false positives. For questions where the correct answer has no chapter (e.g., "contact dskit@iitr.de"), PASS if no false chapter invented |
 | 4 | **Source Traceability** | Anti-hallucination grounding check | Answer grounded in source data |
 
-**Scoring:** Binary PASS/FAIL per question. A question passes when content is accurate AND chapter reference is correct. Format and source traceability are quality signals tracked per question but don't independently fail a question.
+**Scoring:** Binary PASS/FAIL per question across all 4 dimensions. A question passes only when all 4 dimensions pass.
 
 **Evaluation split:**
 - **AI (LLM judge):** Scores all 4 dimensions per question automatically on every test run. Existing test harness infrastructure in [IITR-RAG-Navigation](https://github.com/WILSCH-AI-SERVICES/IITR__IITR-RAG-Navigation/tree/main/infrastructure/dskit-rag/test-harness) provides the base (LLM judge via OpenRouter, CSV output). Adapt from 14 → 29 questions, add 4-dimension scoring.
-- **Human (Stellmacher/Kraska):** Review CSV report at bi-weekly meetings (next: Mar 17). Qualitative sign-off — do answers actually help a non-specialist user navigate the DS-Kit?
+- **Human (Stellmacher):** Reviews answers directly in the system (OpenWebUI) and provides feedback via email. Validates content accuracy (dim 1) and chapter reference (dim 3) holistically — "is this answer correct and pointing to the right place?" Format and source traceability are AI-only dimensions.
 
 **Output artifact:** CSV report with columns per dimension. Two modes: internal (with PASS/FAIL per dimension) and client-facing (full answers, no scoring). Extends the existing dual-CSV pattern from the legacy test harness.
 
@@ -116,7 +116,7 @@ Run the test harness, iterate toward ≥26/29. Tree index generation is a one-ti
 4. Adjust: retrieval prompts (tree traversal instructions), answer generation prompts (format, language, detail level), or data preparation (heading hierarchy quality)
 5. Re-run until ≥26/29
 
-Present sample answers to Stellmacher at bi-weekly meeting (Mar 17) for qualitative validation.
+Present sample answers to Stellmacher for validation via OpenWebUI + email.
 
 ---
 
@@ -153,3 +153,4 @@ Present sample answers to Stellmacher at bi-weekly meeting (Mar 17) for qualitat
 - Zielkorridor extraction: /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/a868fafa-95e4-413d-95c8-f50bd3ff3ed4.jsonl
 - Pass 1-5 extractions: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/{80abc9d7,ca51af04,96431cad,a084b417,d009a445}.jsonl
 - Design doc rewrite: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/ebd33f3f-f258-4ab6-8ccd-5d8eef2061bd.jsonl
+- Test Rubric extraction pass: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/aee1b92d-9944-4ce3-8e8b-b24a23fdb51f.jsonl
