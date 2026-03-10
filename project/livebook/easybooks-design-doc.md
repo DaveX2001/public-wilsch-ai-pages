@@ -81,7 +81,36 @@ EasyBooks extends this problem beyond personal legacy. Founders lose institution
 | **Corporate B2B** | Customer intelligence, relationship strengthening, internal memory vault |
 | **Creators & thought leaders** | Podcast episodes, creative licensing |
 
-**Undefined:** Community books (Ladies Lounge, My Hometown) and expanded verticals (NFT, corporate, creative marketplace) relationship to V1 retainer scope. → [Meeting Agenda](#discussion-topics)
+**Audience-scope analysis (SA extraction pass, Mar 2026):**
+
+Stafford's technical specs describe 9+ audience segments. His transcripts name 4 concrete use cases — with zero overlap on founders, corporate, or creators. The specifications were AI-generated from broad vision; the transcripts reflect actual near-term actions.
+
+| Source | Audiences Named |
+|--------|----------------|
+| **Specs** (EB Business Master) | Founders, HNWIs, parents, creators, thought leaders, 4 corporate types |
+| **Transcripts** (Feb 18) | Network School community, My Hometown, elderly parents, heritage/diaspora |
+
+These cluster into five paths, each with different scope implications:
+
+| Path | Audience | Acquisition | V1 Viable? |
+|------|----------|-------------|------------|
+| **A: Community** | NS, My Hometown | Captive (event-based) | Yes — smallest scope |
+| **B: Legacy** | Parents, elderly, heritage | Referral / emotional funnels | Yes — medium scope |
+| **C: Mass Market** | Founders, creators, everyone | Growth engine required | Yes — largest scope |
+| **D: Enterprise** | Corporate B2B | Enterprise sales | No — different product |
+| **E: Platform** | Film, licensing, NFTs | Requires content mass | No — requires A/B/C first |
+
+The core pipeline (interview → book) is identical across paths A, B, and C. The AI agents (Opera questioning, Shakespeare composition) are the same ~1 month build regardless of path. What changes is the application layer:
+
+| Path | App Layer | App Build Effort |
+|------|-----------|-----------------|
+| **A: Community** | Operator dashboard — Stafford facilitates interviews in person | ~1-2 weeks |
+| **B: Legacy** | User-facing web app — one flow (landing → interview → book) | ~3-4 weeks |
+| **C: Mass Market** | Full platform — multiple funnels, analytics, growth loops | ~2+ months |
+
+The audience path determines how much application development is needed beyond the AI agents.
+
+**Undefined:** V1 audience path selection — determines automation level, template choice, and marketing approach. → [Meeting Agenda](#discussion-topics)
 
 ---
 
@@ -213,7 +242,7 @@ evidence_type                                       transformation_clarity
 
 **Personality system:** Configurable tone — gentle biographer, direct interviewer, reflective listener, documentary journalist, warm conversationalist. Adapts to user age, emotional intensity, personality type, niche context.
 
-**Undefined:** Voice cloning as a modality for Opera — open-source TTS models (350M params, 26 languages) make this technically feasible. Avatar interview mode (AI host, voice-only, family-style). Scope for V1 TBD. → [Meeting Agenda](#discussion-topics)
+**V1 scope (SA extraction pass, Mar 2026):** Opera must shine — it is the product differentiator. Adaptive questioning (responding to user's actual words, probing deeper) is pulled into V1 from Stafford's Phase 2. Without it, Opera is a questionnaire with emotional framing, not a genuine dialogue. Voice cloning, avatar interview mode, and cinematic scoring are out of V1 scope (Phase 3).
 
 #### 2.4 Shakespeare — Narrative Composition & Print Production Engine
 
@@ -318,8 +347,16 @@ The book is never done. Life keeps happening. Plug keeps triggering. Opera keeps
 | Corporate contracts | Opera (B2B) | Extension |
 | Creative licensing commissions | Platform | Extension |
 | Narrative consultancy | Opera | Extension |
+| AI voice cloning packages | Opera | Extension |
+| Enterprise memory licensing | Platform | Extension |
 
-**Undefined:** Pricing specifics, revenue stream prioritization for V1 (core vs extension), success-based component structure. → [Meeting Agenda](#discussion-topics)
+**Revenue-scope analysis (SA extraction pass, Mar 2026):**
+
+Stafford's documents list 10 revenue streams with no prioritization. Each stream requires different infrastructure — picking 2 vs 5 is the difference between a focused MVP and an architecture that serves everything. The pipeline principle ("extraction free, creation paid") means payment infrastructure only exists at Shakespeare (book output), not at earlier stages.
+
+All 8 Extension streams are out of V1 scope. V1 revenue candidates are the 2 Core streams: SaaS subscription and/or premium book creation fees. The user journey suggests the first dollar is a per-book fee (person completes interview → wants the book → pays). Subscription is the retention model (book is never done → keep paying).
+
+**Undefined:** V1 revenue stream prioritization — Stafford ranks his 10 streams to determine which 1-2 fund V1. Pricing specifics remain open. → [Meeting Agenda](#discussion-topics)
 
 ---
 
@@ -372,33 +409,52 @@ The core principles (same-level interaction, one element at a time, relatable tr
 
 ---
 
-### Part 7: Recommended Build Phases
+### Part 7: V1 Scope & Build Phases
 
-One recommended phasing based on team capacity (2 humans + AI, 3-month initial retainer).
+**Core principle (SA extraction pass, Mar 2026):** The build is constant — configuration is the variable. The core pipeline (Plug entry → Opera interview → Shakespeare book) is identical regardless of audience, revenue model, or template choice. Stafford's 5 configuration choices (audience path, revenue stream, book template, voice style, output format) determine how the product is positioned, not what is built.
 
-**Phase 1 — MVP (Weeks 1-6): Core Flow**
-- Plug micro-interview → Opera structured extraction → Shakespeare single-format book output
-- One locked printer profile (6x9 KDP B&W) with preflight validation
-- Consent + audit logging foundation
-- Attribution tagging (creative → funnel → install → book start)
+**V1 Core — In Scope:**
+
+| Engine | V1 Scope | Must Shine? |
+|--------|----------|-------------|
+| **Plug** | One funnel → micro-interview (3-5 questions, audio-first) → instant preview → Opera handoff | Must exist |
+| **Opera** | Adaptive questioning, emotional intelligence, bestseller heuristics, structured extraction, depth scoring, 5-phase questioning | Must shine |
+| **Shakespeare** | Single template (selected based on audience path), voice modelling, narrative composition, chapter architecture, 6x9 KDP B&W + digital PDF, preflight validation, spine/cover | Must work |
+
+Opera is the product differentiator. Without adaptive questioning that genuinely responds to what the user says, the interview is a questionnaire — not the "patient AI friend" from the problem statement. Plug's instant preview and Shakespeare's book output serve Opera's extracted material.
+
+**V1 — Out of Scope (30 items from Stafford's EB Business Master + March Technical Plan):**
+- **Entire subsystems:** Vulture engine, NFT/tokenisation layer, corporate B2B division, creative licensing marketplace, Interesting Conversations (podcast), pitch-to-story service, AI funnel builder
+- **Plug beyond V1:** Multiple funnel types, dynamic headlines, behavior-based questions, AI preview variations, social sharing
+- **Opera beyond V1:** Voice cloning, avatar mode, cinematic scoring, multi-session continuity, cross-chapter arc detection
+- **Shakespeare beyond V1:** Color profile, additional trim sizes, premium hardback, yearbook template, EPUB
+- **Revenue beyond V1:** 8 of 10 streams (podcast credits, NFT fees, corporate contracts, licensing, consultancy, voice cloning packages, enterprise licensing, NFT royalties)
+
+**Build separation:** AI agents (Opera questioning, structured extraction, composition) and the application layer (frontend, audio recording, user flows, book viewer) are different skill sets built in parallel. The agents produce data and content; the application displays and interacts with it. Both are required for a working product.
+
+**Phasing:**
+
+**Phase 1 — MVP (Month 1): Core Pipeline**
+- Plug: one funnel, micro-interview, instant preview generator
+- Opera: adaptive questioning engine, emotional templates, bestseller heuristics, structured extraction, basic depth scoring
+- Shakespeare: single book template (TBD — audience-dependent), 6x9 KDP B&W, digital PDF, preflight validation, spine calculator, cover generator
 - Physical test print with KDP
 
-**Phase 2 — V1 (Weeks 7-12): Intelligence + Distribution**
-- Opera bestseller heuristic engine + story quality scoring
-- Shakespeare additional templates + color profile
-- Vulture basic niche discovery + creative generation (if capacity allows)
-- Analytics dashboard
-- Social content repurposing (shareable snippets from completed books)
+**Phase 2 — V1 (Month 2-3): Polish + Scale Prep**
+- Opera: story quality scoring (full suite), personality system refinement
+- Shakespeare: additional templates based on audience choice, color profile
+- Analytics dashboard, social content repurposing
+- Operator tooling (admin panel for managing interviews and books)
 
-**Phase 3 — V2 (Post-retainer): Scale + Extensions**
-- Vulture full automation + daily learning loop
-- NFT/tokenisation layer (Legacy NFTs, Founder Journey NFTs, Conversation NFTs)
-- Corporate B2B division (customer intelligence, relationship engine, memory vault)
+**Phase 3 — V2 (Post-retainer): Extensions**
+- Vulture (growth/campaign engine — manual acquisition is acceptable until this point)
+- NFT/tokenisation layer
+- Corporate B2B division
 - Voice cloning + avatar interview mode
 - Interesting Conversations (live-to-podcast engine)
 - Creative licensing marketplace
 
-**Undefined:** Vulture inclusion in Phase 1 vs Phase 2 — depends on whether manual traffic acquisition is acceptable for MVP. → [Meeting Agenda](#discussion-topics)
+**Undefined:** V1 product configuration — template (memoir/yearbook/founder), voice style, and output format selection depend on audience path. → [Meeting Agenda](#discussion-topics)
 
 ---
 
@@ -470,3 +526,4 @@ Stafford's RFP Section D requests examples of similar work. Candidate projects f
 **Sessions:**
 - v0.1: `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/ab077198-670d-47ef-b884-eca052c0b443.jsonl`
 - v0.2: `/Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-09-SALES-PIPELINE--deliverable/041422f6-c485-4011-af8c-edd509708a61.jsonl`
+- v0.3 (SA extraction): `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/905c048c-84e0-4dd0-ab8c-af065edc87c8.jsonl`
