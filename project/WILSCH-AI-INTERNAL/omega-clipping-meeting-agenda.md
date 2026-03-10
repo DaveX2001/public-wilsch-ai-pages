@@ -74,7 +74,7 @@ Four pearl categories were identified from the discovery call: coaching feedback
 ### 5. Programme pricing and student journey
 ⏱️ 5 min
 
-The clips feed a funnel: social media → omegabone.com → discovery session → paid programme. Understanding the programme structure and what a student pays at each tier helps scope the service to match the business it supports.
+The clips feed a funnel: social media → omegabone.com → discovery session → paid programme. Understanding the programme structure and what a student pays at each tier helps scope the service to match the business it supports — if the clips bring in even one additional student per month, the service should pay for itself.
 
 - Three programme tiers discussed (30-day / 90-day / 3.5-month album)
 - Discovery session is the entry point (free, 30 min)
