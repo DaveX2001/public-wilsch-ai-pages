@@ -17,11 +17,23 @@ A previous prototype (Typesense + chunked RAG) scored 17/29 on the test harness.
 
 This project rebuilds the navigation system using PageIndex — a vectorless, tree-based retrieval framework that eliminates chunking entirely. The LLM reasons through a document tree index to find relevant sections, producing traceable, chapter-referenced answers.
 
+**This is NOT:**
+
+IITR operates three separate RAG projects, each with distinct data and purpose. This design doc covers Navigation only.
+
+| Project | Purpose | Data Input |
+|---------|---------|------------|
+| **DS-Kit Navigation** (this doc) | Support navigation — answer recurring customer questions with chapter references | Anwenderleitfaden PDF + 56 templates + core.iitr.de ch.1-12 + 29 test Q&A |
+| [Court Judgments](https://github.com/WILSCH-AI-SERVICES/IITR__IITR-RAG-Court-Judgments) | Court rulings RAG (Urteile) | German legal documents |
+| [Masterfragen](https://github.com/WILSCH-AI-SERVICES/IITR__IITR-RAG-Masterfragen) | GDPR Q&A (Masterfragen) | 22 Masterfragen CSV |
+
+Court Judgments and Masterfragen are not replaced by PageIndex — different projects, different data, different retrieval.
+
 **Preconditions:**
 - Design artifacts from prior attempt preserved: Pflichtenheft, test questions with source references (29 Q&A + Quelle column), Masterfragen CSV (22 entries), Anwenderleitfaden PDF, 56 DS-Kit templates
-- PageIndex benchmarked on IITR-STAGING: Qwen 3.5 9B with think:false achieves ~0.76s per tree traversal call, ~8.5s for full 5-call + answer pipeline (RTX 4000 SFF Ada, 20 GB VRAM)
-- Financial reset: prior work uninvoiced, Roman terminated, clean start
-- Developer: Dave implements from this design doc, Marius orchestrates as JA
+- PageIndex benchmarked on IITR-STAGING: Qwen 3.5 9B viable on available hardware (RTX 4000 SFF Ada, 20 GB VRAM)
+- Financial reset: prior work uninvoiced, clean start with direct client relationship (Stellmacher as technical contact, Kraska as business contact)
+- IITR-STAGING requires cleanup before new deployment — architecture principle: one environment per project, separate compose stacks. ~70 containers running, only ~14 should remain (Navigation stack, Langfuse, OpenWebUI, MetaMCP)
 
 ---
 
@@ -30,130 +42,81 @@ This project rebuilds the navigation system using PageIndex — a vectorless, tr
 | Element | Definition |
 |---------|-----------|
 | **Goal** | Navigation system is production-ready: accurate answers with chapter-referenced navigation on the 29-question test set |
-| **Success** | Test harness scores ≥26/29 (>90%) using PageIndex retrieval. Answers include chapter reference from tree traversal path. Stellmacher/Kraska validate answer quality via sample review. |
-| **Done test** | "Can I write a meeting agenda with open design questions?" → If NO → design is complete |
-
-**Test harness mechanism:** Sends each question through PageIndex tree traversal (Qwen 3.5, think:false) to retrieve relevant sections, then generates answer from retrieved context. An LLM judge evaluates semantic correctness against expected answers from the Quelle-mapped test set. PASS/FAIL per question with German-language reasoning.
-
----
-
-## Infrastructure Baseline
-
-IITR-STAGING hosts the target deployment. A server audit (2026-03-09) found 11 Docker stacks running ~70 containers — far more than previously documented. This includes orphaned experiments, crash-looping services, and three overlapping observability stacks. Cleanup is a prerequisite for deploying the new PageIndex stack.
-
-**Retire (cleanup first):**
-
-| Stack | Why | Compose File |
-|-------|-----|-------------|
-| IITR-RAG-V2 (Typesense, OpenWebUI :3006, Pipelines) | Replaced by PageIndex | `/home/shared/projects/IITR-RAG-V2/docker-compose.yml` |
-| DS-Kit clone (all stopped) | Duplicate of RAG-V2 | `/opt/dskit-rag/docker-compose.yml` |
-| Chunkr (~47 containers, crash-looping) | Dependencies stopped 5 months ago, burning CPU | `/home/shared/projects/IITR-RAG-V2/services/chunkr/compose.yaml` |
-| RAG-Dev (OpenWebUI :3001, Ollama, Qdrant) | Dev environment, not needed | `/home/shared/projects/IITR-RAG-V1/docker-compose.dev.yml` |
-| Langfuse-POC (orphaned, compose file deleted) | Experiment containers still running | Compose deleted — stop manually |
-| SigNoz (APM, ClickHouse, Zookeeper) | Consolidating to Langfuse only | `/home/shared/projects/signoz/deploy/docker/docker-compose.yaml` |
-| OpenLIT (LLM observability, ClickHouse) | Overlaps with Langfuse | `/home/shared/projects/openlit/docker-compose.yml` |
-| Trieve (orphaned volumes only) | No containers, 7 dangling volumes | Volumes only — `docker volume rm` |
-
-After container removal: `docker system prune` to reclaim ~690 GB (unused images, volumes, build cache). All old data (Typesense indexes, Qdrant vectors, Chunkr parsed docs) is disposable — PageIndex replaces all prior retrieval approaches. No external IITR systems depend on this staging server.
-
-**Production stack (after cleanup):**
-
-| Component | Details |
-|-----------|---------|
-| GPU | NVIDIA RTX 4000 SFF Ada, 20 GB VRAM |
-| Ollama | v0.17.7 in Docker (`rag-staging-ollama`, port 11436) |
-| Qwen 3.5 9B | Single model for all pipeline stages. Tree traversal: 0.76s/call (think:false, forced by Ollama structured output). Full pipeline: ~8.5s (5 traversal calls + answer generation). Answer generation uses think:true for +25% instruction-following quality ([source](https://qwenlm.github.io/blog/qwen3/)). |
-| OpenWebUI | Port 3002 — IITR Keycloak SSO + OTEL configured (`rag-staging-openwebui`) |
-| Langfuse | Port 3003 — LLM tracing (web, worker, ClickHouse, Postgres, Redis, MinIO) |
-| MetaMCP | Port 12008 — MCP proxy/manager |
-
-**Access:**
-- SSH: `ssh marius@IITR-STAGING`
-- Ollama API: `http://localhost:11436/api/generate`
-- Production compose: `/home/shared/projects/IITR-RAG-V1/docker-compose.staging.yml`
-- Langfuse compose: `/home/shared/projects/langfuse/docker-compose.yml`
-- MetaMCP compose: `/home/shared/projects/metamcp/docker-compose.yml`
-
-**Cleanup sequence:** Retire all stacks in the table above → `docker system prune` → verify production stack healthy → then proceed to Approach Phase 1 (Infrastructure Setup) for PageIndex deployment.
-
-**New stack (to deploy):**
-- PageIndex (open-source, MIT) — tree index generation + retrieval
-- Qwen 3.5 9B via Ollama — tree traversal + answer generation + tree index generation (single model)
-- OpenWebUI — chat interface (retained on port 3002, reconfigure backend from Flask proxy to PageIndex)
-- Test harness — automated 29-question evaluation with LLM judge
-
-**Validated (2026-03-09):**
-- **PageIndex runs fully local** — 2 patches needed: (1) tiktoken fallback in `utils.py` (`cl100k_base` for Qwen model names), (2) `OPENAI_BASE_URL` env var for Ollama routing
-- **Qwen 3.5 9B single model** — produces valid structured JSON with `think:false`. Tested against Qwen 3 30B-A3B: 9B wins because `think:false` is ignored on Qwen 3, consuming all tokens on thinking. 9B also produces richer titles and summaries. Split config: `think:false` for tree traversal (Ollama forces this for structured output — [#10929](https://github.com/ollama/ollama/issues/10929)), `think:true` for answer generation (IFEval: 0.92 vs 0.69 non-thinking — [Qwen3 blog](https://qwenlm.github.io/blog/qwen3/)).
-- **All 29 test questions sourced** — Navigationssystem FAQ (19/29), Anwenderleitfaden PDF (3/29), DS-Kit Oberfläche chapters (7/29). Full mapping in [epic #959 comment](https://github.com/DaveX2001/deliverable-tracking/issues/959#issuecomment-4021675769).
-- **Source data organized** — [Drive folder](https://drive.google.com/drive/folders/1gnxBulrnkGh-Oyly_jabofNo4SVivQhR) with INPUT/ (knowledge base) and TEST_RUBRIK/ (evaluation rubric)
+| **Success** | Test harness scores ≥26/29 (>90%) across 4 evaluation dimensions (see Test Rubric). Answers include chapter reference from tree traversal path. Stellmacher/Kraska validate answer quality via sample review at bi-weekly meetings. |
+| **Done test** | Stellmacher sends a question to the navigation system, receives a chapter-referenced answer, and confirms it is correct — without developer involvement. |
 
 ---
 
 ## Approach
 
-Four phases, executed sequentially. Each phase produces a testable artifact before the next begins.
+Four parts, ordered so each builds on the previous. Each part produces a testable artifact.
 
-### 1. Infrastructure Setup
+### Part 1: Stack
 
-Deploy the PageIndex + Ollama + OpenWebUI stack on IITR-STAGING. PageIndex is not currently installed — this is a from-scratch deployment.
+Deploy the retrieval and serving infrastructure on IITR-STAGING. This is a from-scratch deployment — PageIndex is not currently installed.
 
-**How PageIndex works:** PageIndex transforms documents into hierarchical JSON tree indexes (like a machine-readable table of contents with `title`, `text`, `page_index`, and nested `nodes`). At query time, the LLM receives the tree structure + user query and returns a `{thinking, node_list}` JSON identifying relevant nodes. The selected nodes' text becomes the context for answer generation. No vector database, no chunking — the LLM reasons through the document structure.
+| Component | Role | Why |
+|-----------|------|-----|
+| **PageIndex** (MIT, open-source) | Tree index generation + retrieval | Vectorless, tree-based retrieval eliminates chunking. The LLM reasons through a document tree structure to find relevant sections — no embeddings, no vector DB. Produces traceable chapter references as a natural byproduct of tree traversal. |
+| **Qwen 3.5 9B** via Ollama | Single model for all pipeline stages | Tree traversal (think:false, forced by Ollama structured output), answer generation (think:true, +25% instruction-following). Benchmarked on IITR hardware: 0.76s per traversal call, ~8.5s full pipeline. |
+| **OpenWebUI** | Chat frontend | Already deployed with IITR Keycloak SSO integration. Familiar to client (Stellmacher has used it). Pipeline filter system enables RAG backend integration. Reconfigure from retired Typesense backend to PageIndex. |
+| **RTX 4000 SFF Ada** (20 GB VRAM) | GPU inference | Available on IITR-STAGING. Sufficient for Qwen 3.5 9B inference. |
 
-- Clone PageIndex repo, apply tiktoken fallback patch for Qwen model names
-- Configure Ollama endpoint (`http://localhost:11436/v1`) as PageIndex backend
-- Set `OPENAI_BASE_URL` + dummy API key for PageIndex → Ollama routing
-- Rewrite OpenWebUI pipeline filter for PageIndex (the existing `dskit_navigation_filter.py` is Typesense-based and non-functional — `DskitRagBase` import missing). New pipeline: load tree JSON → LLM tree search via Ollama → extract node text → generate answer with chapter references
-- Tree indexes stored as JSON files on disk. Multi-document loading strategy (all trees at once vs doc-level routing) depends on actual tree sizes — resolve during implementation
-- Build test harness: automated 29-question evaluation against expected answers from [test set](https://docs.google.com/spreadsheets/d/1gKLPVazIDCVQtpZaR509-NbiVZbjEnmkY44raMdbM2A/edit?gid=492982273)
+**Infrastructure prerequisite:** IITR-STAGING server cleanup (one environment per project principle). Remove abandoned experiments (~56 containers: Chunkr, SigNoz, OpenLIT, old DS-Kit prototypes, orphaned POCs). Retain: Navigation stack, Langfuse, OpenWebUI, MetaMCP.
 
-### 2. Data Preparation
+### Part 2: Data Preparation
 
-Feed all source documents to PageIndex. PDFs go in directly (PageIndex handles PDF → tree natively). Non-PDF formats need conversion first. Ingest everything — full documents, not cherry-picked by question. Text-only extraction, no visual elements. Note: PageIndex warns that markdown converted from PDF/HTML often loses heading hierarchy — use `--pdf_path` for PDFs, reserve `--md_path` for natively structured markdown.
+Feed all source documents to PageIndex for tree index generation. Ingest full documents, not cherry-picked by question. Text-only extraction, no visual elements.
 
-**Data availability (as of 2026-03-09):**
-- Anwenderleitfaden PDF: on staging at `/home/shared/projects/IITR-RAG-V2/data/` and on [Google Drive](https://drive.google.com/file/d/1LzSc_X3yAlv1N55CvrWRAHsqGA7m2ISJ/view)
-- Masterfragen + Testfragen: on [Google Drive](https://drive.google.com/drive/folders/1gnxBulrnkGh-Oyly_jabofNo4SVivQhR) as Google Sheets
-- Templates: TBD — download from `core.iitr.de/tenant/3520/page/82177` (Keycloak auth required) or Marius provides
-- Web chapters 1-12: extract from `core.iitr.de/tenant/3520/page/82173` via Chrome DevTools MCP (Keycloak auth required — credentials on [#798](https://github.com/DaveX2001/deliverable-tracking/issues/798)). One-time re-extraction as structured markdown — prior extraction (#798, Feb 2026) produced flat JSONL chunks unsuitable for PageIndex. See Web Extraction below. 7/29 test questions depend on this data.
+**Universal principle:** All PageIndex input must have heading hierarchy. PageIndex `md_to_tree()` uses `#` characters to build the tree structure — flat text without headers produces a degenerate tree with poor retrieval. This applies to every source format: PDFs use `--pdf_path` (PageIndex handles structure natively), all other formats must be converted to markdown with proper heading hierarchy before ingestion.
 
-| Source | Format | Conversion | PageIndex Input |
-|--------|--------|------------|-----------------|
-| Anwenderleitfaden | PDF | None | `--pdf_path` |
-| Templates (PDF subset) | PDF | None | `--pdf_path` |
-| Templates (Word subset) | .docx | Convert to PDF or extract to markdown | `--pdf_path` or `--md_path` |
-| Templates (Excel subset) | .xlsx | Convert to structured markdown | `--md_path` |
-| Masterfragen (22 Q&A) | CSV/Excel | Convert to structured Q&A markdown | `--md_path` |
-| core.iitr.de chapters 1-12 | Web | Extract via Chrome DevTools MCP → one combined markdown (H1 per chapter) | `--md_path` |
+**Quality gate:** Before PageIndex ingestion, validate that every converted document has at least H1/H2 structure. Flat or poorly structured files get re-converted, not ingested as-is.
 
-#### Web Extraction (core.iitr.de chapters 1-12)
+| Source | Format | PageIndex Path | Notes |
+|--------|--------|---------------|-------|
+| Anwenderleitfaden | PDF | `--pdf_path` (native) | Primary knowledge base |
+| Templates (56 total) | PDF/Word/Excel | PDF: `--pdf_path`; Word/Excel: convert to structured markdown → `--md_path` | Download from core.iitr.de chapter 4 (Keycloak auth) |
+| Masterfragen | CSV/Excel | Convert to structured Q&A markdown → `--md_path` | 22 entries, knowledge source for 19/29 test questions |
+| core.iitr.de chapters 1-12 | Web | Extract → one combined markdown (H1 per chapter) → `--md_path` | 7/29 test questions depend on this. Chrome DevTools MCP as extraction tool (proven in [#798](https://github.com/DaveX2001/deliverable-tracking/issues/798)). Fallback: [agent-browser](https://github.com/vercel-labs/agent-browser). |
 
-Extract the 12 DS-Kit portal chapters as a single structured markdown file using Chrome DevTools MCP (Claude Code browser automation). The portal organizes content across `kapitel-01` through `kapitel-12`, each a separate page behind Keycloak SSO. Content is German data protection guidance with inline template references ("Mitgeltende Vorlagen") — keep all text, strip only navigation chrome and visual elements.
+**Data availability:** [Source Data Inventory (Google Drive)](https://drive.google.com/drive/folders/1gnxBulrnkGh-Oyly_jabofNo4SVivQhR) — INPUT/ (knowledge base) and TEST_RUBRIK/ (evaluation rubric). Templates and web chapters require Keycloak authentication for download/extraction.
 
-**Output format:** One combined markdown file. Each chapter starts with an H1 header (`# Kapitel 1: ...`), subsections as H2/H3. Preserving the heading hierarchy is critical — PageIndex `md_to_tree()` uses `#` characters to determine tree node structure. Flat text without headers produces a degenerate tree with poor retrieval.
+### Part 3: Test Rubric
 
-**Fallback:** If Keycloak authentication prevents Chrome DevTools automation, use [vercel-labs/agent-browser](https://github.com/vercel-labs/agent-browser) (CLI-based headless browser with auth state persistence).
+Automated evaluation of the navigation system against the 29-question test set using an LLM judge.
 
-**Scope:** One-time extraction. Re-run only if IITR updates portal content. Prior extraction (#798) validated the Chrome DevTools approach — this pass produces structured markdown instead of JSONL chunks.
+**4 evaluation dimensions:**
 
-### 3. Tree Index Generation
+| # | Dimension | Standard | PASS when |
+|---|-----------|----------|-----------|
+| 1 | **Content Accuracy** | User-intent standard (non-specialist perspective) | Key information present in the answer |
+| 2 | **Format** | Dual-answer structure (general answer + navigation hint) | Both parts present |
+| 3 | **Chapter Reference** | Answer text + tree traversal path verification | Chapter reference correct, no false positives |
+| 4 | **Source Traceability** | Anti-hallucination grounding check | Answer grounded in source data |
 
-Run PageIndex on each prepared document to produce hierarchical tree indexes:
+**Scoring:** Binary PASS/FAIL per question. A question passes when content is accurate AND chapter reference is correct. Format and source traceability are quality signals tracked per question but don't independently fail a question.
 
-- `python run_pageindex.py --pdf_path <doc> --model qwen3.5:9b` (via Ollama)
-- Also supports markdown: `--md_path` for pre-extracted content
-- One-time operation per document — regenerate only when source content changes
-- Tree indexes enable chapter-referenced answers naturally — the tree traversal path IS the chapter reference (no separate dual-answer prompting needed)
+**Evaluation split:**
+- **AI (LLM judge):** Scores all 4 dimensions per question automatically on every test run. Existing test harness infrastructure in [IITR-RAG-Navigation](https://github.com/WILSCH-AI-SERVICES/IITR__IITR-RAG-Navigation/tree/main/infrastructure/dskit-rag/test-harness) provides the base (LLM judge via OpenRouter, CSV output). Adapt from 14 → 29 questions, add 4-dimension scoring.
+- **Human (Stellmacher/Kraska):** Review CSV report at bi-weekly meetings (next: Mar 17). Qualitative sign-off — do answers actually help a non-specialist user navigate the DS-Kit?
 
-### 4. Evaluation & Iteration
+**Output artifact:** CSV report with columns per dimension. Two modes: internal (with PASS/FAIL per dimension) and client-facing (full answers, no scoring). Extends the existing dual-CSV pattern from the legacy test harness.
 
-Run the test harness against the 29-question set with Quelle-mapped expected answers. An existing test harness (`dskit_test_harness.py` on staging) provides reusable infrastructure: OpenWebUI API integration, LLM judge with German-language reasoning (Claude Sonnet via OpenRouter), and CORRECT/PARTIAL/INCORRECT scoring. Currently tests 14 questions — expand to the full 29-question set. The judge evaluates against expected key information per question. Iterate on:
+**Special cases:** Q16 and Q28 redirect to support (no prices in DS-Kit) — intentional non-answers, scored as PASS if redirect is present.
 
-- Retrieval prompts (tree traversal instructions)
-- Answer generation prompts (format, language, detail level)
-- `think:false` for tree traversal, `think:true` for answer generation (decided — see Infrastructure Baseline)
+**Ownership** (per [Dev Lead Witness & Review System](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/dev-lead-witness-review-system)): JA defines rubric dimensions and expected answers → Dev Lead provisions test infrastructure → Developer implements the LLM judge prompt and harness.
 
-Target: ≥26/29 (>90%). Present sample answers to Stellmacher for qualitative review at bi-weekly meeting (Mar 17).
+### Part 4: Evaluation & Iteration
+
+Run the test harness, iterate toward ≥26/29. Tree index generation is a one-time step per document — regenerate only when source content changes. The iteration loop is:
+
+1. Generate tree indexes from all prepared documents
+2. Run test harness (29 questions × 4 dimensions)
+3. Analyze failures — retrieval issue (wrong tree nodes selected) vs generation issue (right context, wrong answer)
+4. Adjust: retrieval prompts (tree traversal instructions), answer generation prompts (format, language, detail level), or data preparation (heading hierarchy quality)
+5. Re-run until ≥26/29
+
+Present sample answers to Stellmacher at bi-weekly meeting (Mar 17) for qualitative validation.
 
 ---
 
@@ -164,24 +127,29 @@ Target: ≥26/29 (>90%). Present sample answers to Stellmacher for qualitative r
 - [`Fragen Navigationssystem.xlsx`](https://mail.google.com/mail/u/0/#all/19bfebdff5dcbf33) — 22 Masterfragen (Stellmacher, 2026-01-27)
 - [Test Set with Quelle](https://docs.google.com/spreadsheets/d/1gKLPVazIDCVQtpZaR509-NbiVZbjEnmkY44raMdbM2A/edit?gid=492982273) — 29 questions with source references (Google Sheet)
 - Portal: `https://core.iitr.de/tenant/3520/page/82173` — DS-Kit web interface chapters 1-12
+- [Source Data Inventory (Drive)](https://drive.google.com/drive/folders/1gnxBulrnkGh-Oyly_jabofNo4SVivQhR) — INPUT/ + TEST_RUBRIK/
 
 **PageIndex:**
 - [GitHub repo](https://github.com/VectifyAI/PageIndex) — MIT, open-source, vectorless tree-based RAG
 - [Docs](https://docs.pageindex.ai/) — framework reference, cookbooks, tutorials
-- Benchmark: Qwen 3.5 4B/9B with think:false on IITR-STAGING (RTX 4000 SFF Ada, 20 GB)
+
+**IITR Repos:**
+- [IITR-RAG-Navigation](https://github.com/WILSCH-AI-SERVICES/IITR__IITR-RAG-Navigation) — DS-Kit Navigation (this project)
+- [IITR-RAG-Court-Judgments](https://github.com/WILSCH-AI-SERVICES/IITR__IITR-RAG-Court-Judgments) — Court rulings RAG
+- [IITR-RAG-Masterfragen](https://github.com/WILSCH-AI-SERVICES/IITR__IITR-RAG-Masterfragen) — GDPR Q&A
 
 **Reference Documents:**
 - [Test Analysis](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/iitr/dskit-rag-test-analysis) — question-by-question verification (prior Typesense attempt)
 - [IITR Materials Index](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/iitr/index)
+- [Dev Lead Witness & Review System](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/dev-lead-witness-review-system) — test rubric ownership model
+- [Zielkorridor (24-32h corridor)](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/iitr/dskit-navigation-rag-estimate)
 
 **Transcripts:**
 - [2026-01-15 Client Meeting](https://app.fireflies.ai/view/01KF0N6JDANZB4JGW9WEP4GNMC) — data gap discussion + dual-answer decision with Stellmacher/Kraska
-- [2026-03-04 Contract Meeting](https://drive.google.com/file/d/1wS9Z8jjH-hkeaCW5aQZ9aTXWBqIQ24H9/view) — Stellmacher cost corridor ("von bis") requirements for Contract 2, Kraska contract approval, Roman financial reset
+- [2026-03-04 Contract Meeting](https://drive.google.com/file/d/1wS9Z8jjH-hkeaCW5aQZ9aTXWBqIQ24H9/view) — Stellmacher cost corridor requirements, Kraska contract approval
 
 **Sessions:**
 - Original design: /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-IITR--IITR-NAVIGATION/46a000cb-3044-40d7-adaf-e30987553859.jsonl
 - Zielkorridor extraction: /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/a868fafa-95e4-413d-95c8-f50bd3ff3ed4.jsonl
-- Pass 1 extraction (Approach): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/80abc9d7-5b68-42f4-8d65-c159fb0cb0e8.jsonl
-- Pass 2 extraction (Current Deployment): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/ca51af04-8bef-46c9-b294-b7a2c161da01.jsonl
-- Pass 4 extraction (Qwen Model): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/a084b417-c473-471e-8ff2-5c647ccc572a.jsonl
-- Pass 5 extraction (Web Extraction): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/d009a445-ce7e-4d6b-a939-cf18d2024374.jsonl
+- Pass 1-5 extractions: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/{80abc9d7,ca51af04,96431cad,a084b417,d009a445}.jsonl
+- Design doc rewrite: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/ebd33f3f-f258-4ab6-8ccd-5d8eef2061bd.jsonl
