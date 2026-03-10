@@ -48,16 +48,16 @@ EasyBooks extends this problem beyond personal legacy. Founders lose institution
 
 ### Part 1: Product Identity & Audience
 
-**Product:** EasyBooks. A narrative intelligence platform that transforms human experience into structured books, media assets, podcasts, corporate intelligence, and tokenised digital property — through AI-powered conversation.
+**Product:** EasyBooks. An AI interview + book platform — you talk, the AI asks the right questions, and your words become a printed book.
 
 **Four-engine architecture (evolved from Livebook's three-agent pipeline):**
 
 | Engine | Role | Evolved From |
 |--------|------|-------------|
-| **Vulture** | Cultural signal + growth intelligence — niche discovery, campaign generation, distribution, daily learning | NEW — not in Livebook v0.1 |
-| **Plug** | Funnel entry + conversion — micro-interviews, instant preview, tracking | Livebook's context collector |
-| **Opera** | Emotion-aware AI interview engine — bestseller-aware questioning, structured extraction | Livebook's smart interviewer |
-| **Shakespeare** | Narrative composition + print production — KDP-compliant exports, preflight validation | Livebook's book producer |
+| **Vulture** | Growth engine — finds audiences, creates ads, distributes content | NEW — not in Livebook v0.1 |
+| **Plug** | Entry point — landing page, short voice interview, instant book page preview | Livebook's context collector |
+| **Opera** | AI interviewer — asks the right questions, collects material for a good book | Livebook's smart interviewer |
+| **Shakespeare** | Book writer + printer — turns interview into chapters, formats and prints the book | Livebook's book producer |
 
 **Core value proposition:**
 - "You drop dead tomorrow. This is your book. Would you be happy?"
@@ -157,19 +157,19 @@ created_at                performance_score         impressions
 - Brand guardrails (no manipulative content, no sensitive-targeting abuse)
 - Rate-limit posting automation to avoid platform violations
 
-#### 2.2 Plug — Emotional Entry & Funnel Conversion Engine
+#### 2.2 Plug — Entry Point
 
-Plug converts attention into participation in under 5 minutes. It is a psychological activation system, not a landing page builder. Each funnel is a story trigger that reduces friction to near zero.
+Plug gets someone from "curious" to "I already started my book" in under 5 minutes. It's a landing page with a story trigger — not a complex funnel system.
 
-**Five layers:**
+**What it does:**
 
-| Layer | Function |
-|-------|----------|
-| **1. Funnel Resolver** | Routes inbound users to correct narrative pathway based on niche_id, funnel_id, creative_id, platform_id |
-| **2. Identity Hook** | Activates identity — "Who are you in this story?" replaces generic onboarding |
-| **3. Micro Interview** | 2-5 minutes, 3-5 structured prompts, audio-first with text fallback |
-| **4. Instant Preview** | Formatted chapter preview, designed card, shareable snippet — creates ownership |
-| **5. Conversion Trigger** | "Continue Your Book" — no heavy upsell, they already started |
+| Step | What happens |
+|------|-------------|
+| **1. Route** | Send the user to the right opening question based on how they arrived |
+| **2. Opening question** | "Tell us about the moment that changed your life" — triggers a real response |
+| **3. Short voice interview** | 2-5 minutes, 3-5 questions, user speaks (audio-first, text fallback) |
+| **4. Instant preview** | User's words appear as a designed book page — "this is already my chapter" |
+| **5. Continue** | "Continue Your Book" — they already started, no hard sell needed |
 
 **Core schemas:**
 
@@ -192,27 +192,27 @@ created_at                max_duration_seconds       converted_to_app (bool)
 
 **UX Principles:** < 5 minutes to start, audio-first, zero cognitive overload, emotionally safe, no negativity in first touch
 
-#### 2.3 Opera — Bestseller Interview & Narrative Intelligence Engine
+#### 2.3 Opera — AI Interviewer
 
-Opera is not a chatbot. Opera is an emotionally intelligent, commercially aware AI ghostwriter that interviews like a world-class biographer and extracts material capable of becoming a compelling, high-quality, commercially viable book.
+Opera is not a chatbot. It's an AI interviewer that collects the information needed to write a good book. Think of it as a world-class biographer persona — it knows what makes compelling stories and asks the right questions to get there.
 
-**Three intelligence layers:**
+**What it does (one persona, not three separate systems):**
 
-| Layer | Function | Example |
-|-------|----------|---------|
-| **Emotional Intelligence** | Detect emotional cues, match tone, encourage vulnerability safely | "What did that moment cost you emotionally?" |
-| **Bestseller Intelligence** | Understand narrative structure — conflict, stakes, transformation, sensory detail | Score stories for depth, flag when missing conflict |
-| **Structural Intelligence** | Build character map, timeline, conflict map, transformation arc, theme clusters | Detect missing story elements and probe accordingly |
+| Capability | What changes in the interview | Example |
+|-----------|------------------------------|---------|
+| **Matches your tone** | Slows down when you're emotional, matches energy when you're excited | Person gets quiet about loss → AI says "Take your time" |
+| **Knows what makes a good story** | When the story is flat (no conflict, no stakes), asks questions to add depth | "I went to school" → AI asks "What almost stopped you?" |
+| **Tracks who/what/when** | Remembers people, places, events mentioned — doesn't repeat or lose context | You mention your father in minute 2 → AI follows up about him in minute 10 |
 
-**Five-phase questioning model:**
+**How the interview progresses:**
 
-| Phase | Focus | Example Question |
-|-------|-------|-----------------|
-| 1. Surface Context | Who, where, what | "Where were you when this happened?" |
-| 2. Emotional Inflection | Feelings, surprises | "What surprised you most about that?" |
-| 3. Stakes | Risk, sacrifice | "What could you have lost?" |
-| 4. Transformation | Change, growth | "How are you different now?" |
-| 5. Reflection | Wisdom, perspective | "What would your younger self think?" |
+| Phase | What the AI is doing | Example Question |
+|-------|---------------------|-----------------|
+| 1. Context | Getting the basics — who, where, what happened | "Where were you when this happened?" |
+| 2. Emotion | Finding the feeling underneath | "What surprised you most about that?" |
+| 3. Stakes | Understanding what was at risk | "What could you have lost?" |
+| 4. Change | How this shaped you | "How are you different now?" |
+| 5. Wisdom | What you'd tell your younger self | "What would your younger self think?" |
 
 **Core schemas:**
 
@@ -238,30 +238,30 @@ evidence_type                                       transformation_clarity
                                                     bestseller_readiness
 ```
 
-**North Star Metric:** Story Quality Score (composite of narrative strength, emotional depth, conflict density)
+**Key metric:** Is the interview producing material good enough to write a compelling book chapter? (conflict present, emotions captured, timeline clear)
 
-**Personality system:** Configurable tone — gentle biographer, direct interviewer, reflective listener, documentary journalist, warm conversationalist. Adapts to user age, emotional intensity, personality type, niche context.
+**Interview style:** Configurable — gentle biographer, direct interviewer, warm conversationalist, documentary journalist, reflective listener. Adapts to who the person is.
 
-**V1 scope (SA extraction pass, Mar 2026):** Opera must shine — it is the product differentiator. Adaptive questioning (responding to user's actual words, probing deeper) is pulled into V1 from Stafford's Phase 2. Without it, Opera is a questionnaire with emotional framing, not a genuine dialogue. Voice cloning, avatar interview mode, and cinematic scoring are out of V1 scope (Phase 3).
+**V1 scope (SA extraction pass, Mar 2026):** Opera must shine — it is the product differentiator. The AI must genuinely respond to what you say and probe deeper (not follow a fixed script). Without this, it's just a questionnaire with nicer wording. Voice cloning, avatar mode, and cinematic features are out of V1 scope.
 
-#### 2.4 Shakespeare — Narrative Composition & Print Production Engine
+#### 2.4 Shakespeare — Book Writer + Printer
 
-Shakespeare transforms structured story architecture into beautifully written, commercially compelling, printer-ready books. If Opera is the ghostwriter-interviewer, Shakespeare is the author-composer-editor-publisher.
+Shakespeare turns the interview material into a finished book. Opera collects the information; Shakespeare writes and prints it.
 
-**Ten-layer architecture:**
+**What it does:**
 
-| Layer | Function |
-|-------|----------|
-| 1. Voice Modelling | Write in user's tone, vocabulary, emotional rhythm |
-| 2. Narrative Composition | Expand structured events into flowing prose |
-| 3. Chapter Architecture | Determine chapter boundaries, titles, pacing |
-| 4. Stylistic Refinement | Sentence variation, emotional cadence, sensory detail |
-| 5. Layout Template | Locked templates per format (memoir, founder, yearbook) |
-| 6. Print Spec Resolver | Select printer profile (KDP 6x9 B&W, color, POD A5, etc.) |
-| 7. Spine Calculator | Dynamic spine width = page_count × 0.002252" (KDP B&W) |
-| 8. Cover Generator | Full wrap PDF — back + spine + front with bleed |
-| 9. Preflight Validation | Block export if margins, DPI, fonts, CMYK fail checks |
-| 10. Export | Printer-ready interior PDF, cover PDF, low-res preview, EPUB |
+| Step | What happens | Outcome |
+|------|-------------|---------|
+| 1. Write in your voice | Matches your tone, vocabulary, how you speak | Chapters read like YOU wrote them |
+| 2. Turn interview into chapters | Organizes events into flowing prose | Raw transcript → readable book |
+| 3. Organize the book | Chapter boundaries, titles, reading order | A book that makes sense front to back |
+| 4. Polish the writing | Sentence flow, pacing, sensory detail | Professional-quality prose |
+| 5. Apply book template | Page layout, fonts, margins for the format | Memoir, founder story, or yearbook layout |
+| 6. Set print specs | Paper size, margins, ink settings | 6x9 KDP B&W (V1 default) |
+| 7. Calculate spine width | `pages × 0.002252"` — one line of math | Book spine fits the page count |
+| 8. Generate cover | Title + spine + back cover as one PDF | Ready for printing |
+| 9. Check before printing | Margins ok? Fonts embedded? Images sharp? | Catches errors before wasting a print run |
+| 10. Export | Interior PDF + cover PDF | Upload to KDP → printed book arrives |
 
 **Core schemas:**
 
@@ -296,16 +296,16 @@ ink_coverage_limits       created_at
 - Dynamic spine calculation, barcode safe zone
 - Preflight validation blocks non-compliant exports
 
-**North Star Metric:** Reader Quality Score → Print Approval Success Rate
+**Key metric:** Does the PDF print correctly on the first try?
 
-#### 2.5 Integration Contracts (APIs Between Engines)
+#### 2.5 How Engines Pass Data
 
-| From → To | Data Passed |
-|-----------|-------------|
-| **Vulture → Plug** | `funnel_id`, `niche_id`, `creative_id`, `platform_id` in inbound URL |
-| **Plug → Opera** | Converts micro-interview into `InterviewSession` — initial transcript/audio + funnel context |
-| **Opera → Shakespeare** | Structured story graph: events, entities, claims, themes, emotion markers + voice profile + book intent (memoir/yearbook/founder) |
-| **Shakespeare → Outputs** | Export jobs to print/POD pipeline, podcast script generation, NFT snapshot creation |
+| From → To | What gets passed |
+|-----------|-----------------|
+| **Vulture → Plug** | Which ad/campaign brought the user (tracking IDs in the URL) |
+| **Plug → Opera** | The micro-interview transcript + audio + how they arrived |
+| **Opera → Shakespeare** | Organized story material: people, events, timeline, emotional moments + writing style preference + book type |
+| **Shakespeare → Output** | Finished PDFs ready for printing or download |
 
 #### 2.6 Platform Services (Cross-Cutting)
 
@@ -403,9 +403,9 @@ The core principles (same-level interaction, one element at a time, relatable tr
 | Frontend | React | Standard, Stafford's team can maintain |
 | Hosting | TBD per deployment model | Depends on data sovereignty requirements |
 
-**Canonical data model** (shared across all engines): User, Workspace/Tenant, Niche, Funnel, Creative, FunnelSession, InterviewSession, Entity, Event, Claim, Evidence, Theme, EmotionMarker, Book, Chapter, BookVersion, Snapshot, ExportJob, ConsentRecord, PolicyDecisionLog, AuditLog
+**Database tables** (shared across all engines): Users, interviews, people/places/events mentioned, book chapters, book versions, export jobs, consent records, audit logs.
 
-**Truth chain (traceability):** Every published statement in a book links back to: `Chapter Paragraph → Claims → Evidence/User statement → Interview segment → Timestamp`. This is essential for credibility, edits, and dispute handling — and a key requirement from Stafford's RFP (Section F).
+**Every book statement links back to the interview:** If a sentence appears in the book, you can trace it back to exactly when the person said it. Essential for credibility, edits, and disputes — and a requirement from Stafford's RFP (Section F).
 
 ---
 
@@ -417,34 +417,81 @@ The core principles (same-level interaction, one element at a time, relatable tr
 
 | Engine | V1 Scope | Must Shine? |
 |--------|----------|-------------|
-| **Plug** | One funnel → micro-interview (3-5 questions, audio-first) → instant preview → Opera handoff | Must exist |
-| **Opera** | Adaptive questioning, emotional intelligence, bestseller heuristics, structured extraction, depth scoring, 5-phase questioning | Must shine |
-| **Shakespeare** | Single template (selected based on audience path), voice modelling, narrative composition, chapter architecture, 6x9 KDP B&W + digital PDF, preflight validation, spine/cover | Must work |
+| **Plug** | Landing page → short voice interview (3-5 questions) → instant book page preview → hand off to Opera | Must exist |
+| **Opera** | AI interviewer that responds to what you say, probes deeper, knows what makes a good book, tracks people/events/timeline | Must shine |
+| **Shakespeare** | Turns interview into chapters, writes in your voice, formats as book, prints via KDP (6x9 B&W + digital PDF) | Must work |
 
 Opera is the product differentiator. Without adaptive questioning that genuinely responds to what the user says, the interview is a questionnaire — not the "patient AI friend" from the problem statement. Plug's instant preview and Shakespeare's book output serve Opera's extracted material.
 
-**V1 — Out of Scope (30 items from Stafford's EB Business Master + March Technical Plan):**
-- **Entire subsystems:** Vulture engine, NFT/tokenisation layer, corporate B2B division, creative licensing marketplace, Interesting Conversations (podcast), pitch-to-story service, AI funnel builder
-- **Plug beyond V1:** Multiple funnel types, dynamic headlines, behavior-based questions, AI preview variations, social sharing
-- **Opera beyond V1:** Voice cloning, avatar mode, cinematic scoring, multi-session continuity, cross-chapter arc detection
-- **Shakespeare beyond V1:** Color profile, additional trim sizes, premium hardback, yearbook template, EPUB
-- **Revenue beyond V1:** 8 of 10 streams (podcast credits, NFT fees, corporate contracts, licensing, consultancy, voice cloning packages, enterprise licensing, NFT royalties)
+**30-Day Delivery Commitment (by April 23rd):**
 
-**Build separation:** AI agents (Opera questioning, structured extraction, composition) and the application layer (frontend, audio recording, user flows, book viewer) are different skill sets built in parallel. The agents produce data and content; the application displays and interacts with it. Both are required for a working product.
+Every item traces back to a specific section of Stafford's EB Business Master or March Technical Lifecycle Plan.
+
+| # | What gets delivered | Source | Priority | Status |
+|---|-------------------|--------|----------|--------|
+| | **PLUG (Entry Point)** | | | |
+| 1 | Landing page with an opening question that triggers a real response | March Tech: Plug §1-2 | Should | ✅ In |
+| 2 | Short voice interview (3-5 questions, user speaks) | March Tech: Plug §3 | Should | ✅ In |
+| 3 | User's words appear as a designed book page instantly | March Tech: Plug §4 | Should | ✅ In |
+| 4 | Multiple landing pages for different audiences | March Tech: Plug §1 (4 types) | | ❌ Out |
+| 5 | Headlines that adapt based on who's clicking | March Tech: Plug Phase 2 | | ❌ Out |
+| 6 | AI generates different preview designs per person | March Tech: Plug Phase 2 | | ❌ Out |
+| 7 | Share your book preview on social media | March Tech: Plug Phase 2 | | ❌ Out |
+| | **OPERA (AI Interviewer)** | | | |
+| 8 | AI responds to what you say and probes deeper | March Tech: Opera Phase 2 (pulled in) | Must | ✅ In |
+| 9 | AI matches your emotional tone (slows down, gets excited with you) | March Tech: Opera §Layer 1 | Should | ✅ In |
+| 10 | AI knows what makes stories compelling and asks accordingly | March Tech: Opera §Layer 2 | Should | ✅ In |
+| 11 | AI tracks people, places, events — doesn't lose context | March Tech: Opera §Extraction | Must | ✅ In |
+| 12 | AI scores whether the interview is producing good book material | March Tech: Opera §Story Quality | Should | ✅ In |
+| 13 | AI speaks in a cloned version of your voice | March Tech: Opera Phase 2 | | ❌ Out |
+| 14 | AI appears as a visual avatar | March Tech: Opera Phase 2 | | ❌ Out |
+| 15 | AI rates stories for "cinematic potential" | March Tech: Opera Phase 2 | | ❌ Out |
+| 16 | Pick up the interview across multiple sessions | March Tech: Opera Phase 3 | | ❌ Out |
+| | **SHAKESPEARE (Book Writer + Printer)** | | | |
+| 17 | One book template (chosen based on audience) | March Tech: Shakespeare §Layer 5 | Should | ✅ In |
+| 18 | Chapters read like YOU wrote them (matches your voice) | March Tech: Shakespeare §Layer 1 | Should | ✅ In |
+| 19 | Interview material becomes flowing chapters | March Tech: Shakespeare §Layer 2 | Must | ✅ In |
+| 20 | Printed book via KDP (6x9 B&W) + digital PDF | March Tech: Shakespeare Phase 1 | Must | ✅ In |
+| 21 | PDF checked before printing (catches errors) | March Tech: Shakespeare §Preflight | Should | ✅ In |
+| 22 | Cover + spine generated automatically | March Tech: Shakespeare §Layers 7-8 | Should | ✅ In |
+| 23 | Physical test print sent to KDP | March Tech: Shakespeare Phase 1 | Should | ✅ In |
+| 24 | Color printing | March Tech: Shakespeare Phase 2 | | ❌ Out |
+| 25 | Other book sizes beyond 6x9 | March Tech: Shakespeare Phase 2 | | ❌ Out |
+| 26 | Yearbook template (multi-author community books) | March Tech: Shakespeare Phase 2 | | ❌ Out |
+| 27 | E-reader format (EPUB) | March Tech: Shakespeare Phase 2 | | ❌ Out |
+| | **ENTIRE SUBSYSTEMS** | | | |
+| 28 | Growth engine that finds audiences and creates ads | March Tech: Vulture (full section) | | ❌ Out |
+| 29 | Mint stories as NFTs / digital collectibles | EB Master: §Products & Revenue | | ❌ Out |
+| 30 | Corporate division (company intelligence, memory vault) | EB Master: §Target Market | | ❌ Out |
+| 31 | Marketplace to license stories for film/TV | EB Master: §Products & Revenue | | ❌ Out |
+| 32 | Turn conversations into podcast episodes | EB Master: §Extensions | | ❌ Out |
+| | **APP LAYER** (not in Stafford's engine specs) | | | |
+| 33 | Landing page with opening question | Required by Plug | Should | ✅ In |
+| 34 | Voice recorder in the browser | Required by Opera | Must | ✅ In |
+| 35 | User login | Required by all | Must | ✅ In |
+| 36 | Interview conversation screen | Required by Opera | Must | ✅ In |
+| 37 | Book page preview display | Required by Plug | Should | ✅ In |
+| 38 | Download / view your finished book | Required by Shakespeare | Should | ✅ In |
+| 39 | Admin panel for managing interviews and books | Required for operations | | ❌ Out |
+| 40 | Analytics dashboard | Required for optimization | | ❌ Out |
+
+**Score: 19 in (7 Must / 12 Should) · 21 out.** This table IS the 30-day commitment. If items from the "Out" column are required in the first engagement, the scope exceeds what can be delivered by April 23rd.
+
+**Build separation:** AI agents (Opera questioning, extraction, composition) and the application layer (frontend, audio recording, user flows, book viewer) are different skill sets built in parallel. The agents produce data and content; the application displays and interacts with it. Both are required for a working product.
 
 **Phasing:**
 
 **Phase 1 — MVP (Month 1): Core Pipeline**
-- Plug: one funnel, micro-interview, instant preview generator
-- Opera: adaptive questioning engine, emotional templates, bestseller heuristics, structured extraction, basic depth scoring
-- Shakespeare: single book template (TBD — audience-dependent), 6x9 KDP B&W, digital PDF, preflight validation, spine calculator, cover generator
+- Plug: landing page with opening question, voice recording, instant book page preview
+- Opera: AI interviewer that responds to what you say, probes for conflict/stakes/transformation, organizes people/events/timeline
+- Shakespeare: one book template, writes chapters in user's voice, 6x9 KDP B&W + digital PDF, checks PDF before printing, generates cover
 - Physical test print with KDP
 
 **Phase 2 — V1 (Month 2-3): Polish + Scale Prep**
-- Opera: story quality scoring (full suite), personality system refinement
-- Shakespeare: additional templates based on audience choice, color profile
-- Analytics dashboard, social content repurposing
-- Operator tooling (admin panel for managing interviews and books)
+- Opera: gets better at detecting flat stories and asking the right follow-ups, more interview styles
+- Shakespeare: additional book templates based on audience, color printing option
+- Analytics dashboard, shareable book snippets for social media
+- Admin panel for managing interviews and books
 
 **Phase 3 — V2 (Post-retainer): Extensions**
 - Vulture (growth/campaign engine — manual acquisition is acceptable until this point)
