@@ -533,7 +533,7 @@ Identify which deployment pattern(s) apply, then execute:
 
 | Project type | Pattern | Key command |
 |-------------|---------|-------------|
-| Backend on VPS | Docker Compose | `make staging` (local — Makefile handles SSH + deploy) |
+| Backend on VPS | Docker Compose | `ssh {SERVER}` → `cd /home/shared/{project}` → `make staging` |
 | Frontend on Vercel | Vercel Hobby | Push to `staging` branch (GHA auto-deploys) |
 | Needs subdomain | Caddy | `sudo caddy validate` → `sudo systemctl reload caddy` |
 
@@ -541,9 +541,11 @@ Identify which deployment pattern(s) apply, then execute:
 
 **Docker Compose Backend:**
 ```bash
+ssh {SERVER}
+cd /home/shared/{project}
 make staging
-# Makefile SSHes to server, runs git pull + docker compose up in STAGING_DIR
-# Verify: curl health endpoint (Makefile prints URL on success)
+# Makefile runs git pull + docker build + docker compose up locally on the server
+# Verify: curl health endpoint (Makefile prints result on success)
 ```
 → Full pattern: [Docker Compose Design Doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/docker-compose-backend-deployment-design)
 

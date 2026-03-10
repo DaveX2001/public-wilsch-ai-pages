@@ -174,7 +174,7 @@ staging:
 
 **Why Makefile over raw commands:** Prevents accidental deployments (`make` = help), encapsulates multi-step sequences (pull → build → deploy → health check), and provides a discoverable interface (`make help` lists all targets). The Makefile is the only file a developer needs to read to understand deployment operations.
 
-**Reference:** [ROHDEX Makefile](https://github.com/MariusWilsch/rohdex/blob/staging/Makefile) (Topology A), [Call2Tanss Makefile](https://github.com/MariusWilsch/call2tanss/blob/main/Makefile) (Topology B)
+**Reference:** [ROHDEX Makefile](https://github.com/MariusWilsch/rohdex/blob/staging/Makefile) (Topology B), [Call2Tanss Makefile](https://github.com/MariusWilsch/call2tanss/blob/main/Makefile) (Topology B)
 
 ### Part 4: Environment Separation
 
@@ -233,7 +233,7 @@ Every backend exposes a `/health` endpoint that serves two purposes: container h
 - **Issue:** [#712](https://github.com/DaveX2001/deliverable-tracking/issues/712) (Deployment Pattern Standardization epic)
 - **Meta Design Doc:** [deployment-pattern-standardization-design](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/deployment-pattern-standardization-design)
 - **Makefile ADR:** [docker-compose-makefile-targets-standardization](https://github.com/veloxforce/velox-global-adrs/blob/main/docker-compose-makefile-targets-standardization.md)
-- **Reference Impl (Topology A):** [MariusWilsch/rohdex](https://github.com/MariusWilsch/rohdex) — Dockerfile, docker-compose.prod.yml, docker-compose.staging.yml, Makefile
-- **Reference Impl (Topology B):** [MariusWilsch/call2tanss](https://github.com/MariusWilsch/call2tanss) — Makefile, docker-compose.yml, docker-compose.staging.yml
+- **Reference Impl (Topology A):** *(no current reference — ROHDEX migrated to Topology B in [#1067](https://github.com/DaveX2001/deliverable-tracking/issues/1067))*
+- **Reference Impl (Topology B):** [MariusWilsch/rohdex](https://github.com/MariusWilsch/rohdex) — Dockerfile, docker-compose.prod.yml, docker-compose.staging.yml, Makefile | [MariusWilsch/call2tanss](https://github.com/MariusWilsch/call2tanss) — Makefile, docker-compose.yml, docker-compose.staging.yml
 - **ROHDEX CI/CD Design:** [ci-cd-staging-design](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rohdex/ci-cd-staging-design)
 - **Session:** [0d7eff70](https://github.com/MariusWilsch/claude-code-conversation-store/blob/main/projects/-Users-daveFem-Desktop-claude-projects-00-WILSCH-AI-INTERNAL--deliverable/0d7eff70-d608-42cf-a96b-b76081eeef5a.jsonl)
