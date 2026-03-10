@@ -52,7 +52,7 @@ COVID-era live-streamed classes via Streamyard, published to YouTube (mirrored o
 
 The target avatar is psychographic, not demographic: creative adults who carried a childhood dream of singing but never pursued it. Anthony (business advisor) defined the exclusions: not entrepreneurs, not parents — "there's no mention whatsoever of children, business, Entrepreneur on the YouTube channel." Omega clarified: "It's not feminine. It's the creator."
 
-The full avatar with burden index (51 problems scored by severity and service relevance) is maintained as a separate persona document. See [Omega Persona Doc] (to be created).
+The full avatar with burden index (52 problems scored by severity and service relevance) is maintained as a separate persona document. See [Omega Persona — Burden Index](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-persona-burden-index).
 
 Class clips serve the entire marketing funnel — a single content type that drives both awareness and conversion:
 - **Awareness:** Clips showing Omega's coaching style and teaching philosophy attract the target avatar — people who see themselves in the students and think "I could do that too."
