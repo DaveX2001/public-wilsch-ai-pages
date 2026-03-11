@@ -567,6 +567,17 @@ sudo systemctl reload caddy
 ```
 → Full pattern: [Caddy Subdomain Design Doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/caddy-subdomain-routing-design)
 
+**CLAUDE.md Deployment Identity (first deploy):**
+
+When deploying a project for the first time, add a deployment identity section to the project's CLAUDE.md. This prevents future sessions from guessing container names, ports, or server paths.
+
+Minimum fields:
+- **Container name** on server (e.g., `archibus_bulk_import`)
+- **Port mapping** (e.g., `3081:8003`)
+- **Server path** (e.g., `/home/shared/archibus-bulk-import/`)
+- **Rebuild command** (`make staging` or `docker compose -f ... up -d --build`)
+- **`.mcp.json`** for local MCP server discovery (if applicable)
+
 ---
 
 **Step 8: Smoke Test**
