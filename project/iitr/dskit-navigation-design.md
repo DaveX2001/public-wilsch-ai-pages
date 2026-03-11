@@ -81,9 +81,9 @@ Deploy the retrieval and serving infrastructure on IITR-STAGING. This is a from-
 
 ### Part 2: Data Preparation
 
-**Baseline first:** Ingest immediately available documents (PDFs) as-is, generate tree indexes, run the test harness, get a baseline score. The baseline score determines where to invest optimization effort — don't block on converting all formats before measuring.
+**Incremental ingestion with rubric checkpoints:** Ingest all sources as-is — no content modification (noise removal, reformatting) before measuring. Add sources one at a time, running the test harness after each addition to observe which questions each source answers. Ingestion order is the Developer's choice. Content cleaning (removing irrelevant sections, deduplication) is a post-scores optimization pass — only after initial results reveal where noise actually hurts.
 
-After baseline, prepare remaining sources to expand coverage. Ingest full documents, not cherry-picked by question. Text-only extraction, no visual elements.
+Ingest full documents, not cherry-picked by question. Text-only extraction, no visual elements.
 
 **Universal principle:** All PageIndex input must have heading hierarchy. PageIndex `md_to_tree()` uses `#` characters to build the tree structure — flat text without headers produces a degenerate tree with poor retrieval. This applies to every source format: PDFs use `--pdf_path` (PageIndex handles structure natively), all other formats must be converted to markdown with proper heading hierarchy before ingestion.
 
@@ -91,26 +91,26 @@ After baseline, prepare remaining sources to expand coverage. Ingest full docume
 
 | Source | Format | PageIndex Path | Notes |
 |--------|--------|---------------|-------|
-| Anwenderleitfaden | PDF | `--pdf_path` (native) | **Baseline source.** Primary knowledge base — zero conversion needed |
-| Templates (56 total) | PDF/Word/Excel | PDF: `--pdf_path`; Word/Excel: convert to structured markdown → `--md_path` | Post-baseline. Download from core.iitr.de chapter 4 (Keycloak auth) |
-| Masterfragen | CSV/Excel | Convert to structured Q&A markdown → `--md_path` | Post-baseline. 22 entries, knowledge source for 19/29 test questions |
-| core.iitr.de chapters 1-12 | Web | Extract → one combined markdown with full heading hierarchy (H1/H2/H3+) → `--md_path` | Post-baseline. 7/29 test questions depend on this. Chrome DevTools MCP as extraction tool (proven in [#798](https://github.com/DaveX2001/deliverable-tracking/issues/798)). Fallback: [agent-browser](https://github.com/vercel-labs/agent-browser). Preserve native heading depth from core.iitr.de. |
+| Anwenderleitfaden | PDF | `--pdf_path` (native) | Primary knowledge base — zero conversion needed |
+| Templates (56 total) | PDF/Word/Excel | PDF: `--pdf_path`; Word/Excel: convert to structured markdown → `--md_path` | Download from core.iitr.de chapter 4 (Keycloak auth) |
+| Masterfragen | CSV/Excel | Convert to structured Q&A markdown → `--md_path` | 22 entries, knowledge source for 19/29 test questions |
+| core.iitr.de chapters 1-12 | Web | Extract → one combined markdown with full heading hierarchy (H1/H2/H3+) → `--md_path` | 7/29 test questions depend on this. Chrome DevTools MCP as extraction tool (proven in [#798](https://github.com/DaveX2001/deliverable-tracking/issues/798)). Fallback: [agent-browser](https://github.com/vercel-labs/agent-browser). Preserve native heading depth from core.iitr.de. |
 
 **Data availability:** [Source Data Inventory (Google Drive)](https://drive.google.com/drive/folders/1gnxBulrnkGh-Oyly_jabofNo4SVivQhR) — INPUT/ (knowledge base) and TEST_RUBRIK/ (evaluation rubric). Templates and web chapters require Keycloak authentication for download/extraction.
 
 ### Part 3: Test Rubric
 
-Automated evaluation of the navigation system against the 29-question test set. Build the test harness **from scratch** — the existing harness in IITR-RAG-Navigation is inspiration only, not a base to extend. Use Sonnet 4.5 via OpenRouter as the LLM judge (external model evaluates local Qwen output — no self-evaluation).
+Automated evaluation of the navigation system against the 29-question test set. Build the test harness **from scratch** — the existing harness in IITR-RAG-Navigation is inspiration only, not a base to extend. Use Sonnet 4.6 via OpenRouter as the LLM judge (external model evaluates local Qwen output — no self-evaluation).
 
 **Two-tier scoring:**
 
 | Tier | Dimensions | CSV Source | Evaluator | Scoring |
 |------|-----------|------------|-----------|---------|
-| **Pass/Fail** | 1. Content Accuracy, 2. Format | Column B (expected answer) | AI (LLM judge — Sonnet 4.5) | Semantic match against expected answer. These dimensions determine the score. |
-| **Signal** | 3. Chapter Reference | Column C (Quelle) | Human (Stellmacher) | FAIL only if hallucinated. Otherwise Stellmacher judges correctness at bi-weekly review. |
+| **Pass/Fail** | 1. Content Accuracy, 2. Format | Column B (expected answer) | AI (LLM judge — Sonnet 4.6) | Semantic match against expected answer. These dimensions determine the score. |
+| **Signal** | 3. Chapter Reference | Column C (Quelle) | Human (Stellmacher) | Warning signal — evaluate empirically with real outputs before defining detection rules. Stellmacher judges correctness at bi-weekly review. |
 | **Signal** | 4. Source Traceability | Column C (Quelle) | AI (signal only) | Is the Quelle source present in retrieved tree nodes? Warning if not — does not independently fail a question. |
 
-**Column D recommendation:** Add a `chapter-reference-expected` (yes/no) column to the test CSV. Questions that reference a specific DS-Kit chapter (e.g., "Kapitel 8", "Kapitel 11, Unterpunkt 3") get `yes`. Support redirects and procedural answers get `no`. This lets the judge skip chapter reference evaluation for questions where no chapter applies.
+**Column D (grooming discussion):** Consider adding a `chapter-reference-expected` (yes/no) column to the test CSV. Questions that reference a specific DS-Kit chapter (e.g., "Kapitel 8", "Kapitel 11, Unterpunkt 3") get `yes`. Support redirects and procedural answers get `no`. This lets the judge skip chapter reference evaluation for questions where no chapter applies. Observe chapter reference behavior empirically with real outputs first — bring findings to Stellmacher before committing to this structure.
 
 **Golden example** — expected output format for a question WITH navigation hint:
 
@@ -136,7 +136,7 @@ Navigation hint appears only when the answer references a specific DS-Kit chapte
 
 Run the test harness, iterate toward ≥26/29. Tree index generation is a one-time step per document — regenerate only when source content changes.
 
-**Dual-model option:** Tree *traversal* (runtime) uses Qwen 3.5 9B locally. Tree *creation* (one-time) may use a stronger model (e.g., Sonnet 4.5 via OpenRouter) for higher-quality tree structure. Better trees = better retrieval without changing the runtime model.
+**Dual-model option:** Tree *traversal* (runtime) uses Qwen 3.5 9B locally. Tree *creation* (one-time) may use a stronger model (e.g., Sonnet 4.6 via OpenRouter) for higher-quality tree structure. Better trees = better retrieval without changing the runtime model.
 
 **Expert knowledge injection** (highest-leverage optimization): PageIndex allows injecting domain-specific routing rules directly into the tree search prompt — no embedding fine-tuning needed. Example: "If query mentions Löschfristen, prioritize Kapitel 3." Build a set of IITR-specific routing rules from the 29 test questions and their Quelle column, then inject relevant rules per query. See [LLM Tree Search](https://docs.pageindex.ai/tutorials/tree-search/llm) for the prompt template and preference retrieval pattern.
 
@@ -198,3 +198,4 @@ Present sample answers to Stellmacher at bi-weekly meeting (Mar 17) for qualitat
 - Pass 1-5 extractions: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/{80abc9d7,ca51af04,96431cad,a084b417,d009a445}.jsonl
 - Design doc rewrite: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/ebd33f3f-f258-4ab6-8ccd-5d8eef2061bd.jsonl
 - SA Review v2 pass: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/99e9faee-c74a-40ab-ba0f-358b8537b16d.jsonl
+- SA Review v2 final corrections: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/775ac9fa-bc9e-4dd5-953c-77ce27518e71.jsonl
