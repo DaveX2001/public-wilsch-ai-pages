@@ -692,6 +692,90 @@ These traits follow Anthropic's Persona Selection Model: the AI behaves like a c
 
 ---
 
+### Part 6: Pipeline Integration & Deployment
+
+Parts 1–5 designed the interactive mapping phase (Steps 0→2) and the execution phase (Step 3) independently. Two working systems exist: the MCP/Skill system produces a mapping contract through conversation, and the CLI pipeline builds nested JSON and submits to the BEM API. This part connects them and defines how the complete pipeline deploys for the client demo.
+
+#### 6.1 Bridge Tool — Contract Consumption
+
+The interactive phase (Steps 0→2) produces a mapping contract. The execution phase (Step 3) transforms data and submits to the BEM API. Today these phases run independently — Step 3 uses hardcoded column names and enum maps instead of consuming the contract. The bridge tool closes this gap.
+
+**What it does:** Takes a confirmed mapping contract + source Excel + a building name, and executes the full Step 3 pipeline (filter → hierarchy → deduplicate → generate locations → build JSON → validate/insert via API) using the contract's mappings instead of hardcoded values.
+
+**Input:**
+- Mapping contract JSON (Elements 1+2+3 from Part 2)
+- Source Excel file path
+- Building name (one top-level element per call, per Step 3 Part 1)
+- Mode: validate (dry run) or import (live insert)
+
+**Output:**
+- On success: API response with importID + full tree with server-generated UUIDs
+- On error: structured error `{id, field, value, reason, valid_values}` — the AI reads this and decides whether to self-correct (enum mismatch → update contract rules) or escalate (data error → report to implementer)
+
+**Backpressure:** Enum errors update the contract's rules (root cause). Data errors fix the individual node. This distinction — contract-level vs node-level correction — is the same design principle from Part 5.
+
+**Form factor:** Registered as a FastMCP tool on the existing `archibus-bulk-import-tools` MCP server, alongside `bem_context` and `excel_analysis`.
+
+**Undefined:** How the bridge tool internally wires contract values to the existing CLI pipeline modules — which functions are reused, what's refactored, how the contract-to-hardcoded substitution works at the code level. Needs a developer extraction pass on the CLI codebase.
+
+*(Source: Gap analysis extraction pass 2026-03-12.)*
+
+#### 6.2 Skills Architecture — Persona + Two Skills
+
+The pipeline has two distinct modes: interactive (Steps 0→2, lots of back-and-forth with the implementer) and autonomous (Step 3, near-zero questions, execution + backpressure). Mixing both modes in a single prompt confuses the AI about when to ask vs when to act. The architecture separates them into layers.
+
+**Three layers:**
+
+| Layer | What | When loaded |
+|---|---|---|
+| **Persona** (system prompt) | PSM-derived behavioral identity — knows BEM deeply, adapts to arbitrary input, improves data intelligently. 5 beliefs + tone context. | Always present |
+| **Skill 1: bem-setup** (interactive) | Recipe for Steps 0→2. Guides the AI through detection → hierarchy → column mapping → enum resolution → contract assembly. Conversational, gates on implementer confirmation. | Loaded when implementer uploads Excel |
+| **Skill 2: step3-execute** (autonomous) | Recipe for Step 3. Consumes confirmed contract, calls bridge tool per building, reports progress. Autonomous — only escalates on unrecoverable errors. | Loaded when contract is confirmed |
+
+**Design intent:** Skills follow Anthropic's progressive disclosure model — descriptions load light (~100 tokens), full content loads on invocation. This prevents the AI from being overburdened with instructions for both modes simultaneously. The persona stays constant; the active skill determines the AI's behavior.
+
+**MCP tools remain the same regardless of which skill is active:** `bem_context` (schema reference), `excel_analysis` (file profiling), `step3_execute` (bridge tool from §6.1). Skills tell the AI WHEN and HOW to use these tools. MCP provides the kitchen; skills provide the recipes.
+
+**Undefined:** Whether Skill 2 needs a full SKILL.md or collapses entirely into the bridge tool's description — if the tool description is sufficient to guide autonomous execution, a separate skill may be unnecessary. Empirical: test with and without, compare behavior quality.
+
+*(Source: [Anthropic Skills Guide PDF](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) Category 3 pattern. Gap analysis extraction pass 2026-03-12.)*
+
+#### 6.3 Deployment — LibreChat + Skills Integration
+
+The demo runs in LibreChat (deployed on the Wilsch AI server) with MCP tools connected to the archibus-bulk-import FastMCP server. LibreChat supports MCP but does not have native skill discovery or progressive disclosure — it cannot load SKILL.md files on demand.
+
+**Two approaches to get skills working:**
+
+**Option A — LiteLLM as proxy (zero LibreChat patches):**
+LibreChat → LiteLLM → Anthropic API. LiteLLM natively supports `container.skills` and has a `/v1/skills` endpoint for uploading SKILL.md files. Skills are configured in LiteLLM; LibreChat doesn't need to know about them. Trade-off: adds a proxy layer to the deployment stack.
+
+**Option B — System prompt baking:**
+Embed skill instructions directly in the LibreChat agent's system prompt. No proxy needed. Trade-off: no progressive disclosure — the AI receives all instructions upfront, which may degrade behavior on smaller models. Acceptable for Claude Sonnet (demo model), potentially problematic for Qwen 3.5 (production target).
+
+**Undefined:** Which approach to use. Option A is architecturally cleaner (skills load on demand, same mechanism as Claude Code). Option B is deployment-simpler (no LiteLLM layer). Needs a deployment test: configure LiteLLM proxy, upload the two skills, verify LibreChat → LiteLLM → Anthropic passes through `container.skills` correctly.
+
+**File upload (demo requirement):** LibreChat's file upload feature must pass the uploaded Excel file path to the MCP tool. Today the file path is hardcoded in the container environment. The upload flow needs to connect LibreChat's file handling to the `excel_analysis` tool's `file_path` parameter. This is a deployment configuration task, not a design change — but it must work before the demo.
+
+*(Source: [LiteLLM Skills docs](https://docs.litellm.ai/docs/skills). Rein transcript 2026-03-11: "before the demo, you need to utilize the upload option." Gap analysis extraction pass 2026-03-12.)*
+
+#### 6.4 PSM Persona — Behavioral Layer
+
+The AI's behavioral quality is demo-blocking. Miguel judges whether the AI acts intelligently — readable asset names, proactive semantic insights, no process leakage, no template-feeling rigidity. A rigid template-follower fails this bar regardless of correct output.
+
+**What was chosen:** The Persona Selection Model (PSM) from Anthropic research. Five beliefs define the AI's behavioral identity, separate from the mechanical SKILL.md instructions. The beliefs guide disposition (how to think) while the skill guides procedure (what to do).
+
+**Current state (as of 2026-03-12):**
+- System prompt: `prompts/system-prompt.md` — 5 PSM beliefs + tone context + audience definition
+- Skill: `skills/bem-setup/SKILL.md` — simplified (procedural rules and Beat/Step terminology removed)
+- Witness evidence: `evidence/psm-baseline-witness-2026-03-11.md` (without PSM) and `evidence/psm-with-skill-witness-2026-03-11.md` (with PSM)
+- Latest: Belief #5 (attention scarcity) added, gating contradiction resolved
+
+**Design principle:** The persona stays constant across both skills (§6.2). Whether the AI is in interactive mode (bem-setup) or autonomous mode (step3-execute), the same beliefs apply — the active skill changes the procedure, not the disposition.
+
+*(Source: [Anthropic PSM](https://alignment.anthropic.com/2026/psm/). Issue [#1094](https://github.com/DaveX2001/deliverable-tracking/issues/1094). Gap analysis extraction pass 2026-03-12.)*
+
+---
+
 ## Source
 
 - **Design docs:**
@@ -724,3 +808,7 @@ These traits follow Anthropic's Persona Selection Model: the AI behaves like a c
 - **Reference:** [Anthropic Prompt Engineering Course](https://www.youtube.com/watch?v=ysPbXH0LpIE) — 10-section mechanical prompt recipe
 - **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/d39c2d40-a2af-4063-ae8e-ebacd36a83ae.jsonl
 - **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/ff776065-b200-4fda-98bf-c957873ae951.jsonl
+- **Transcript:** [Rein <> Marius (Mar 11, 2026)](https://app.fireflies.ai/view/01KKE7GE79F1AYWE4AJCCEHYFK) — Step 2b enum resolution, extended properties, asset types scope, demo requirements
+- **Reference:** [Anthropic Skills Guide PDF](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) — Category 3 MCP Enhancement pattern, progressive disclosure architecture
+- **Reference:** [LiteLLM Skills docs](https://docs.litellm.ai/docs/skills) — `container.skills` parameter, `/v1/skills` endpoint
+- **Session:** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-MariusWilsch--archibus-bulk-import/f2a480c1-4a8c-497b-9d1f-ea898e84ce00.jsonl
