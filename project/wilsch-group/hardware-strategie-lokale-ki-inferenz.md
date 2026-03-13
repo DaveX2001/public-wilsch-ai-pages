@@ -58,40 +58,9 @@ Dadurch sind zwei aktive Kundenprojekte (AVO, REKERS) blockiert: KI-Entwicklung 
 | Preis | ~€3.300–3.600 | **~€6.600–7.200** |
 | Verfügbarkeit | Shopee SG/MY, Next-Day Delivery | — |
 
-**Was darauf läuft:**
+**Warum DGX Spark:** Der GB10-Chip (Grace Blackwell) liefert ~100 TFLOPS Rechenleistung — ideal für Prefill, die rechenintensivste Phase der KI-Inferenz. Beim Agentic Coding (KI-gestützte Softwareentwicklung) dominiert Prefill die Arbeitsschleife (~60/40 gegenüber Decode), da das Modell bei jedem Schritt den gesamten Projektkontext neu liest. 256 GB Gesamt-RAM ermöglicht auch große Entwicklungsmodelle (230B Parameter).
 
-| Modell | Zweck | Quantisierung | Größe | Decode-Speed |
-|--------|-------|--------------|-------|-------------|
-| MiniMax M2.5 (230B) | Entwicklung (Agentic Coding) | Q3 (Unsloth) | 101 GB (1× Spark) | ~26 tok/s |
-| MiniMax M2.5 (230B) | Entwicklung | FP4 Mixed Precision | ~124 GB (2× Spark) | 55+ tok/s |
-| Qwen 3.5 4B/9B | REKERS Deployment | FP8–FP16 | 4–18 GB | >100 tok/s |
-
-**NVIDIA Precision Recipe (für MoE-Modelle):**
-
-Quelle: [NVIDIA TensorRT-LLM Blog — DeepSeek-R1 auf B200](https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog1_Pushing_Latency_Boundaries_Optimizing_DeepSeek-R1_Performance_on_NVIDIA_B200_GPUs.html)
-
-| Komponente | Precision | Warum |
-|-----------|-----------|-------|
-| Attention | **BF16** | Niedrigere Precision bringt keinen Performance-Vorteil |
-| Expert Weights (FFN) | **NVFP4** | Größte Speichereinsparung, toleriert niedrige Precision |
-| KV Cache | **FP8** | Balance aus Speichereffizienz und numerischer Stabilität |
-| Router/Gate | **BF16** | Expertenwahl erfordert hohe Genauigkeit |
-
-Qualitätsverlust: **<1%** über alle Benchmarks (MMLU-PRO, GPQA, MATH-500).
-
-**Serving Engine Priorität:**
-
-| Priorität | Engine | Status auf GB10 | Einsatz |
-|-----------|--------|-----------------|---------|
-| **1a** | llama.cpp + RPC | ✅ Produktionsreif | Tag 1: Validierung, Entwicklung |
-| **1b** | vLLM | ✅ Funktionsfähig | FSO-Demo: API-Server, Multi-User |
-| **2** | SGLang | ✅ Funktionsfähig | Backup |
-| **3** | TensorRT-LLM | 🟡 SM121-Bugs | Überspringen |
-| **4** | Exo | ❌ Blockiert | Zukunft: Disaggregated Inference |
-
-**SM121-Hinweis:** Der GB10-Chip nutzt Compute Capability SM121 — abweichend von Datacenter-Blackwell (SM100). Nicht alle optimierten Kernels funktionieren auf GB10. llama.cpp hat die beste SM121-Unterstützung. Das Software-Ökosystem ist funktionsfähig, aber weniger ausgereift als bei Datacenter-GPUs.
-
-**Warum DGX Spark für Agentic Coding:** Beim Agentic Coding liest das Modell bei jedem Schritt den gesamten Kontext neu (Prefill). Der Kontext wächst mit jedem Tool-Aufruf. Prefill dominiert die Schleife (~60/40 gegenüber Decode). Die 100 TFLOPS des DGX Spark — NVFP4 Prefill erreicht bis zu 3.342 tok/s — machen ihn ideal für diesen Einsatz.
+Technische Details zu Quantisierung, Serving Engines und SM121-Kompatibilität: siehe [#929 Research Comment](https://github.com/DaveX2001/deliverable-tracking/issues/929#issuecomment-4053944363).
 
 ### Phase 2: + Mac Studio — Disaggregated Inference (Strategisch)
 
