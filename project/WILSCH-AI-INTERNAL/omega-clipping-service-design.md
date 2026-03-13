@@ -67,10 +67,10 @@ Four pearl categories identified from the discovery call:
 
 1. **Coaching feedback moments** — Omega giving specific, actionable advice (e.g., "lean into your French accent, don't try to obscure it")
 2. **Authenticity breakthroughs** — A student singing naturally for the first time, finding their own voice ("I'm looking for the next natural singer")
-3. **Quotable wisdom** — One-liners suitable for text overlay or Pinterest images ("You didn't lose the ability to sing. You just never had someone show you how.")
-4. **Tidbits** — Short, impactful teaching moments that stand alone
+3. **Transformation arcs** — Visible before→after progression within a class: tentative start → coaching moment → breakthrough performance (e.g., Simon's concert programme — "several transformations from beginning to end")
+4. **Quotable wisdom** — One-liners suitable for text overlay or Pinterest images ("You didn't lose the ability to sing. You just never had someone show you how.")
 
-**Undefined:** Pearl signal refinement — Omega needs to validate these four categories and define specific signals the AI should detect. See [Meeting Agenda Topic 4](#4-pearl-signal-definition-for-ai-detection).
+**Undefined:** Pearl signal refinement — categories defined, threshold established (narrative arc: before → coaching → after). Client validates by reviewing POC output at the meeting. See [Meeting Agenda Topic 4](#4-pearl-poc-demo--signal-refinement).
 
 **Proof of concept:** Pearl examples identified from the discovery call transcript, where Omega describes specific moments from her classes:
 
