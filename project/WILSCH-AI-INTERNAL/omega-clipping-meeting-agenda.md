@@ -66,7 +66,7 @@ Phase 1 covers video clips for YouTube Shorts, TikTok, and Instagram Reels. Two 
 
 We extracted real pearls from three of Omega's Learn to Sing class recordings using AI-powered content detection. This topic opens with showing those examples, then refining the detection criteria together.
 
-- **Pearl examples:** TBD — link to POC results once extracted
+- **Pearl examples:** [POC Results — 6 pearls from 3 videos](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-pearl-poc-results)
 - Four pearl categories: coaching feedback, authenticity breakthrough, transformation arc, quotable wisdom
 - Each example includes the timestamp, transcript excerpt, and why it qualifies as a pearl
 - Omega and Anthony review: "Is this what you'd want to post? What's missing?"
