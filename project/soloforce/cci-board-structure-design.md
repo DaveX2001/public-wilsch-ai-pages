@@ -153,6 +153,33 @@ The CCI improvement cycle follows a position pipeline that mirrors CI/CD for cod
 
 **Partially defined:** The pipeline — observations → SE monitors pressure → release epic → `/improve-system` at theme level → organic verification — was surfaced across two extraction passes. For instruction artifacts, conversations are the design material (not design docs or tracking.md). The JA design doc step does not apply — the SE runs `/improve-system` Session B directly against deduplicated conversations. See [/improve-system architecture](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/improve-system-architecture) for the theme-level workflow. **Remaining open questions:** how the SE's "pressure threshold" judgment works in practice, and how stability gates between deployment stages (Marius R&D → team → product) are formalized. → Meeting agenda topic.
 
+### 7. Operator Epics
+
+Position epics collect observations about AI position behavior — how the Developer AI, JA AI, or SE AI behaves. Operator epics collect observations about how a human operator works with their AI. The distinction matters because operators have a natural forcing function that position epics lack: the operator's daily work quality depends on the system working correctly.
+
+The operator epic (#635 DaveX2001) is David's single collection point. He posts all observations here regardless of which position artifact is affected. This is deliberate — routing to the correct position epic at capture time creates friction for the operator. David should focus on flagging deviations, not classifying them. The System Engineer reviews operator observations during grooming Step 4 and routes them to the appropriate position artifact at release epic creation time.
+
+**Why operator epics create urgency:** In deliverable-tracking, client meetings force work through milestones. In CCI, the operator's friction is the forcing function. When David flags "the AI skipped `make staging`," that's urgent because his next session will hit the same problem. The better the system, the better David performs, the less review Marius needs — directly advancing the March plan goal (Marius = manager only by March 31).
+
+**Undefined:** The connection between operator epic release epics (#646, #647) and position epic release epics (#604, #616). An operator observation may describe a problem ("AI didn't push"), but the fix lives in a position artifact (Developer AI instructions). Whether release epics should form under the operator epic (where the observation lives) or under the position epic (where the fix belongs) is unresolved. → Next extraction pass.
+
+### 8. Board Infrastructure
+
+The CCI board (GitHub Project P3) requires retrofit to match the ILR v2 column model. Current state (2026-03-13):
+
+| Aspect | Current | Target |
+|--------|---------|--------|
+| **Columns** | Backlog → Todo → In Progress → Review → Done | Backlog → Working → Review → Done |
+| **Milestones** | None (zero exist) | Aligned to a forcing function cadence (undefined) |
+| **Issues** | 35 open, all in Backlog, all unmilestoned | Release epic sub-issues milestoned and flowing |
+| **Position epics** | Visible on board (backlog) | Invisible — not tracked for throughput |
+
+Position epics are observation collectors, not board-tracked work items. They should not appear in Sprint or Grooming views. Only release epics (Commitment Board equivalent) and their sub-issues (Work Board equivalent) need board visibility. The position epic is the CCI equivalent of a client label in deliverable-tracking — a grouping axis, not a work item.
+
+The deliverable-tracking board retrofit (#904) established the pattern: ILR v2 defines columns, milestones tied to forcing functions, daily grooming fills and prioritizes. The same pattern applies to CCI, but the forcing function source differs — deliverable-tracking uses client meetings, CCI's forcing function is undefined.
+
+**Undefined:** CCI milestone strategy — what forcing function drives CCI milestones? Candidates include: weekly internal sprint (same as deliverable-tracking), operator friction pull ("what unblocks David?"), or Traceline deployment cadence. → Next extraction pass.
+
 ---
 
 ## Source
@@ -167,3 +194,9 @@ The CCI improvement cycle follows a position pipeline that mirrors CI/CD for cod
 - **CCI Triage Sessions:** DaveX2001/deliverable-tracking#819 (comments contain 4 session summaries)
 - **Live validation:** CCI #589 comment (observation format success case)
 - **Session (behavioral verification):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/823e5e47-f275-4f14-add7-48674d8328d9.jsonl
+- **Session (extraction pass 3 — operator epics, board infrastructure, forcing function):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/37dd29a5-764c-4b9f-9f93-1c8913659419.jsonl
+- **Board Retrofit Reference:** DaveX2001/deliverable-tracking#904 (closed — established ILR v2 pattern)
+- **Operator Epic:** DaveX2001/claude-code-improvements#635 (full comment history analyzed)
+- **ILR v2:** [Issue Lifecycle Router](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/issue-lifecycle-router)
+- **Monthly Plan:** [Monthly Plan Feb 23 – Mar 31](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/soloforce/monthly-plan-2026-02-23-to-2026-03-31)
+- **GROOMING.md:** DaveX2001/deliverable-tracking/GROOMING.md (Step 4: Operator Observations Review)
