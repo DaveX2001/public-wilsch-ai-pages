@@ -88,8 +88,6 @@ Quelle: [Exo Labs Blog](https://blog.exolabs.net/nvidia-dgx-spark/)
 
 **Undefined:** IBM Spyre-Spezifikationen müssen aus IBM-Primärquelle verifiziert werden. → Meeting Agenda: Spyre-Datenverifikation
 
-**Hinweis zur Software:** Exo Labs' öffentlicher Release unterstützt DGX Spark + Mac aktuell NICHT (PR #1705, Stand März 2026: „DO NOT MERGE"). Pipeline-Parallelismus zwischen 2× Spark funktioniert über vLLM und llama.cpp+RPC. Die echte Prefill/Decode-Disaggregation über heterogene Hardware (CUDA + Metal) bleibt ein laufendes Entwicklungsprojekt.
-
 **Undefined:** Welcher Mac (M3 Ultra jetzt, M5 Max, oder auf M5 Ultra warten) — Entscheidung abhängig von Verfügbarkeit und Preis. → Meeting Agenda: Mac-Auswahl
 
 ### Verbindung zu REKERS (#1079)
