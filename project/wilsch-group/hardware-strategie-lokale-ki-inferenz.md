@@ -17,7 +17,7 @@ Dadurch sind zwei aktive Kundenprojekte (AVO, REKERS) blockiert: KI-Entwicklung 
 
 **Zwei Einsatzzwecke:**
 1. **Entwicklung:** Agentic Coding mit großen Modellen (MiniMax M2.5, 230B Parameter) — ersetzt Cloud-basierte Tools wie Claude Code
-2. **Deployment/Proof:** Kleine Modelle (Qwen 3.5 4B/9B, Qwen 3 8B VL) lokal auf Kunden-Hardware (IBM Power 10) und eigener Infrastruktur ausführen
+2. **Deployment/Proof:** GPU-Infrastruktur für lokale Modellausführung — kleine Modelle (Qwen 3.5 4B/9B, Qwen 3 8B VL) als Benchmark gegen IBM Power 10 laufen lassen und auf der FSO demonstrieren
 
 **Voraussetzungen:**
 - MacBook Air M2 16GB kann keine sinnvolle KI-Inferenz ausführen
