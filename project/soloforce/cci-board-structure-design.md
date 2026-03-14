@@ -174,7 +174,7 @@ The CCI board (GitHub Project P3) requires retrofit to match the ILR v2 column m
 | **Issues** | 35 open, all in Backlog, all unmilestoned | Release epic sub-issues milestoned and flowing |
 | **Position epics** | Visible on board (backlog) | Invisible — not tracked for throughput |
 
-Position epics are observation collectors, not board-tracked work items. They should not appear in Sprint or Grooming views. Only release epics (Commitment Board equivalent) and their sub-issues (Work Board equivalent) need board visibility. The position epic is the CCI equivalent of a client label in deliverable-tracking — a grouping axis, not a work item.
+Position epics are the CCI equivalent of client epics on the Commitment Board. They represent the company's commitment to making each position work — the capacity signal is: "how many positions are we actively improving?" Release epics are sub-issues of position epics, and their sub-issues flow through the Work Board. This mirrors deliverable-tracking: client epics on Commitment Board, sub-issues on Work Board.
 
 The deliverable-tracking board retrofit (#904) established the pattern: ILR v2 defines columns, milestones tied to forcing functions, daily grooming fills and prioritizes. The same pattern applies to CCI, but the forcing function source differs — deliverable-tracking uses client meetings, CCI's forcing function is undefined.
 
