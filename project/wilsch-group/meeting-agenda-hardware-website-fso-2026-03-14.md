@@ -88,6 +88,8 @@ Die Website hat aktuell 11 Landingpage-Sektionen, 3 live Case Studies (Legal Bot
 - Offen: soll die Seite für die FSO öffentlich werden, oder bekommen Teilnehmer Login-Daten?
 - Offen: braucht die Seite neue Inhalte (GPU/DGX-Seite, Benchmark-Ergebnisse, Disaggregated Inference)?
 - 2 Placeholder-Case-Studies (Betonhersteller, Faceless YouTube) — entfernen oder fertigstellen?
+- Bestehende Case Studies aktualisieren: Archibus Phase 2 abgeschlossen, Rohdex fertig, DGX-Benchmarks als neuer Inhalt
+- Story Arc: David entwickelt als Nicht-Entwickler produktiv mit KI-Tools — eigenes Narrativ für die Website?
 
 **To resolve:** Priorisierte Liste der Website-Änderungen bis zum 27. März und Zugangsmodell für FSO-Teilnehmer.
 
