@@ -51,7 +51,7 @@ Der Spyre-Vergleich im Kaufentscheidungsdokument zeigt die Apple/NVIDIA-Kombinat
 
 Für den Decode-Part der disaggregierten Inferenz brauchen wir eine Maschine mit hoher Speicherbandbreite. Drei Optionen stehen im Raum:
 
-- **M3 Ultra 256GB** (jetzt verfügbar): 819 GB/s, ~€8.300, bewährt — aber Thunderbolt 4, kein TB5
+- **M3 Ultra 256GB** (jetzt verfügbar): 819 GB/s, ~€8.300, bewährt, Thunderbolt 5
 - **M5 Max 128GB** (seit 11. März): 614 GB/s, ~€5.100–6.800, portabel, Thunderbolt 5 — aber nur 128 GB RAM
 - **M5 Ultra** (erwartet ~Mitte 2026): projiziert ~1,1–1,2 TB/s, 256 GB — Apple hat die 512GB-Option beim M3 gestrichen, Signal für M5 Ultra Mac Studio
 
