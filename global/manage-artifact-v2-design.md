@@ -268,13 +268,24 @@ Six steps, each validated against empirical evidence:
 
 **Method:** Use conversation-reader to extract the thinking trace from the failure moment in the Session C conversation. Read the AI's hidden reasoning (native thinking, sequential thinking, interleaved thinking) immediately before the failure.
 
-**Classification signals:**
+**Three diagnostic tests.** Each test gives a different signal depending on which dimension the failure belongs to. Run them in order — the first test that gives a clear signal is usually enough.
 
-| Signal | Thinking (Protocol) | Doing (Skill) | Knowing (Skill references) |
-|--------|-------------------|-----------------|-----------------|
-| Thinking trace | AI reasoned TOWARD wrong action | No reasoning — just skipped | AI searched but couldn't find |
-| Fix persistence | Procedural fixes don't stick | Procedural fix works immediately | Adding reference resolves it |
-| In-session correction | Adjusts after told WHY | Adjusts after shown WHAT | Adjusts after given knowledge |
+**Test 1 — What does the thinking trace look like at the failure moment?**
+- **→ Thinking:** The AI actively reasoned itself into the wrong action. Deliberate but wrong logic. Example: *"That's enough to resolve item 1. Let me move on."*
+- **→ Doing:** The AI didn't reason at all — just skipped the step. The step is absent from thinking, not argued against.
+- **→ Knowing:** The AI tried but couldn't find what it needed. Searching behavior — wanted to do the right thing but lacked information.
+
+**Test 2 — What happens when you add a procedural fix?**
+- **→ Thinking:** The fix doesn't stick. The underlying belief overrides it. You write "don't advance" but the AI advances again next session.
+- **→ Doing:** The fix works immediately. The AI just didn't know the step existed.
+- **→ Knowing:** Adding reference material resolves it. Missing information, not wrong reasoning.
+
+**Test 3 — What does the AI respond to when corrected live?**
+- **→ Thinking:** Responds to WHY — "because every answer opens territory." The belief shifts.
+- **→ Doing:** Responds to WHAT — "here's the step you missed." Shows the procedure.
+- **→ Knowing:** Responds to the knowledge itself — "here's the schema you need."
+
+**Shortcut:** If procedural fixes keep failing, it's thinking. If a procedural fix works first try, it's doing. If the AI was searching for something, it's knowing.
 
 **Validated against:** Two Session C conversations from CCI #604 (9f14b021, 5459d299) — thinking problem misdiagnosed as doing for 5 fix passes. Session a19f6dde — compound thinking+doing failure (JA /probe convergence: "answer = completion" belief amplified by "Next X/N" counter). Session 24d94df5 — system prompt contradicting SKILL.md on gating, PSM correctly predicted belief-layer wins over rule-layer.
 
