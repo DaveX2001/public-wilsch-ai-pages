@@ -53,11 +53,11 @@ Four parts, ordered so each builds on the previous. Each part produces a testabl
 
 ### Part 1: Stack
 
-Deploy the retrieval and serving infrastructure on IITR-STAGING. This is a from-scratch deployment — PageIndex is not currently installed.
+Deploy the retrieval and serving infrastructure on IITR-STAGING.
 
 | Component | Role | Why |
 |-----------|------|-----|
-| **PageIndex** (MIT, open-source) | Tree index generation + retrieval | Vectorless, tree-based retrieval eliminates chunking. The LLM reasons through a document tree structure to find relevant sections — no embeddings, no vector DB. Produces traceable chapter references as a natural byproduct of tree traversal. |
+| **PageIndex** (MIT, open-source) | Tree index generation only | Converts PDFs and markdown into hierarchical tree JSON (node_id, title, summary, page_index, children). The OSS library provides no retrieval code — tree search must be implemented separately (see Retrieval Approach below). |
 | **Qwen 3.5 9B** via Ollama | Single model for all pipeline stages | Tree traversal (think:false, forced by Ollama structured output), answer generation (think:true, +25% instruction-following). Benchmarked on IITR hardware: 0.76s per traversal call, ~8.5s full pipeline. |
 | **OpenWebUI** | Chat frontend | Already deployed with IITR Keycloak SSO integration. Familiar to client (Stellmacher has used it). Pipeline filter system enables RAG backend integration. Reconfigure from retired Typesense backend to PageIndex. |
 | **RTX 4000 SFF Ada** (20 GB VRAM) | GPU inference | Available on IITR-STAGING. Sufficient for Qwen 3.5 9B inference. |
@@ -78,6 +78,25 @@ Deploy the retrieval and serving infrastructure on IITR-STAGING. This is a from-
 | **Retain** | Langfuse | — | Production observability |
 | **Retain** | MetaMCP | — | MCP gateway |
 | **Retain** | OpenWebUI | — | Chat frontend (Keycloak SSO) |
+
+#### PageIndex OSS Limitation
+
+PageIndex OSS ([VectifyAI/PageIndex](https://github.com/VectifyAI/PageIndex), MIT, 21.5k stars) ships tree generation only. The retrieval mechanisms described in their documentation — level-by-level traversal, hybrid MCTS, value-based search — exist exclusively in their commercial API/dashboard. The [cookbook](https://github.com/VectifyAI/PageIndex/blob/main/cookbook/pageindex_RAG_simple.ipynb) demonstrates a workaround: pass the entire tree (~30KB for one document, ~10K tokens) in a single LLM prompt and ask the model to select relevant node IDs. This approach does not scale — with 60+ documents, combined tree context exceeds any local model's context window.
+
+The intended retrieval design is level-by-level tree traversal: start at root nodes, LLM selects which children to descend into, recurse until leaf nodes. Each level requires one LLM call seeing only the current level's nodes (titles + summaries), not the entire tree. This is what makes tree-based retrieval superior to chunked vector RAG — the LLM reasons through document structure iteratively, producing traceable chapter references as a natural byproduct.
+
+**The principle stands: tree-based structure-aware retrieval > chunked vector RAG.** The implementation must change.
+
+#### Retrieval Approach
+
+Two candidate approaches evaluated. Both are ~1-2 dev days effort. ~90% of #1112 infrastructure (Ollama, OpenWebUI, Langfuse, compose stack) survives regardless of choice.
+
+| Approach | Mechanism | PageIndex Trees | Framework Risk | Effort |
+|----------|-----------|-----------------|---------------|--------|
+| **Option A: Build TreeRetriever** | Custom ~280-line Python class implementing level-by-level traversal on PageIndex tree JSON. Document-level routing for 60+ docs (1 LLM call), then tree search within selected docs (3-5 LLM calls per doc). | Reuses directly | None — we own the code | ~1-2 days |
+| **Option B: LlamaIndex TreeIndex** | `TreeSelectLeafRetriever` — framework-provided level-by-level LLM traversal. Native Ollama support. Custom German prompts. | Cannot import — rebuilds own tree structure (one-time LLM cost) | Maintenance-only since Aug 2024 | ~1-2 days |
+
+**Undefined:** Retrieval approach decision (Option A vs B) — SA review needed. Alternatives evaluated and discarded: RAPTOR (semantic clusters, loses heading hierarchy), GraphRAG/HiRAG (knowledge graph, not document tree), KohakuRAG (vector retrieval at each level). See [#1093 comment](https://github.com/DaveX2001/deliverable-tracking/issues/1093#issuecomment-) for full evaluation.
 
 ### Part 2: Data Preparation
 
@@ -155,7 +174,7 @@ The iteration loop is:
 Dependency: Data Source → Retrieval → Generation. Fix data gaps first, then retrieval, then generation. This is a universal RAG diagnostic pattern.
 
 4. Adjust based on failure type, re-run until ≥26/29
-5. If LLM-only tree search doesn't reach 26/29, evaluate [Hybrid Tree Search](https://docs.pageindex.ai/tutorials/tree-search/hybrid) (AlphaGo-inspired parallel retrieval — adds complexity via embedding model alongside LLM)
+5. If LLM-only tree traversal doesn't reach 26/29, consider adding embedding-based similarity as a complement to LLM tree navigation — hybrid retrieval uses both structural reasoning (LLM picks nodes) and semantic similarity (embedding ranks candidates) in parallel. This adds complexity (embedding model + vector index alongside LLM) but increases recall for queries where the LLM's structural reasoning misses relevant sections.
 
 Present sample answers to Stellmacher at bi-weekly meeting (Mar 17) for qualitative validation.
 
@@ -191,6 +210,7 @@ Present sample answers to Stellmacher at bi-weekly meeting (Mar 17) for qualitat
 **Transcripts:**
 - [2026-01-15 Client Meeting](https://app.fireflies.ai/view/01KF0N6JDANZB4JGW9WEP4GNMC) — data gap discussion + dual-answer decision with Stellmacher/Kraska
 - [2026-03-04 Contract Meeting](https://drive.google.com/file/d/1wS9Z8jjH-hkeaCW5aQZ9aTXWBqIQ24H9/view) — Stellmacher cost corridor requirements, Kraska contract approval
+- [2026-03-14 Grooming](https://app.fireflies.ai/view/01KKPCF74TMEAYTM0PQEBBD5HW) — PageIndex OSS limitation discovery, retrieval approach discussion
 
 **Sessions:**
 - Original design: /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-IITR--IITR-NAVIGATION/46a000cb-3044-40d7-adaf-e30987553859.jsonl
@@ -199,3 +219,4 @@ Present sample answers to Stellmacher at bi-weekly meeting (Mar 17) for qualitat
 - Design doc rewrite: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/ebd33f3f-f258-4ab6-8ccd-5d8eef2061bd.jsonl
 - SA Review v2 pass: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/99e9faee-c74a-40ab-ba0f-358b8537b16d.jsonl
 - SA Review v2 final corrections: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/775ac9fa-bc9e-4dd5-953c-77ce27518e71.jsonl
+- PageIndex limitation extraction pass: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/66749a56-5f2d-4554-b902-cc4a76dd89f6.jsonl
