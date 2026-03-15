@@ -74,22 +74,22 @@ Jede Hardware kann ein FP04-Modell **laden und speichern** — das spart Speiche
 
 ### Hardware + OS
 
-| | 1x IBM Power 10 | 1x IBM Power 11 | 2x NVIDIA DGX Spark | Apple Mac Studio M3 Ultra |
-|--|--|--|--|--|
-| **Kerne** | 5 CPU | 15 CPU | 2x 6.144 GPU | 80 GPU |
-| **Kerne (Art)** | POWER10 (VSX + MMA) | POWER11 (VSX + MMA) | Blackwell (CUDA + Tensor) | Apple GPU |
-| **Rechenleistung (FP16)** | ~2 TFLOPS | ~8 TFLOPS | 2x 125 = **250 TFLOPS** | 65,5 TFLOPS |
-| **Rechenleistung (FP04)** | — (nicht unterstützt) | — (nicht unterstützt) | 2x 500 = **1.000 TFLOPS** | — (Upcast zu FP16)¹ |
-| **RAM** | 128 GB DDR4 | 1.024 GB DDR5 | 2x 128 = 256 GB LPDDR5x | 256 GB LPDDR5x |
-| **RAM Bandbreite (theoretisch)** | ~400 GB/s | ~1.200 GB/s | 2x 273 = 546 GB/s | 819 GB/s |
-| **Effektive Bandbreite** | **137 GB/s** (gemessen, ~34%) | TBD | ~460 GB/s (~85%) | ~700 GB/s (~85%) |
-| **Speicher (SSD/HDD)** | 500 GB SAS | TBD | 2x 4 TB NVMe | 1–8 TB NVMe |
-| **Betriebssystem** | AlmaLinux 10.0 | TBD | Ubuntu / DGX OS | macOS |
-| **Architektur** | ppc64le | ppc64le | ARM (aarch64) | ARM (aarch64) |
-| **Stückzahl** | 1 (vorhanden) | 1 (verfügbar) | 2 (geplant) | 1 (Referenz) |
-| **Preis** | ~50.000–100.000 € (Enterprise-Lease) | ~50.000–100.000 € | 2x ~3.700 € = **~7.400 €** | ~4.000–10.000 € |
+| | 1x IBM Power 10 | 1x IBM Power 11 | 2x NVIDIA DGX Spark | Apple Mac Studio M3 Ultra | Apple Mac Studio M5 Ultra (projiziert)¹ |
+|--|--|--|--|--|--|
+| **Kerne** | 5 CPU | 15 CPU | 2x 6.144 GPU | 80 GPU | 80 GPU + Neural Accelerators |
+| **Kerne (Art)** | POWER10 (VSX + MMA) | POWER11 (VSX + MMA) | Blackwell (CUDA + Tensor) | Apple GPU | Apple GPU + Neural Acc. |
+| **Rechenleistung (FP16)** | ~2 TFLOPS | ~8 TFLOPS | 2x 125 = **250 TFLOPS** | 65,5 TFLOPS | ~66 TFLOPS |
+| **Rechenleistung (FP04)** | — | — | 2x 500 = **1.000 TFLOPS** | — (Upcast zu FP16) | ✅ Nativ (TBD TFLOPS) |
+| **RAM** | 128 GB DDR4 | 1.024 GB DDR5 | 2x 128 = 256 GB LPDDR5x | 256 GB LPDDR5x | bis 512 GB LPDDR5x |
+| **RAM Bandbreite (theoretisch)** | ~400 GB/s | ~1.200 GB/s | 2x 273 = 546 GB/s | 819 GB/s | ~1.228 GB/s |
+| **Effektive Bandbreite** | **137 GB/s** (gemessen, ~34%) | TBD | ~460 GB/s (~85%) | ~700 GB/s (~85%) | ~1.044 GB/s (~85%) |
+| **Speicher (SSD/HDD)** | 500 GB SAS | TBD | 2x 4 TB NVMe | 1–8 TB NVMe | 1–8 TB NVMe |
+| **Betriebssystem** | AlmaLinux 10.0 | TBD | Ubuntu / DGX OS | macOS | macOS |
+| **Architektur** | ppc64le | ppc64le | ARM (aarch64) | ARM (aarch64) | ARM (aarch64) |
+| **Stückzahl** | 1 (vorhanden) | 1 (verfügbar) | 2 (geplant) | 1 (Referenz) | — (erwartet ~Mitte 2026) |
+| **Preis** | ~50.000–100.000 € | ~50.000–100.000 € | 2x ~3.700 € = **~7.400 €** | ~4.000–10.000 € | ~5.000–12.000 € (geschätzt) |
 
-> ¹ **Hinweis M5:** Apple's M5-Generation (Oktober 2025) hat mit den „GPU Neural Accelerators" erstmals native FP04-Berechnung in Hardware. Der hier verglichene M3 Ultra hat diese Fähigkeit noch nicht. Ein zukünftiger M5 Ultra könnte den Abstand zu NVIDIA bei FP04 deutlich verringern.
+> ¹ **M5 Ultra (projiziert):** Basierend auf 2x M5 Max Spezifikationen — gleiches Prinzip wie M3 Ultra = 2x M3 Max. Apple M5-Generation hat mit den „GPU Neural Accelerators" erstmals native FP04-Berechnung in Hardware. Kombination aus nativer FP04-Berechnung + ~1.228 GB/s Bandbreite könnte den DGX Spark in beiden Dimensionen (Prefill und Decode) herausfordern. Erwartet ~Mitte 2026 (WWDC).
 
 ### Benchmark-Ergebnisse (PDF-Dokumentenverarbeitung, Qwen 3-VL 8B)
 
