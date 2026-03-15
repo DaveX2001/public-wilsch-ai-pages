@@ -708,6 +708,8 @@ The interactive phase (Steps 0→2) produces a mapping contract. The execution p
 
 **Contract handoff:** The interactive phase (Steps 0→2) saves the confirmed contract to disk via a `save_contract` MCP tool at a deterministic path (e.g., `contracts/{session_id}.json`). The bridge tool receives a `contract_id` argument and reads the contract from disk — the conversation context carries a lightweight reference (~50 bytes), not the full object. This ensures the contract survives session drops, MCP reconnections, and phase transitions.
 
+**Golden contract (dev testing):** The `data/expected-contract.json` file serves dual purpose: Part 5's test rubric evaluation surface AND a bridge tool input fixture that bypasses Steps 0–2. Its schema is identical to what `save_contract` produces — the bridge tool reads both via `contract_id` without code bifurcation. For dev testing, place the golden contract at `contracts/golden.json` and pass `contract_id="golden"`. *(Confirmed: Extraction pass 2026-03-15.)*
+
 **Multi-building processing:** The bridge tool handles building iteration internally — one tool call, not one per building. Signature: `process_buildings(buildings: list[str] | "all", contract_id: str, dry_run: bool)`. Each building is processed in isolation with independent try/except. If Building A succeeds and Building B fails, A's `importID` is logged to `completed_buildings.json` and never resubmitted. Failed buildings accumulate in `failed_buildings.json` for retry or escalation. Batch size: groups of 5 to stay within MCP timeout (~60s).
 
 **Progress reporting:** Uses FastMCP's `ctx.report_progress(current, total, "Processing {building_name}")`. Silently no-ops if the runtime client doesn't support progress tokens.
@@ -716,9 +718,7 @@ The interactive phase (Steps 0→2) produces a mapping contract. The execution p
 
 **Implementation path:** The bridge tool is a thin wrapper around the existing CLI pipeline. `cli.py` lines 162–182 contain the core `_build_and_transform()` logic. This function is extracted into a shared `pipeline.py` module; the bridge tool imports and calls it with contract-derived parameters instead of CLI arguments. All existing modules (parser, hierarchy, generator, builder) are reused unchanged.
 
-**Undefined:** Escalation thresholds — after how many self-correction attempts the AI escalates to the implementer. No industry standard exists. Suggest starting with 3 per field / 5 per building, tuned empirically during testing. *(Source: Runtime harness research, session 802ad55e.)*
-
-*(Source: Gap analysis extraction pass 2026-03-12.)*
+*(Source: Gap analysis extraction pass 2026-03-12. Updated: Extraction pass 2026-03-15 — escalation thresholds relocated to §6.2 (skill content concern, not bridge tool concern).)*
 
 #### 6.2 Skills Architecture — Persona + Two Skills
 
@@ -742,9 +742,11 @@ The pipeline has two distinct modes: interactive (Steps 0→2, lots of back-and-
 
 **Skill accumulation:** Loaded skills remain in context — no unloading. The AI can reference both `bem-setup` and `bem-backpressure` simultaneously if needed. Context window management is a future optimization, not a design constraint. The Anthropic API sends `system=` fresh with every request, so the runtime can include any combination of loaded skills per turn.
 
-**Undefined:** The backpressure skill's content — what error interpretation rules, retry strategies, and escalation criteria the AI needs to handle the Step 3 loop effectively. The bridge tool returns structured errors; the skill teaches the AI what to do with them. Needs a developer extraction pass on the [Step 3 design doc's](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/chain-1b-step3-design) backpressure model.
+**Undefined (narrowed):** The backpressure skill's production content — Marius iterates via #1094. Minimum viable version: 4-step loop (read structured error → locate failing field via `error.id` → pick closest match from `valid_values` → update contract's enumRules → retry bridge tool). Created by David via `/skill-creator` as a DoD item for the bridge tool issue. *(Narrowed: Extraction pass 2026-03-15.)*
 
-*(Source: [Anthropic Skills Guide PDF](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) Category 3 pattern. Gap analysis extraction pass 2026-03-12.)*
+**Escalation thresholds** (relocated from §6.1): Escalation is a skill content concern — the backpressure skill instructs when the AI should stop retrying and ask the implementer. The bridge tool returns errors; the skill decides what to do. Starting values: 3 attempts per field / 5 per building, tuned empirically. No industry standard exists. *(Relocated: Extraction pass 2026-03-15 — escalation belongs in AI-layer skill, not code-layer tool.)*
+
+*(Source: [Anthropic Skills Guide PDF](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) Category 3 pattern. Gap analysis extraction pass 2026-03-12. Updated: Extraction pass 2026-03-15.)*
 
 #### 6.3 Deployment — Runtime & File Lifecycle
 
@@ -816,7 +818,7 @@ Three runtimes were evaluated against the full requirements stack:
 | Qwen 3.5 support | ✅ OpenAI-compatible | ✅ Any model | ✅ Any model |
 | Demo-ready | ⚠️ File gap blocks demo | ✅ Works today | ✅ Works today |
 
-**Rejected:** Claude Agent SDK (no built-in web UI, Anthropic models only), Open WebUI (MCP via proxy only, no file→MCP forwarding), Claude Code (not self-hostable).
+**Rejected:** Claude Agent SDK (no built-in web UI, Anthropic models only), Open WebUI (MCP via proxy only, no file→MCP forwarding), Claude Code (not self-hostable), [PI](https://github.com/badlogic/pi-mono) (author is explicitly anti-MCP — no MCP support by design; best skill-loading of all candidates but dealbreaker for MCP-based pipeline). *(PI evaluated: Extraction pass 2026-03-15.)*
 
 **UX paradigm — conversational, not workflow:** Miguel's demo expectation is the interactive ETL — the AI reads the implementer's data, proposes mappings, and the implementer confirms through conversation. This is free-form conversational, not deterministic workflow. Dify's guided workflow paradigm creates friction for this interaction pattern.
 
@@ -888,3 +890,4 @@ The AI's behavioral quality is demo-blocking. Miguel judges whether the AI acts 
 - **Reference:** [FastMCP v3 Apps](https://gofastmcp.com/apps/overview) — interactive UIs rendered in conversation
 - **Reference:** [FastMCP v3 Sampling](https://gofastmcp.com/clients/sampling) — built-in Anthropic/OpenAI/Gemini handlers
 - **Session:** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-MariusWilsch--archibus-bulk-import/82c5d45b-eb25-4f94-a806-e081fc46d0cb.jsonl
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/73f6fb9f-3b9f-46d2-9da7-473a46f593d3.jsonl
