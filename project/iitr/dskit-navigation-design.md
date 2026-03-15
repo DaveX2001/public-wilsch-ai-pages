@@ -5,7 +5,7 @@ publish: true
 # DS-Kit Navigation — Production Readiness Design
 [[client-iitr]]
 
-Rebuilding the DS-Kit Navigation system from scratch using PageIndex (vectorless, tree-based retrieval) to deliver production-ready accuracy on IITR's on-premise infrastructure.
+Rebuilding the DS-Kit Navigation system on IITR's on-premise infrastructure using a two-track approach: vector RAG (Track B) ships first for client-facing results, while tree-based retrieval (Track A) remains the target architecture.
 
 ---
 
@@ -15,7 +15,7 @@ IITR's DS-Kit product serves ~3,500 customers who regularly contact support with
 
 A previous prototype (Typesense + chunked RAG) scored 17/29 on the test harness. The chunking approach proved fragile — vector-based RAG suffers from four structural limitations: lack of multi-hop reasoning, chunking breaking semantic integrity, low recall from embedding mismatch, and context confusion from redundant retrievals (see [RAG for Technical Manuals](https://pageindex.ai/blog/technical-manuals) for side-by-side evidence). That implementation is being retired.
 
-This project rebuilds the navigation system using PageIndex — a vectorless, tree-based retrieval framework that eliminates chunking entirely. The LLM reasons through a document tree index to find relevant sections, producing traceable, chapter-referenced answers.
+This project rebuilds the navigation system using two parallel retrieval tracks. **Track B (vector RAG)** uses semantic chunking, local embeddings, and Chroma to deliver initial results for the March 17 client sync. **Track A (tree-based retrieval)** uses PageIndex tree generation with LlamaIndex TreeSelectLeafRetriever for level-by-level traversal — producing traceable, chapter-referenced answers as a natural byproduct of tree navigation. Track A remains the long-term aspiration; Track B is the pragmatic shipping path.
 
 **This is NOT:**
 
@@ -55,13 +55,29 @@ Four parts, ordered so each builds on the previous. Each part produces a testabl
 
 Deploy the retrieval and serving infrastructure on IITR-STAGING.
 
+**Shared Infrastructure:**
+
 | Component | Role | Why |
 |-----------|------|-----|
-| **PageIndex** (MIT, open-source) | Tree index generation only | Converts PDFs and markdown into hierarchical tree JSON (node_id, title, summary, page_index, children). The OSS library provides no retrieval code — tree search must be implemented separately (see Retrieval Approach below). |
 | **Qwen 3.5 9B** via Ollama | Single model for all pipeline stages | Tree traversal (think:false, forced by Ollama structured output), answer generation (think:true, +25% instruction-following). Benchmarked on IITR hardware: 0.76s per traversal call, ~8.5s full pipeline. |
-| **OpenWebUI** | Chat frontend | Already deployed with IITR Keycloak SSO integration. Familiar to client (Stellmacher has used it). Pipeline filter system enables RAG backend integration. Reconfigure from retired Typesense backend to PageIndex. |
+| **OpenWebUI** | Chat frontend | Already deployed with IITR Keycloak SSO integration. Familiar to client (Stellmacher has used it). Pipeline filter system enables RAG backend integration. |
 | **RTX 4000 SFF Ada** (20 GB VRAM) | GPU inference | Available on IITR-STAGING. Sufficient for Qwen 3.5 9B inference. |
 | **Langfuse** | Observability + tracing | One OpenWebUI conversation = one Langfuse session. Traces every query through retrieval and generation. Enables improvement loop: identify failure patterns, measure iteration progress, provide evidence for client reviews. Already running on IITR-STAGING. |
+
+**Track B Components (focus — ships first):**
+
+| Component | Role | Why |
+|-----------|------|-----|
+| **[Chonkie](https://docs.chonkie.ai)** | Semantic chunking | Start with SemanticChunker. Try different chunkers via test harness to optimize retrieval quality. |
+| **[Chroma](https://docs.chonkie.ai/oss/handshakes/chroma-handshake)** | Vector database | Native Chonkie handshake. Stores and retrieves embedded chunks. |
+| **Qwen3-Embedding** | Embedding model | [Qwen3-Embedding-8B](https://huggingface.co/collections/Qwen/qwen3-embedding) (MTEB #1 at 70.58, 32K context). Fallback: Qwen3-Embedding-4B. Baseline: [BAAI/bge-m3](https://huggingface.co/BAAI/bge-m3) (MIT, 2.1 GB). |
+
+**Track A Components (parallel if bandwidth):**
+
+| Component | Role | Why |
+|-----------|------|-----|
+| **PageIndex** (MIT, open-source) | Tree index generation | Converts PDFs and markdown into hierarchical tree JSON (node_id, title, summary, page_index, children). OSS library provides tree generation only — retrieval must be implemented separately (see PageIndex OSS Limitation below). |
+| **[LlamaIndex TreeSelectLeafRetriever](https://github.com/run-llama/llama_index/blob/main/llama-index-core/llama_index/core/indices/tree/select_leaf_retriever.py)** | Tree-based retrieval | Framework-provided level-by-level LLM traversal on tree structure. |
 
 **Infrastructure prerequisite:** IITR-STAGING server cleanup. Architecture principle: one environment per project, separate compose stacks.
 
@@ -87,16 +103,11 @@ The intended retrieval design is level-by-level tree traversal: start at root no
 
 **The principle stands: tree-based structure-aware retrieval > chunked vector RAG.** The implementation must change.
 
-#### Retrieval Approach
+#### Retrieval Approach — SA Decision
 
-Two candidate approaches evaluated. Both are ~1-2 dev days effort. ~90% of #1112 infrastructure (Ollama, OpenWebUI, Langfuse, compose stack) survives regardless of choice.
+**Track B (vector RAG):** Chonkie SemanticChunker + Chroma + Qwen3-Embedding. ~90% of #1112 infrastructure (Ollama, OpenWebUI, Langfuse, compose stack) survives regardless of track. Existing PageIndex tree on server: `/home/shared/projects/IITR-RAG-Navigation/index/anwenderleitfaden-datenschutz-kit-2025-03_tree.json`
 
-| Approach | Mechanism | PageIndex Trees | Framework Risk | Effort |
-|----------|-----------|-----------------|---------------|--------|
-| **Option A: Build TreeRetriever** | Custom ~280-line Python class implementing level-by-level traversal on PageIndex tree JSON. Document-level routing for 60+ docs (1 LLM call), then tree search within selected docs (3-5 LLM calls per doc). | Reuses directly | None — we own the code | ~1-2 days |
-| **Option B: LlamaIndex TreeIndex** | `TreeSelectLeafRetriever` — framework-provided level-by-level LLM traversal. Native Ollama support. Custom German prompts. | Cannot import — rebuilds own tree structure (one-time LLM cost) | Maintenance-only since Aug 2024 | ~1-2 days |
-
-**Undefined:** Retrieval approach decision (Option A vs B) — SA review needed. Alternatives evaluated and discarded: RAPTOR (semantic clusters, loses heading hierarchy), GraphRAG/HiRAG (knowledge graph, not document tree), KohakuRAG (vector retrieval at each level). See [#1093 comment](https://github.com/DaveX2001/deliverable-tracking/issues/1093#issuecomment-) for full evaluation.
+**Track A (tree traversal):** LlamaIndex TreeSelectLeafRetriever on existing PageIndex tree JSON. Alternatives evaluated and discarded: RAPTOR (semantic clusters, loses heading hierarchy), GraphRAG/HiRAG (knowledge graph, not document tree), custom TreeRetriever (more code ownership but no framework support).
 
 ### Part 2: Data Preparation
 
@@ -104,7 +115,22 @@ Two candidate approaches evaluated. Both are ~1-2 dev days effort. ~90% of #1112
 
 Ingest full documents, not cherry-picked by question. Text-only extraction, no visual elements.
 
-**Universal principle:** All PageIndex input must have heading hierarchy. PageIndex `md_to_tree()` uses `#` characters to build the tree structure — flat text without headers produces a degenerate tree with poor retrieval. This applies to every source format: PDFs use `--pdf_path` (PageIndex handles structure natively), all other formats must be converted to markdown with proper heading hierarchy before ingestion.
+#### Track B Pipeline (focus)
+
+Extract text from all sources, chunk with Chonkie SemanticChunker, embed with Qwen3-Embedding, store in Chroma. The SemanticChunker groups sentences by semantic similarity — no heading hierarchy required.
+
+**Quality gate:** Before ingestion, validate that text extraction succeeded (not empty, not garbled OCR artifacts) and content language is German. Truncated or corrupted extractions get re-extracted, not ingested as-is.
+
+| Source | Format | Track B Pipeline | Notes |
+|--------|--------|-----------------|-------|
+| Anwenderleitfaden | PDF | Extract text → SemanticChunker → Chroma | Primary knowledge base |
+| Templates (56 total) | PDF/Word/Excel | Extract text → SemanticChunker → Chroma | Download from core.iitr.de chapter 4 (Keycloak auth) |
+| Masterfragen | CSV/Excel | Convert to text → SemanticChunker → Chroma | 22 entries, knowledge source for 19/29 test questions |
+| core.iitr.de chapters 1-12 | Web | Extract → text → SemanticChunker → Chroma | 7/29 test questions depend on this. Chrome DevTools MCP as extraction tool (proven in [#798](https://github.com/DaveX2001/deliverable-tracking/issues/798)). Fallback: [agent-browser](https://github.com/vercel-labs/agent-browser). |
+
+#### Track A Pipeline
+
+All PageIndex input must have heading hierarchy. PageIndex `md_to_tree()` uses `#` characters to build the tree structure — flat text without headers produces a degenerate tree with poor retrieval. This applies to every source format: PDFs use `--pdf_path` (PageIndex handles structure natively), all other formats must be converted to markdown with proper heading hierarchy before ingestion.
 
 **Quality gate:** Before PageIndex ingestion, validate that every converted document has at least H1/H2 structure. Flat or poorly structured files get re-converted, not ingested as-is.
 
@@ -113,7 +139,7 @@ Ingest full documents, not cherry-picked by question. Text-only extraction, no v
 | Anwenderleitfaden | PDF | `--pdf_path` (native) | Primary knowledge base — zero conversion needed |
 | Templates (56 total) | PDF/Word/Excel | PDF: `--pdf_path`; Word/Excel: convert to structured markdown → `--md_path` | Download from core.iitr.de chapter 4 (Keycloak auth) |
 | Masterfragen | CSV/Excel | Convert to structured Q&A markdown → `--md_path` | 22 entries, knowledge source for 19/29 test questions |
-| core.iitr.de chapters 1-12 | Web | Extract → one combined markdown with full heading hierarchy (H1/H2/H3+) → `--md_path` | 7/29 test questions depend on this. Chrome DevTools MCP as extraction tool (proven in [#798](https://github.com/DaveX2001/deliverable-tracking/issues/798)). Fallback: [agent-browser](https://github.com/vercel-labs/agent-browser). Preserve native heading depth from core.iitr.de. |
+| core.iitr.de chapters 1-12 | Web | Extract → one combined markdown with full heading hierarchy (H1/H2/H3+) → `--md_path` | 7/29 test questions depend on this. Preserve native heading depth from core.iitr.de. |
 
 **Data availability:** [Source Data Inventory (Google Drive)](https://drive.google.com/drive/folders/1gnxBulrnkGh-Oyly_jabofNo4SVivQhR) — INPUT/ (knowledge base) and TEST_RUBRIK/ (evaluation rubric). Templates and web chapters require Keycloak authentication for download/extraction.
 
@@ -153,28 +179,38 @@ Navigation hint appears only when the answer references a specific DS-Kit chapte
 
 ### Part 4: Evaluation & Iteration
 
-Run the test harness, iterate toward ≥26/29. Tree index generation is a one-time step per document — regenerate only when source content changes.
+Run the test harness, iterate toward ≥26/29.
+
+#### Track B Iteration (focus)
+
+The iteration loop:
+
+1. Chunk all prepared documents via Chonkie, embed with Qwen3-Embedding, store in Chroma
+2. Run test harness (29 questions × 4 dimensions)
+3. Analyze failures using the diagnostic chain (see below)
+4. Adjust retrieval knobs, re-run until ≥26/29
+
+**Track B retrieval knobs:**
+- **Chunker selection:** Chonkie offers multiple chunkers (SemanticChunker as start). Try different chunkers via test harness to find optimal retrieval quality.
+- **Embedding model:** Qwen3-Embedding-8B → 4B → bge-m3. Stick with these three — sufficient playground.
+- **Chunk parameters:** Size, overlap — tune based on failure analysis.
+- **Prompts:** Answer generation instructions for Qwen 3.5 9B.
+
+#### Track A Iteration
 
 **Dual-model option:** Tree *traversal* (runtime) uses Qwen 3.5 9B locally. Tree *creation* (one-time) may use a stronger model (e.g., Sonnet 4.6 via OpenRouter) for higher-quality tree structure. Better trees = better retrieval without changing the runtime model.
 
-**Expert knowledge injection** (highest-leverage optimization): PageIndex allows injecting domain-specific routing rules directly into the tree search prompt — no embedding fine-tuning needed. Example: "If query mentions Löschfristen, prioritize Kapitel 3." Build a set of IITR-specific routing rules from the 29 test questions and their Quelle column, then inject relevant rules per query. See [LLM Tree Search](https://docs.pageindex.ai/tutorials/tree-search/llm) for the prompt template and preference retrieval pattern.
+**Expert knowledge injection:** Inject domain-specific routing rules directly into the tree search prompt — no embedding fine-tuning needed. Example: "If query mentions Löschfristen, prioritize Kapitel 3." Build a set of IITR-specific routing rules from the 29 test questions and their Quelle column, then inject relevant rules per query. See [LLM Tree Search](https://docs.pageindex.ai/tutorials/tree-search/llm) for the prompt template and preference retrieval pattern.
 
-The iteration loop is:
-
-1. Generate tree indexes from all prepared documents
-2. Run test harness (29 questions × 4 dimensions)
-3. Analyze failures using the diagnostic chain (diagnose in this order):
+#### Diagnostic Chain (universal)
 
 | Failure Type | Meaning | Fix | Owner |
 |-------------|---------|-----|-------|
 | **Data Source** | Answer data doesn't exist in ingested sources | Flag → Dev Lead → client provides missing data | Developer escalates |
-| **Retrieval** | Data exists but tree search missed it | Expert knowledge rules, tree quality (regenerate with stronger model), or heading hierarchy fixes | Developer |
+| **Retrieval** | Data exists but retrieval missed it | Track B: chunker/embedding/chunk params. Track A: expert knowledge rules, tree quality (regenerate with stronger model), heading hierarchy fixes. | Developer |
 | **Generation** | Right data retrieved, wrong answer produced | Prompt change (answer generation instructions) | Developer |
 
 Dependency: Data Source → Retrieval → Generation. Fix data gaps first, then retrieval, then generation. This is a universal RAG diagnostic pattern.
-
-4. Adjust based on failure type, re-run until ≥26/29
-5. If LLM-only tree traversal doesn't reach 26/29, consider adding embedding-based similarity as a complement to LLM tree navigation — hybrid retrieval uses both structural reasoning (LLM picks nodes) and semantic similarity (embedding ranks candidates) in parallel. This adds complexity (embedding model + vector index alongside LLM) but increases recall for queries where the LLM's structural reasoning misses relevant sections.
 
 Present sample answers to Stellmacher at bi-weekly meeting (Mar 17) for qualitative validation.
 
@@ -194,7 +230,15 @@ Present sample answers to Stellmacher at bi-weekly meeting (Mar 17) for qualitat
 - [Docs](https://docs.pageindex.ai/) — framework reference, cookbooks, tutorials
 - [LLM Tree Search](https://docs.pageindex.ai/tutorials/tree-search/llm) — prompt template + expert knowledge injection pattern (required reading)
 - [RAG for Technical Manuals](https://pageindex.ai/blog/technical-manuals) — validates PageIndex over vector RAG, 4 failure modes (required reading)
-- [Hybrid Tree Search](https://docs.pageindex.ai/tutorials/tree-search/hybrid) — AlphaGo-inspired parallel retrieval (optional — if LLM-only < 26/29)
+- [Hybrid Tree Search](https://docs.pageindex.ai/tutorials/tree-search/hybrid) — AlphaGo-inspired parallel retrieval (Track A reference only)
+
+**Track B (Vector RAG):**
+- [Chonkie Docs](https://docs.chonkie.ai) — chunking framework
+- [Chonkie Chroma Handshake](https://docs.chonkie.ai/oss/handshakes/chroma-handshake) — native vector DB integration
+- [Chonkie Pipelines](https://docs.chonkie.ai/oss/pipelines) — pipeline orchestration
+- [Chonkie SemanticChunker](https://docs.chonkie.ai/oss/chunkers/semantic-chunker) — starting chunker
+- [Chonkie SentenceTransformer Embeddings](https://docs.chonkie.ai/oss/embeddings/sentence-transformer-embeddings) — embedding integration
+- [Qwen3-Embedding](https://huggingface.co/collections/Qwen/qwen3-embedding) — MTEB #1, primary embedding model
 
 **IITR Repos:**
 - [IITR-RAG-Navigation](https://github.com/WILSCH-AI-SERVICES/IITR__IITR-RAG-Navigation) — DS-Kit Navigation (this project)
@@ -220,3 +264,4 @@ Present sample answers to Stellmacher at bi-weekly meeting (Mar 17) for qualitat
 - SA Review v2 pass: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/99e9faee-c74a-40ab-ba0f-358b8537b16d.jsonl
 - SA Review v2 final corrections: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/775ac9fa-bc9e-4dd5-953c-77ce27518e71.jsonl
 - PageIndex limitation extraction pass: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/66749a56-5f2d-4554-b902-cc4a76dd89f6.jsonl
+- SA Decision + Track B extraction: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude_projects-03-IITR--deliverable/a1ca960f-e5da-47cd-bfcf-7a59d1ce8859.jsonl
