@@ -63,7 +63,7 @@ Both servers deploy via **git pull** — the same mechanism for staging and prod
 
 | Target | Server | How to Deploy | Compose File |
 |--------|--------|---------------|-------------|
-| `make deploy` | RDX-APP-01 (prod) | `ssh rohdex` → `cd ~/projects/rohdex-mvp` → `make deploy` | `docker-compose.prod.yml` |
+| `make prod` | RDX-APP-01 (prod) | `ssh rohdex` → `cd ~/projects/rohdex-mvp` → `make prod` | `docker-compose.prod.yml` |
 | `make staging` | Wilsch AI server | `ssh wilsch-ai` → `cd /home/shared/rohdex` → `make staging` | `docker-compose.staging.yml` |
 
 #### Deployment Commands
@@ -79,7 +79,7 @@ make staging
 # Production (VPN required)
 ssh rohdex
 cd ~/projects/rohdex-mvp
-make deploy
+make prod
 ```
 
 Each `make` target runs locally on the server: `git fetch` → `git pull` → `make build` (version.py + Docker image) → `docker compose down` → `docker compose up -d` → health check.
@@ -94,7 +94,7 @@ Each `make` target runs locally on the server: `git fetch` → `git pull` → `m
 .DEFAULT_GOAL := help  # Never deploys on bare `make`
 
 # Deploy (run ON the server)
-deploy          # git pull + docker compose -f docker-compose.prod.yml build + up + health check
+prod            # git pull + docker compose -f docker-compose.prod.yml build + up + health check
 staging         # git pull + docker compose -f docker-compose.staging.yml build + up + health check
 
 # Docker operations (run ON the server)
@@ -125,7 +125,7 @@ Future improvement: tag Docker images before deploying (`docker tag rohdex-backe
 
 | Branch | Server | Email | Deploy Command |
 |--------|--------|-------|----------------|
-| `main` | RDX-APP-01 (prod) | IONOS (`export-ki@rohdex.com`) | `ssh rohdex` → `make deploy` |
+| `main` | RDX-APP-01 (prod) | IONOS (`export-ki@rohdex.com`) | `ssh rohdex` → `make prod` |
 | `staging` | Wilsch AI (staging) | Gmail (`rohdexautomation@gmail.com`) | `ssh wilsch-ai` → `make staging` |
 | `issue-*` | Local dev only | N/A | N/A |
 
@@ -139,12 +139,12 @@ feature branch (issue-XXX)
   → merge → ssh wilsch-ai → cd /home/shared/rohdex → make staging
   → verify on staging (send test email, check generated documents)
   → PR to main (Marius reviews)
-  → merge → ssh rohdex → cd ~/projects/rohdex-mvp → make deploy
+  → merge → ssh rohdex → cd ~/projects/rohdex-mvp → make prod
 ```
 
 **Deploy authority:** David has authority to merge feature branches to staging and deploy to staging independently. Marius only reviews the staging → main promotion.
 
-**Deploy is always manual.** After merge, the developer SSHes into the target server and runs `make deploy` or `make staging`. The Makefile handles the full deployment sequence — the developer does not run git, docker compose, or build commands individually.
+**Deploy is always manual.** After merge, the developer SSHes into the target server and runs `make prod` or `make staging`. The Makefile handles the full deployment sequence — the developer does not run git, docker compose, or build commands individually.
 
 #### Env Var Differences
 
