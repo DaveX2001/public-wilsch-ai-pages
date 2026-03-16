@@ -44,7 +44,7 @@ Entry point for all position-specific Operations Manuals at Wilsch AI Services. 
 
 | Position | Position Agreement | Operations Manual TOC | Plugin |
 |----------|-------------------|----------------------|--------|
-| **Dev Lead** | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/dev-lead-position-agreement-wilsch-ai-services) | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/dev-lead-operations-manual-toc) | TBD |
+| **Dev Lead** | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/dev-lead-position-agreement-wilsch-ai-services) | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/dev-lead-operations-manual-toc) | [Draft](https://github.com/MariusWilsch/Developer-Position/tree/main/plugins/dev-lead-position-plugin) |
 | **Developer** | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/developer-position-agreement-wilsch-ai-services) | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/developer-operations-manual-toc) | [Draft](https://github.com/MariusWilsch/claude-code-team-marketplace/tree/main/plugins/developer-position-plugin) |
 | **Solution Architect** | TBD | TBD | TBD |
 | **Junior Architect** | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/junior-architect-position-agreement-wilsch-ai-services) | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/junior-architect-operations-manual-toc) | [Draft](https://github.com/MariusWilsch/junior-architect-position-plugin) |
