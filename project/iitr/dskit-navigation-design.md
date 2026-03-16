@@ -29,11 +29,13 @@ IITR operates three separate RAG projects, each with distinct data and purpose. 
 
 Court Judgments and Masterfragen are not replaced by PageIndex — different projects, different data, different retrieval.
 
+However, all three projects share IITR-STAGING infrastructure. A unified infrastructure design (Part 5) ensures they coexist safely — shared services (Ollama, Langfuse), one OpenWebUI serving layer with per-project pipeline filters, and per-project compose files connected via shared Docker network. This prevents the collateral damage observed during #1112 repo migration, where changes to Navigation broke Court-Judgments and Masterfragen serving paths.
+
 **Preconditions:**
 - Design artifacts from prior attempt preserved: Pflichtenheft, test questions with source references (29 Q&A + Quelle column), Masterfragen CSV (22 entries), Anwenderleitfaden PDF, 56 DS-Kit templates
 - PageIndex benchmarked on IITR-STAGING: Qwen 3.5 9B viable on available hardware (RTX 4000 SFF Ada, 20 GB VRAM)
 - Financial reset: prior work uninvoiced, clean start with direct client relationship (Stellmacher as technical contact, Kraska as business contact)
-- IITR-STAGING requires cleanup before new deployment — architecture principle: one environment per project, separate compose stacks. ~70 containers running, only ~14 should remain (Navigation stack, Langfuse, OpenWebUI, MetaMCP)
+- IITR-STAGING infrastructure consolidated — two-layer compose model with shared services (iitr-infrastructure) and per-project stacks connected via shared Docker network (see Part 5)
 
 ---
 
@@ -49,7 +51,7 @@ Court Judgments and Masterfragen are not replaced by PageIndex — different pro
 
 ## Approach
 
-Four parts, ordered so each builds on the previous. Each part produces a testable artifact.
+Five parts, ordered so each builds on the previous. Parts 1-4 produce testable artifacts. Part 5 defines the infrastructure that hosts all IITR projects.
 
 ### Part 1: Stack
 
@@ -214,6 +216,96 @@ Dependency: Data Source → Retrieval → Generation. Fix data gaps first, then 
 
 Present sample answers to Stellmacher at bi-weekly meeting (Mar 17) for qualitative validation.
 
+### Part 5: Unified Infrastructure
+
+IITR-STAGING hosts three RAG projects that share infrastructure. This part defines the ownership model, deployment contract, and serving architecture so that changes to one project cannot break another.
+
+#### Two-Layer Compose Model
+
+Per SA directive ("why always deploy another one?"), cross-project services run as single shared instances in `iitr-infrastructure/`. Project-specific services live in their respective repos.
+
+**Layer 1 — Shared Infrastructure** (`/home/shared/projects/iitr-infrastructure/`):
+
+| Service | Container | Port | Notes |
+|---------|-----------|------|-------|
+| Ollama | rag-staging-ollama | 11436:11434 | Single GPU instance, all projects |
+| Langfuse | langfuse-web + 5 backing | 3003:3000 | Observability for all projects |
+
+**Layer 2 — Per-Project** (`/home/shared/projects/{project}/`):
+
+| Project | Owns | Connects to shared via |
+|---------|------|----------------------|
+| IITR-RAG-Navigation | OpenWebUI, Pipelines, Chroma, TEI | `iitr-shared-network` |
+| IITR-RAG-V1 (Masterfragen) | Qdrant, pipeline filter (future) | `iitr-shared-network` |
+| IITR-RAG-V2 (Court-Judgments) | Pipeline filter (future) | `iitr-shared-network` |
+
+Navigation repo owns OpenWebUI + Pipelines because it is the primary active project. Other projects contribute pipeline filters mounted into the Pipelines sidecar.
+
+#### Serving Layer
+
+One OpenWebUI instance serves all three projects. Each project is a pipeline filter in the Pipelines sidecar. Users select which project to query via model selection in the OpenWebUI UI.
+
+**Standard pattern:** All projects use OpenWebUI pipeline filters. Masterfragen's legacy Flask proxy (`simple_app.py`) will be converted to a pipeline filter to standardize the serving pattern.
+
+**Track coexistence:** Navigation has two tracks (Track A tree traversal, Track B vector RAG). Both are pipeline filters, but only one is active at a time — explicit mode switching via Pipelines valve configuration, not Ollama VRAM auto-eviction. This prevents GPU memory conflicts on the 20 GB RTX 4000.
+
+#### Directory Structure & Cleanup
+
+Canonical path: `/home/shared/projects/`. Per [Ops Manual](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/developer-operations-manual-wilsch-ai-services) convention, each project has its own directory with compose + Makefile.
+
+**Retain:**
+
+| Directory | Purpose |
+|-----------|---------|
+| `iitr-infrastructure/` | Shared services (Ollama, Langfuse) |
+| `IITR-RAG-Navigation/` | Navigation (canonical name) |
+| `IITR-RAG-V1/` | Masterfragen (Qdrant data) |
+| `metamcp/` | MCP gateway |
+
+**Remove:**
+
+| Directory | Reason |
+|-----------|--------|
+| `typesense/` | Retired approach |
+| `langfuse/` | Absorbed into iitr-infrastructure |
+| `openlit/` | No running containers |
+| `signoz/` | No running containers |
+| `mcp-proxy/` | No running containers |
+| `IITR-RAG-V2-issue-1112/` | Worktree leftover |
+
+**Resolve:** `IITR-RAG-V2/` — verify if redundant with IITR-RAG-Navigation, remove if duplicate. Kill duplicate Ollama (`iitr-rag-v1-ollama` from V1 compose) — single instance runs from iitr-infrastructure.
+
+#### Vector Stores
+
+No consolidation. Each project owns its vector store:
+
+- **Chroma** — Navigation Track B (in Navigation compose)
+- **Qdrant** — Masterfragen (in V1 compose)
+
+TEI (text-embeddings-inference) serves Qwen3-Embedding-4B for Track B embeddings. Lives in Navigation compose as a Track B component.
+
+#### Caddy Routing
+
+Per-project subdomains, all pointing to one OpenWebUI backend:
+
+| Subdomain | Project | Target |
+|-----------|---------|--------|
+| `rag-staging.iitr-cloud.de` | Navigation | localhost:3006 |
+| `urteile.iitr-cloud.de` | Court-Judgments | localhost:3006 |
+| `langfuse.iitr-cloud.de` | Langfuse | localhost:3003 |
+
+Add `masterfragen.iitr-cloud.de` when Masterfragen pipeline filter is restored. Remove stale `qdrant-staging.iitr-cloud.de` entry (internal service, should not be publicly exposed).
+
+#### Deployment Contract
+
+`docker compose up -d` from each directory brings up that layer:
+
+1. `cd /home/shared/projects/iitr-infrastructure && docker compose up -d` → shared services
+2. `cd /home/shared/projects/IITR-RAG-Navigation && docker compose up -d` → Navigation serving layer
+3. Masterfragen/Court-Judgments compose files start their project-specific services
+
+Order matters: infrastructure first, then project stacks (they depend on shared network + Ollama).
+
 ---
 
 ## Source
@@ -265,3 +357,4 @@ Present sample answers to Stellmacher at bi-weekly meeting (Mar 17) for qualitat
 - SA Review v2 final corrections: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/775ac9fa-bc9e-4dd5-953c-77ce27518e71.jsonl
 - PageIndex limitation extraction pass: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/66749a56-5f2d-4554-b902-cc4a76dd89f6.jsonl
 - SA Decision + Track B extraction: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude_projects-03-IITR--deliverable/a1ca960f-e5da-47cd-bfcf-7a59d1ce8859.jsonl
+- Pass 6 (Unified Infrastructure): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/5347bf5c-62cd-49e1-83dd-fdda0c893b26.jsonl
