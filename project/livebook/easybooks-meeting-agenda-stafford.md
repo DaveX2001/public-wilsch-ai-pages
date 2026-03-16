@@ -3,7 +3,7 @@ publish: true
 ---
 
 # EasyBooks — SA-Stafford Alignment Meeting
-[[easybooks-meeting-agenda-stafford]]
+[[client-stafford]]
 
 ## Meeting Goal
 

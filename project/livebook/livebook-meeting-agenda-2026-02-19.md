@@ -3,7 +3,7 @@ publish: true
 ---
 
 # Livebook — First Alignment Meeting
-[[livebook]]
+[[client-stafford]]
 
 ## Meeting Goal
 

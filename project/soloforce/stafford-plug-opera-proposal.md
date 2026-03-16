@@ -3,7 +3,7 @@ publish: true
 ---
 
 # Plug/Opera — Your Fractional AI Department
-[[project-index-847]]
+[[project-index-847]] [[client-stafford]]
 
 Proposal for Stafford — how Wilsch AI Services delivers the AI infrastructure for Plug/Opera. Walk-through document for next conversation.
 

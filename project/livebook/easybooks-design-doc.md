@@ -3,7 +3,7 @@ publish: true
 ---
 
 # EasyBooks — Design Doc
-[[easybooks]]
+[[client-stafford]]
 
 This document captures our shared understanding of the EasyBooks platform (formerly Livebook). It is a living document — evolved from v0.1 based on Stafford's formal RFP requesting build plan, timelines, and proof of capability for a four-engine narrative intelligence platform.
 
