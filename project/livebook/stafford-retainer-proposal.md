@@ -79,6 +79,7 @@ Both options are below my usual rate. I'm pricing this way because this engageme
 - Make scope decisions when presented with options — unresolved decisions block the sprint
 - Provide access to documents, data, and stakeholders as needed
 - Respond to async questions within 48 hours
+- Be available for extraction sessions (30-60 min) when requirements need clarification — your domain knowledge is the input
 
 If milestones are blocked because these obligations aren't met, the retainer applies regardless.
 
