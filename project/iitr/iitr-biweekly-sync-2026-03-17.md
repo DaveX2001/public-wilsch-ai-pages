@@ -53,18 +53,17 @@ Aktuell laufen die drei IITR-Systeme (Navigation, Masterfragen, Urteile) auf get
 
 **Zu klären:** Bestätigung, dass ein einheitlicher Zugang mit Systemauswahl den Anforderungen entspricht.
 
-### 3. Nächste Schritte — Weg zur Systemübergabe
+### 3. Nächste Schritte — Retrieval-Optimierung und Konsolidierung
 ⏱️ 3 min
 
-Die nächsten zwei Wochen konzentrieren sich auf drei Arbeitspakete: mehr Datenquellen, die Staging-Konsolidierung und Formatverfeinerung.
+Das Ausgabeformat steht — Antworten sind jetzt kurz, präzise und mit Kapitelnavigation versehen. Die verbleibenden 16 Fehler entstehen nicht durch falsche Antworten, sondern weil das System die richtige Stelle in den Dokumenten noch nicht zuverlässig findet. Der Grund: Die Datenquellen sind sehr unterschiedlich aufgebaut — PDF-Leitfaden, FAQ-Tabellen und Web-Inhalte aus core.iitr.de haben jeweils eine andere Struktur. Das Retrieval muss für diese Vielfalt optimiert werden.
 
-- **Datenaufnahme:** Zusätzliche DS-Kit Quellen (Templates, Webinhalte aus core.iitr.de) werden eingebunden — das System kann dann auch Fragen beantworten, die bisher mangels Datengrundlage nicht abgedeckt waren
-- **Staging-Konsolidierung:** Die drei Systeme werden in eine einzige Oberfläche zusammengeführt — ein Zugang, eine Domain, Systemauswahl per Menü. Kein erneuter Verlust von Zugangsdaten bei Entwicklungsarbeiten
-- **Ausgabeformat:** Weitere Verfeinerung auf Basis Ihrer CSV-Rückmeldung
-- **Bewährte Optimierungstechniken** stehen als nächster Hebel bereit, sobald die Datengrundlage steht
+- **Retrieval-Optimierung:** Verschiedene Suchmethoden werden getestet, damit das System über alle Quelltypen hinweg die richtige Stelle findet — das ist der größte Hebel für die verbleibenden 16 Fragen
+- **Datenaufnahme:** Zusätzliche Quellen (Templates, weitere Webinhalte) werden eingebunden, um die Abdeckung zu erhöhen
+- **Staging-Konsolidierung:** Die drei Systeme werden in eine einzige Oberfläche zusammengeführt — ein Zugang, eine Domain, Systemauswahl per Menü
 - **Ziel nächstes Bi-Weekly:** Sie testen das System selbst — eigener Zugang, eigene Fragen, ohne Entwicklerbeteiligung
 
-**Zu klären:** Bestätigung des Fahrplans — Datenaufnahme und Konsolidierung bis zum nächsten Termin, dann Systemübergabe.
+**Zu klären:** Bestätigung des Fahrplans — Retrieval-Optimierung und Konsolidierung bis zum nächsten Termin, dann Systemübergabe.
 
 ### 4. Datenschutz-Marktanalyse Singapur — Status
 ⏱️ 1 min
