@@ -107,7 +107,7 @@ The intended retrieval design is level-by-level tree traversal: start at root no
 
 #### Retrieval Approach — SA Decision
 
-**Track B (vector RAG):** Chonkie SemanticChunker + Chroma + Qwen3-Embedding. ~90% of #1112 infrastructure (Ollama, OpenWebUI, Langfuse, compose stack) survives regardless of track. Existing PageIndex tree on server: `/home/shared/projects/IITR-RAG-Navigation/index/anwenderleitfaden-datenschutz-kit-2025-03_tree.json`
+**Track B (vector RAG):** Typesense hybrid search + BAAI/bge-m3 embeddings + Docling HybridChunker. Current score: 17/29 (58.6%), matching V1 baseline. ~90% of #1112 infrastructure (Ollama, OpenWebUI, Langfuse, compose stack) survives regardless of track. Existing PageIndex tree on server: `/home/shared/projects/IITR-RAG-Navigation/index/anwenderleitfaden-datenschutz-kit-2025-03_tree.json`
 
 **Track A (tree traversal):** LlamaIndex TreeSelectLeafRetriever on existing PageIndex tree JSON. Alternatives evaluated and discarded: RAPTOR (semantic clusters, loses heading hierarchy), GraphRAG/HiRAG (knowledge graph, not document tree), custom TreeRetriever (more code ownership but no framework support).
 
@@ -339,12 +339,10 @@ Order matters: infrastructure first, then project stacks (they depend on shared 
 - [Hybrid Tree Search](https://docs.pageindex.ai/tutorials/tree-search/hybrid) — AlphaGo-inspired parallel retrieval (Track A reference only)
 
 **Track B (Vector RAG):**
-- [Chonkie Docs](https://docs.chonkie.ai) — chunking framework
-- [Chonkie Chroma Handshake](https://docs.chonkie.ai/oss/handshakes/chroma-handshake) — native vector DB integration
-- [Chonkie Pipelines](https://docs.chonkie.ai/oss/pipelines) — pipeline orchestration
-- [Chonkie SemanticChunker](https://docs.chonkie.ai/oss/chunkers/semantic-chunker) — starting chunker
-- [Chonkie SentenceTransformer Embeddings](https://docs.chonkie.ai/oss/embeddings/sentence-transformer-embeddings) — embedding integration
-- [Qwen3-Embedding](https://huggingface.co/collections/Qwen/qwen3-embedding) — MTEB #1, primary embedding model
+- [Typesense](https://typesense.org/) — hybrid search engine (keyword + vector), current production approach
+- [BAAI/bge-m3](https://huggingface.co/BAAI/bge-m3) — MIT embedding model (1024d), served via HuggingFace TEI
+- [Docling](https://ds4sd.github.io/docling/) — document chunking (HybridChunker preserves heading hierarchy)
+- [OpenWebUI Models](https://docs.openwebui.com/features/ai-knowledge/models) — per-project preset system (Filter, Knowledge, Access Control binding)
 
 **IITR Repos:**
 - [IITR-RAG-Navigation](https://github.com/WILSCH-AI-SERVICES/IITR__IITR-RAG-Navigation) — DS-Kit Navigation (this project)
