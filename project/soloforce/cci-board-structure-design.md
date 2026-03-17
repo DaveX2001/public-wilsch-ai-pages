@@ -167,29 +167,36 @@ For instruction artifacts, conversations are the design material (not design doc
 
 #### Forcing Function
 
-CCI is internal work. It lacks the natural forcing function that drives deliverable-tracking (client meeting dates with financial and social consequences). Analysis against the [Stakes Visibility framework](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/stakes-visibility-forcing-function) — five drivers scored for CCI:
+CCI is internal work. It lacks the natural forcing function that drives deliverable-tracking (client meeting dates with financial and social consequences). Analysis against the [Stakes Visibility framework](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/stakes-visibility-forcing-function) — five drivers scored for CCI under two models:
 
-| Driver | CCI Status |
-|--------|-----------|
-| Financial Incentives | Indirect — improves capacity across all projects, not quantifiable per fix |
-| Social Consequences | Absent — no external stakeholder creating pressure |
-| Structural Clarity | Emerging — position epics, release epics, /improve-system exist |
-| Visibility | Solvable — board retrofit provides at-a-glance status |
-| Ownership | **Key driver** — a dedicated person whose job is the improvement loop |
+| Driver | Founder-as-SE (Current) | Dedicated SE (Target) |
+|--------|------------------------|----------------------|
+| Financial Incentives | ⚠️ Indirect — capacity improvement not quantifiable | ✅ Direct — SE employment depends on performance |
+| Social Consequences | ❌ Absent — no external stakeholder | ✅ Present — manager reviews SE work |
+| Structural Clarity | ⚠️ Emerging — position epics exist, procedures undocumented | ✅ Clear — ops manual + milestones define expectations |
+| Visibility | ⚠️ Solvable — board retrofit pending | ✅ Board shows SE progress to manager |
+| Ownership | ⚠️ Competing hats — CCI loses to client work | ✅ Sole accountability — CCI IS the job |
 
-The forcing function for CCI is ownership. Client work moves because the client creates external pressure. CCI work moves when someone's job IS the improvement loop — their daily attention replaces the client meeting date. Without a dedicated SE, CCI competes with client work for the founder's attention, and client work's stronger forcing function always wins.
+Under the founder model, only one driver is partially active. Under the dedicated SE model, all five activate. The forcing function for CCI is the same mechanism that drives deliverable-tracking: an employment relationship where the manager is the client. The founder sets milestones, reviews output, and holds the SE accountable — structurally identical to how external clients create pressure for project work.
+
+**Organizational transition (April 2026 hypothesis):** The current Developer (David) moves into the SE role. A new hire takes over Junior Architect and Developer positions. David's lived experience as a developer — having felt the system's friction firsthand — provides the domain knowledge for SE work. This transition also serves as a scaling proof: if a second person can drive system improvements, the SE role is validated beyond the founder, following the same proof pattern as the Developer role.
+
+**Forcing function ranking — strongest to weakest:**
+1. **Ownership** (foundation) — without a dedicated person, nothing else matters. This is why CCI doesn't move under the founder model.
+2. **Structural clarity** (enabler) — the SE Operations Manual + defined milestones make the other drivers effective. Without documented procedures, the SE depends on founder guidance, recreating the bottleneck.
+3. **Social consequences** (active pressure) — the manager reviews SE work against documented standards. This driver is limited by the manager's ability to judge SE output quality — the ops manual compensates by providing objective standards to evaluate against.
+4. **Visibility** (amplifier) — the board makes SE progress or stagnation observable, strengthening social pressure.
+5. **Financial incentives** (baseline) — present in any employment relationship, not differentiating.
 
 **Interim model:** The founder holds the SE role ad hoc — while doing client work across multiple terminals, 1-2 terminal sessions are allocated to position/CCI work interleaved with project work. There is no dedicated time block. Signal amplification (observation counts visible during grooming, pass counters on release epics, dependency flags between release epics) informs which terminal session to allocate, but these are signals, not forcing functions — they inform priority but do not create deadline pressure.
 
-**Target model:** A dedicated System Engineer whose sole accountability is the improvement loop. The [SE Position Agreement](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/system-engineer-position-agreement-wilsch-ai-services) defines the work listing. The SE Operations Manual (this design doc's end deliverable) defines the procedures. Hiring for this role is a separate business decision outside this design doc's scope.
+**Target model:** A dedicated System Engineer whose sole accountability is the improvement loop. The [SE Position Agreement](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/system-engineer-position-agreement-wilsch-ai-services) defines the work listing. The SE Operations Manual (this design doc's end deliverable) defines the procedures. The manager (founder) serves as the SE's client — setting priorities via a regular 1:1 cadence (weekly or biweekly), reviewing output against PA standards, and holding the SE accountable through the same milestone structure used in deliverable-tracking.
 
-**Undefined:** Pressure threshold — how the SE judges when enough observations have clustered to justify a release epic. The "atmospheric pressure" metaphor describes the principle (accumulation → threshold → discharge) but not the mechanism. → Next extraction pass.
+**Pressure threshold:** SE judgment, developed through practice. No formula — the SE learns when observation accumulation is sufficient for a release epic through experience. The "atmospheric pressure" metaphor describes the principle (accumulation → threshold → discharge); the SE's judgment is the mechanism. The E-Myth BDP Loop (Innovation → Quantification → Orchestration) applies: the SE develops the judgment through doing, measures outcomes, and eventually codifies patterns in the ops manual.
 
-**Undefined:** Milestone strategy — what temporal container, if any, scopes CCI work cycles. Deadlines are the wrong frame for CCI (no external date). Candidates: count-based (N observations triggers action), capacity-based (allocated time block), or purely ownership-driven (SE decides based on judgment). → Next extraction pass.
+**Milestone strategy:** CCI milestones align to the SE's 1:1 cadence with the manager. Weekly or biweekly review sessions serve as the "client meeting" equivalent — the SE presents status, the manager sets priorities, and milestones scope the work between reviews. This is the same structure as deliverable-tracking milestones tied to client sync meetings.
 
-**Undefined:** Stability gates — how fixes move between deployment stages (Marius R&D → team → Traceline product). Not immediately relevant while all CCI work is founder-operated. Becomes relevant when the SE role is staffed and fixes deploy to other operators. → Next extraction pass.
-
-**Undefined:** Operator → position routing bridge — when an operator observation describes a problem ("AI didn't push") but the fix lives in a position artifact (Developer AI instructions), where does the release epic form? Under the operator epic (where the pain is) or the position epic (where the fix belongs)? Joint triage in grooming Step 4 determines root cause, but the epic formation rule is unresolved. → Next extraction pass.
+**Undefined:** Stability gates — how fixes move between deployment stages (SE environment → team → Traceline product). This requires a behavioral testing infrastructure equivalent to what automated tests provide for code — a systematic way to verify AI behavior changes before and after deployment. This is a separate project from the board structure design, connected to Session C verification methodology. → Separate workstream.
 
 ### 7. Operator Epics
 
@@ -199,7 +206,9 @@ The operator epic (#635 DaveX2001) is David's single collection point. He posts 
 
 **Why operator epics create urgency:** In deliverable-tracking, client meetings force work through milestones. In CCI, the operator's friction is the forcing function. When David flags "the AI skipped `make staging`," that's urgent because his next session will hit the same problem. The better the system, the better David performs, the less review Marius needs — directly advancing the March plan goal (Marius = manager only by March 31).
 
-**Undefined:** The connection between operator epic release epics (#646, #647) and position epic release epics (#604, #616). An operator observation may describe a problem ("AI didn't push"), but the fix lives in a position artifact (Developer AI instructions). Whether release epics should form under the operator epic (where the observation lives) or under the position epic (where the fix belongs) is unresolved. → Next extraction pass.
+**Domain separation:** Operator epics and position epics collect different categories of observation. Operator epics capture human behavior — how the operator works with the system. Position epics capture AI behavior — how the AI positions behave. Release epics form where the observations accumulate: human behavior release epics on operator epics (e.g., training topics, process adjustments), AI behavior release epics on position epics (e.g., instruction artifact fixes).
+
+When an operator flags a problem ("AI didn't push"), the SE triages root cause during joint review: human issue (operator doesn't yet understand the system), AI issue (instruction artifact defect), or both. Human issues stay on the operator epic. AI issues route to the position epic that owns the affected artifact. The triage determines which domain the observation belongs to — the domain determines where the release epic forms.
 
 ### 8. Board Infrastructure
 
@@ -216,7 +225,7 @@ Position epics are the CCI equivalent of client epics on the Commitment Board. T
 
 The deliverable-tracking board retrofit (#904) established the pattern: ILR v2 defines columns, milestones tied to forcing functions, daily grooming fills and prioritizes. The same pattern applies to CCI, but the forcing function source differs — deliverable-tracking uses client meetings, CCI's forcing function is undefined.
 
-**Undefined:** CCI milestone strategy — what forcing function drives CCI milestones? Candidates include: weekly internal sprint (same as deliverable-tracking), operator friction pull ("what unblocks David?"), or Traceline deployment cadence. → Next extraction pass.
+**Milestone strategy:** CCI milestones align to the SE's 1:1 cadence with the manager (see Part 6: Milestone strategy). The 1:1 review session is the forcing function ceremony — same structure as deliverable-tracking milestones tied to client sync meetings.
 
 ---
 
@@ -243,3 +252,5 @@ The deliverable-tracking board retrofit (#904) established the pattern: ILR v2 d
 - **SE Position Agreement:** [System Engineer PA](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/system-engineer-position-agreement-wilsch-ai-services) — result statement, work listing, standards
 - **Developer Operations Manual:** [Developer Ops Manual](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/developer-operations-manual-wilsch-ai-services) — Path A/B closing model reference
 - **Live evidence:** #615 theme-by-theme review in this session — closing ceremony gap surfaced empirically
+- **Session (extraction pass 5 — forcing function mechanism, David-as-SE hypothesis, driver ranking, milestone cadence):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/e8d8d641-093a-4e43-87a7-4290f40f9a28.jsonl
+- **JA Position Epic (#589):** Observations analyzed for forcing function grounding — 20 most recent comments reviewed
