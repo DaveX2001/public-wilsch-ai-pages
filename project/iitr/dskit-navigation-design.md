@@ -222,7 +222,9 @@ IITR-STAGING hosts three RAG projects that share infrastructure. This part defin
 
 #### Two-Layer Compose Model
 
-Per SA directive ("why always deploy another one?"), cross-project services run as single shared instances in `iitr-infrastructure/`. Project-specific services live in their respective repos.
+Per SA directive ("why always deploy another one?"), cross-project services run as single shared instances. Project-specific services (pipeline filters, vector stores) live in their respective repos.
+
+**Target architecture:** Mono repo with subproject structure. The four current repos (`iitr-infrastructure`, `IITR-RAG-Navigation`, `IITR-RAG-Court-Judgments`, `IITR-RAG-Masterfragen`) are already deployment-coupled via `iitr-shared-network` — multi-repo adds git overhead without isolation benefit. Mono repo enables single CLAUDE.md with subproject routing, eliminates port conflicts from duplicate service definitions, and simplifies developer onboarding (one clone, one compose context). Migration is not scheduled — this documents the target.
 
 **Layer 1 — Shared Infrastructure** (`/home/shared/projects/iitr-infrastructure/`):
 
@@ -230,22 +232,34 @@ Per SA directive ("why always deploy another one?"), cross-project services run 
 |---------|-----------|------|-------|
 | Ollama | rag-staging-ollama | 11436:11434 | Single GPU instance, all projects |
 | Langfuse | langfuse-web + 5 backing | 3003:3000 | Observability for all projects |
+| OpenWebUI | open-webui | 3006:8080 | Single instance, per-project Models (see Serving Layer) |
+| Pipelines | pipelines | 9099:9099 | Pipeline sidecar, hosts all project filters |
 
 **Layer 2 — Per-Project** (`/home/shared/projects/{project}/`):
 
 | Project | Owns | Connects to shared via |
 |---------|------|----------------------|
-| IITR-RAG-Navigation | OpenWebUI, Pipelines, Chroma, TEI | `iitr-shared-network` |
+| IITR-RAG-Navigation | Typesense, TEI | `iitr-shared-network` |
 | IITR-RAG-V1 (Masterfragen) | Qdrant, pipeline filter (future) | `iitr-shared-network` |
 | IITR-RAG-V2 (Court-Judgments) | Pipeline filter (future) | `iitr-shared-network` |
 
-Navigation repo owns OpenWebUI + Pipelines because it is the primary active project. Other projects contribute pipeline filters mounted into the Pipelines sidecar.
+OpenWebUI + Pipelines are shared infrastructure. Currently deployed in the Navigation compose stack — migration to `iitr-infrastructure/` pending. All projects contribute pipeline filters mounted into the Pipelines sidecar.
 
 #### Serving Layer
 
-One OpenWebUI instance serves all three projects. Each project is a pipeline filter in the Pipelines sidecar. Users select which project to query via model selection in the OpenWebUI UI.
+One OpenWebUI instance serves all three projects via the [Models feature](https://docs.openwebui.com/features/ai-knowledge/models). Each project is an OpenWebUI **Model** — a preset that wraps the base Ollama model (Qwen 3.5 9B) and binds project-specific configuration:
 
-**Standard pattern:** All projects use OpenWebUI pipeline filters. Masterfragen's legacy Flask proxy (`simple_app.py`) will be converted to a pipeline filter to standardize the serving pattern.
+| Model (preset) | Filter | Knowledge | System Prompt | Access |
+|----------------|--------|-----------|---------------|--------|
+| **DS-Kit Navigation** | `typesense_rag_filter` | Anwenderleitfaden + Templates + FAQ | Navigation-specific generation prompt | Stellmacher, Kraska, Wilsch AI |
+| **Court Judgments** | `court_judgments_filter` (future) | Court rulings corpus | Legal domain prompt | TBD |
+| **Masterfragen** | `masterfragen_filter` (future) | 22 Masterfragen Q&A | GDPR Q&A prompt | TBD |
+
+Users select which project to query by choosing the corresponding Model in the OpenWebUI chat interface. Each Model's bound Filter routes the query through the correct pipeline.
+
+**Per-model access control:** Each Model has visibility settings — clients see only their project's Model(s). Stellmacher and Kraska see "DS-Kit Navigation" only. Internal users (Wilsch AI) see all Models for testing and development.
+
+**Standard pattern:** All projects use OpenWebUI pipeline filters bound to Models. Masterfragen's legacy Flask proxy (`simple_app.py`) will be converted to a pipeline filter to standardize the serving pattern.
 
 **Track coexistence:** Navigation has two tracks (Track A tree traversal, Track B vector RAG). Both are pipeline filters, but only one is active at a time — explicit mode switching via Pipelines valve configuration, not Ollama VRAM auto-eviction. This prevents GPU memory conflicts on the 20 GB RTX 4000.
 
@@ -266,7 +280,7 @@ Canonical path: `/home/shared/projects/`. Per [Ops Manual](https://mariuswilsch.
 
 | Directory | Reason |
 |-----------|--------|
-| `typesense/` | Retired approach |
+| `typesense/` | Old standalone Typesense instance (retired). Navigation now runs Typesense within its own compose stack. |
 | `langfuse/` | Absorbed into iitr-infrastructure |
 | `openlit/` | No running containers |
 | `signoz/` | No running containers |
@@ -277,24 +291,24 @@ Canonical path: `/home/shared/projects/`. Per [Ops Manual](https://mariuswilsch.
 
 #### Vector Stores
 
-No consolidation. Each project owns its vector store:
+No consolidation. Each project owns its data store:
 
-- **Chroma** — Navigation Track B (in Navigation compose)
+- **Typesense** — Navigation (current, 17/29 with BGE-M3). Hybrid search (keyword + vector). In Navigation compose.
+- **Chroma** — Navigation Track B experiment (2/29, not active). Remains in Navigation compose for future evaluation.
 - **Qdrant** — Masterfragen (in V1 compose)
 
-TEI (text-embeddings-inference) serves Qwen3-Embedding-4B for Track B embeddings. Lives in Navigation compose as a Track B component.
+TEI (text-embeddings-inference) serves BAAI/bge-m3 (1024d) for Typesense vector embeddings. Lives in Navigation compose.
 
 #### Caddy Routing
 
-Per-project subdomains, all pointing to one OpenWebUI backend:
+Single domain pointing to one OpenWebUI instance. Project separation happens via OpenWebUI Models, not Caddy routing:
 
-| Subdomain | Project | Target |
-|-----------|---------|--------|
-| `rag-staging.iitr-cloud.de` | Navigation | localhost:3006 |
-| `urteile.iitr-cloud.de` | Court-Judgments | localhost:3006 |
-| `langfuse.iitr-cloud.de` | Langfuse | localhost:3003 |
+| Domain | Target | Purpose |
+|--------|--------|---------|
+| `rag-staging.iitr-cloud.de` | localhost:3006 | OpenWebUI (all projects via Models) |
+| `langfuse.iitr-cloud.de` | localhost:3003 | Langfuse observability |
 
-Add `masterfragen.iitr-cloud.de` when Masterfragen pipeline filter is restored. Remove stale `qdrant-staging.iitr-cloud.de` entry (internal service, should not be publicly exposed).
+Remove stale `qdrant-staging.iitr-cloud.de` entry (internal service, should not be publicly exposed). No per-project subdomains needed — users select their project via Model selection in the UI.
 
 #### Deployment Contract
 
@@ -358,3 +372,4 @@ Order matters: infrastructure first, then project stacks (they depend on shared 
 - PageIndex limitation extraction pass: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/66749a56-5f2d-4554-b902-cc4a76dd89f6.jsonl
 - SA Decision + Track B extraction: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude_projects-03-IITR--deliverable/a1ca960f-e5da-47cd-bfcf-7a59d1ce8859.jsonl
 - Pass 6 (Unified Infrastructure): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/5347bf5c-62cd-49e1-83dd-fdda0c893b26.jsonl
+- Pass 6 review (mono repo + Models feature): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/ba15606f-d3d0-41c8-a0b1-4739f10d7f35.jsonl
