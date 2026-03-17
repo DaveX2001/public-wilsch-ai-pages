@@ -56,11 +56,13 @@ Die nächsten zwei Wochen konzentrieren sich auf drei Arbeitspakete: mehr Datenq
 ### 4. Datenschutz-Marktanalyse Singapur — Status
 ⏱️ 1 min
 
-Die Marktanalyse zum Datenschutzrecht in Singapur ist abgeschlossen und geprüft.
+Wie beim letzten Termin besprochen: Wir haben uns in Singapur umgehört und eine halbe Seite zusammengestellt — wer ist da, was fehlt, wo könnte IITR reinpassen.
 
-- Ergebnisse können bei Bedarf im Termin besprochen werden
+- Kurzfassung: Kein Art. 27 Anbieter bedient Singapur gezielt, obwohl 1.300+ deutsche Firmen dort sind
+- Bei Interesse liegt eine ausführlichere Analyse als Dokument bereit
+- Nächster Schritt nur bei Bedarf — kein Aufwand ohne Ihr Go
 
-**Zu klären:** Ob eine Besprechung der Ergebnisse gewünscht ist oder die Analyse als Dokument ausreicht.
+**Zu klären:** Ist das Thema weiterhin interessant? Falls ja, stellen wir die ausführliche Analyse zur Verfügung.
 
 ## Live-Demo Beispiele
 
