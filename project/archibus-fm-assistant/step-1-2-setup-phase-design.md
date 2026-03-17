@@ -706,7 +706,7 @@ The interactive phase (Steps 0→2) produces a mapping contract. The execution p
 
 **Form factor:** Registered as a FastMCP tool on the existing `archibus-bulk-import-tools` MCP server, alongside `bem_context` and `excel_analysis`.
 
-**Contract handoff:** The interactive phase (Steps 0→2) saves the confirmed contract to disk via the filesystem MCP's `write_file` tool at a session-scoped path (`/app/uploads/{session_id}/contracts/confirmed.json`). No custom `save_contract` tool needed — a generic file write with a path convention in the skill instructions replaces the purpose-built tool. The bridge tool receives a `contract_id` argument and reads from the same shared volume. The conversation context carries a lightweight reference (~50 bytes), not the full object. This ensures the contract survives session drops, MCP reconnections, and phase transitions. *(Updated: Spike validation 2026-03-16 — `save_contract` is `write_file` in disguise. Marius, Mar 16 2026.)*
+**Contract handoff:** The interactive phase (Steps 0→2) saves the confirmed contract to disk via the filesystem MCP's `write_file` tool at a session-scoped path (`/app/uploads/{session_id}/contracts/confirmed.json`). No custom `save_contract` tool needed — a generic file write with a path convention in the skill instructions replaces the purpose-built tool. The bridge tool receives a `contract_id` argument and reads from the same shared volume. The AI passes `contract_id` to the bridge tool. Path resolution (`/app/uploads/{contract_id}/contracts/confirmed.json`) is internal to the tool — the conversation carries only the identifier, not the path or object. This ensures the contract survives session drops, MCP reconnections, and phase transitions. *(Updated: Spike validation 2026-03-16 — `save_contract` is `write_file` in disguise. Marius, Mar 16 2026.)*
 
 **Golden contract (dev testing):** The `data/expected-contract.json` file serves dual purpose: Part 5's test rubric evaluation surface AND a bridge tool input fixture that bypasses Steps 0–2. Its schema is identical to what `save_contract` produces — the bridge tool reads both via `contract_id` without code bifurcation. For dev testing, place the golden contract at `contracts/golden.json` and pass `contract_id="golden"`. *(Confirmed: Extraction pass 2026-03-15.)*
 
@@ -832,19 +832,23 @@ LiteLLM does NOT support Agent Skills — `container.skills` and `/v1/skills` ar
 
 ##### 6.3.3 Runtime Candidates
 
-Three runtimes were evaluated against the full requirements stack:
+Four runtimes were evaluated against the full requirements stack:
 
-| Criterion | LibreChat | Chainlit | Dify |
-|-----------|-----------|----------|------|
-| File → MCP tool | ⚠️ Solvable (filesystem MCP + shared volume, spike validated L1) | ✅ Native `.path` | ⚠️ HTTP MCP only |
-| MCP transport | ✅ stdio/SSE/HTTP | ✅ stdio/SSE/HTTP | ⚠️ HTTP only (no stdio) |
-| Skills loading | ✅ Solvable (FastMCP SkillsDirectoryProvider, spike validated) | ✅ Code-defined | ⚠️ Workflow nodes |
-| Web UI | ✅ Polished, ChatGPT-like | ⚠️ Framework (build required) | ✅ Visual workflow builder |
-| Non-developer UX | ✅ Best | ⚠️ Depends on build quality | ✅ Good (workflow paradigm) |
-| Qwen 3.5 support | ✅ OpenAI-compatible | ✅ Any model | ✅ Any model |
-| Demo-ready | ⚠️ File gap blocks demo | ✅ Works today | ✅ Works today |
+| Criterion | LibreChat + FastMCP | OpenWebUI | Chainlit | Dify |
+|-----------|-------------------|-----------|----------|------|
+| File → MCP tool | ⚠️ Filesystem MCP + shared volume (L1 validated) | ⚠️ Open Terminal + shared volume (needs L2 validation) | ✅ Native `.path` | ⚠️ HTTP only |
+| MCP transport | ✅ stdio/SSE/HTTP | ⚠️ Streamable HTTP only — FastMCP `transport="http"` compatible | ✅ stdio/SSE/HTTP | ⚠️ HTTP only |
+| Skills loading | ✅ FastMCP SkillsDirectoryProvider (L1 validated) | ✅ Native `view_skill` lazy loading — matches Anthropic best practices | ✅ Code-defined | ⚠️ Workflow nodes |
+| Multi-file skills | ✅ SKILL.md + references + scripts | ❌ Single markdown per skill | ✅ Code-defined | ❌ |
+| Web UI | ✅ Polished, ChatGPT-like | ✅ Polished, already deployed (IITR) | ⚠️ Framework build | ✅ Visual workflow |
+| Non-developer UX | ✅ Best | ✅ Good | ⚠️ Build-dependent | ✅ Good |
+| Qwen 3.5 support | ✅ OpenAI-compatible | ✅ OpenAI-compatible | ✅ Any model | ✅ Any model |
+| Session isolation | ✅ Convention-based (`{session_id}/` paths) | ❌ Shared `/home/user` — per-user containers planned | ✅ Per-user | ⚠️ Unknown |
+| Demo-ready | ⚠️ L2 Docker validation pending | ⚠️ L2 Docker + file chaining validation pending | ✅ Works today | ✅ Works today |
 
-**Rejected:** Claude Agent SDK (no built-in web UI, Anthropic models only), Open WebUI (MCP via proxy only, no file→MCP forwarding), Claude Code (not self-hostable), [PI](https://github.com/badlogic/pi-mono) (author is explicitly anti-MCP — no MCP support by design; best skill-loading of all candidates but dealbreaker for MCP-based pipeline). *(PI evaluated: Extraction pass 2026-03-15.)*
+**Rejected:** Claude Agent SDK (no built-in web UI, Anthropic models only), Claude Code (not self-hostable), [PI](https://github.com/badlogic/pi-mono) (author is explicitly anti-MCP — no MCP support by design; best skill-loading of all candidates but dealbreaker for MCP-based pipeline). *(PI evaluated: Extraction pass 2026-03-15.)*
+
+**Re-evaluated (2026-03-17):** OpenWebUI was previously rejected ("MCP via proxy, no file forwarding"). Since v0.6.31 (March 2026), OpenWebUI added native MCP support (Streamable HTTP), native skills with lazy loading (`view_skill` builtin tool), and [Open Terminal](https://docs.openwebui.com/features/extensibility/open-terminal/) (full OS access via Docker container). Re-added as candidate. Key strengths: skills progressive disclosure matches [Anthropic best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) natively. Key weaknesses: no per-session filesystem isolation (shared `/home/user`), file upload → MCP `__files__` parameter bugged on Streamable HTTP (v0.6.41). *(Sources: [OpenWebUI Skills](https://docs.openwebui.com/features/ai-knowledge/skills), [OpenWebUI MCP](https://docs.openwebui.com/features/extensibility/mcp), [Open Terminal](https://docs.openwebui.com/features/extensibility/open-terminal/). Marius, Mar 17 2026.)*
 
 **UX paradigm — conversational, not workflow:** Miguel's demo expectation is the interactive ETL — the AI reads the implementer's data, proposes mappings, and the implementer confirms through conversation. This is free-form conversational, not deterministic workflow. Dify's guided workflow paradigm creates friction for this interaction pattern.
 
@@ -852,7 +856,35 @@ Three runtimes were evaluated against the full requirements stack:
 
 **Critical path — bridge tool first, then runtime:** The demo blocker is the bridge tool (contract → pipeline execution), not the runtime. Build order: (1) bridge tool, (2) golden example validation with CAFEM contract, (3) backpressure loop testing, (4) skills content. The runtime decision feeds into this path but does not block step 1.
 
-**Undefined (narrowed):** Runtime selection — LibreChat's two critical gaps (file→MCP and skill loading) are now solvable via FastMCP primitives (spike validated L1, 2026-03-16). Remaining validation: L2 Docker integration test — does LibreChat write uploads to the shared volume path? Does the AI receive uploaded filenames in conversation context? If L2 passes, LibreChat + FastMCP becomes the demo runtime without migration to Chainlit. Chainlit remains the fallback if L2 reveals blocking issues. *(Narrowed from "which runtime?" to "does LibreChat + FastMCP work end-to-end in Docker?")*
+**Runtime Bake-Off — Spike Plan (2026-03-17)**
+
+Two spikes compare the leading candidates side-by-side. Each spike is a one-day issue (spec → implement → deploy). Deliverable = deployed environment the Dev Lead can log into and test. Not code snippets or screenshots — a running thing to witness. Spikes are a JA primitive — the Dev Lead witnesses the deployed spike before the design doc says "validated."
+
+**Gold standard:** Claude Code's native skill + file behavior. Each spike proves how close the alternative gets.
+
+| Spike | Runtime | Deploy | Port |
+|-------|---------|--------|------|
+| A | LibreChat + FastMCP + Filesystem MCP | Wilsch-AI VPS | `:3020` |
+| B | OpenWebUI + Open Terminal + FastMCP MCP | Wilsch-AI VPS | `:3010` |
+
+**Skills criteria — progressive disclosure ([Anthropic best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)):**
+- Metadata-only pre-load (name + description, not full content)
+- On-demand full content loading via tool mechanism
+- Multi-file skill directories (SKILL.md + references)
+- AI selects which skill to load based on context
+
+**Filesystem criteria:**
+
+| # | Prove this |
+|---|-----------|
+| 1 | AI writes files to a session-scoped path |
+| 2 | AI discovers uploaded files without being told the exact path |
+| 3 | AI chains: discover file → get path → pass to another MCP tool |
+| 4 | Two sessions can't see each other's files |
+
+**Exit condition:** Dev Lead witnesses both spikes, comparison documented. Winner becomes demo runtime. If neither passes all criteria, Chainlit remains fallback.
+
+*(Source: Marius, Mar 17 2026 — [#852 comment](https://github.com/DaveX2001/deliverable-tracking/issues/852). Extraction pass 2026-03-17.)*
 
 *(Source: [LibreChat 2026 Roadmap](https://www.librechat.ai/blog/2026-02-18_2026_roadmap). [Chainlit MCP docs](https://docs.chainlit.io/advanced-features/mcp). [Dify v1.6.0 MCP](https://dify.ai/blog/v1-6-0-built-in-two-way-mcp-support). [agentskills.io](https://agentskills.io). Runtime harness research, session 802ad55e.)*
 
@@ -920,3 +952,8 @@ The AI's behavioral quality is demo-blocking. Miguel judges whether the AI acts 
 - **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/a9e661cd-8665-48d9-84f9-fb97a68e973d.jsonl
 - **Spike:** FastMCP SkillsDirectoryProvider + ResourcesAsTools (L1 validated, 2026-03-16)
 - **Spike:** Filesystem MCP + shared volume simulation (L1 validated, 2026-03-16)
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/fabb74be-8370-4ad2-8074-b7b1b207a765.jsonl
+- **Reference:** [OpenWebUI Skills](https://docs.openwebui.com/features/ai-knowledge/skills) — native `view_skill` lazy loading, markdown-based skills
+- **Reference:** [OpenWebUI MCP](https://docs.openwebui.com/features/extensibility/mcp) — Streamable HTTP only, native since v0.6.31
+- **Reference:** [OpenWebUI Open Terminal](https://docs.openwebui.com/features/extensibility/open-terminal/) — full OS access via Docker
+- **Reference:** [mcpo proxy](https://github.com/open-webui/mcpo) — stdio→HTTP bridge, v0.0.20, production-ready
