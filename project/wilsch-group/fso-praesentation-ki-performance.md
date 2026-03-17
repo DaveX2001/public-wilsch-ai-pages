@@ -97,9 +97,10 @@ Jede Hardware kann ein FP04-Modell **laden und speichern** — das spart Speiche
 |--|--|--|--|--|
 | **TTFT (Prefill)** | ~90 s/Seite | TBD | TBD | TBD |
 | **TPS (Decode)** | 12,4 tok/s | TBD | TBD | TBD |
-| **240 Seiten** | ~6 Stunden | TBD | TBD | TBD |
+| **240 Seiten** | ~7 Stunden | TBD | TBD | TBD |
+| **Qualität** | **9/9** Kriterien | TBD | TBD | TBD |
 
-> **Hinweis:** Power 10 Werte sind gemessen (240 PDF-Seiten, Qwen 3-VL 8B). Werte für andere Systeme stehen aus — Benchmark wird nach Inbetriebnahme der DGX Spark nachgeholt.
+> **Hinweis:** Power 10 Werte sind gemessen (240 PDF-Seiten, Qwen 3-VL 8B, Projekt 35764). Qualität = 9 von 9 Extraktionskriterien gefunden. Werte für andere Systeme stehen aus — Benchmark wird nach Inbetriebnahme der DGX Spark nachgeholt.
 
 ### Warum ist die effektive Bandbreite so unterschiedlich?
 
@@ -185,6 +186,49 @@ Alle 6–12 Monate erreichen kleine Modelle das Intelligenzniveau von großen Mo
 
 ---
 
+## Folie 5: REKERS Benchmark — Gemessene Ergebnisse auf Power 10
+
+### Testaufbau
+
+Dieselbe Aufgabe (Kriterienextraktion aus 240 PDF-Seiten, Projekt 35764) wurde mit drei verschiedenen Modellen auf IBM Power 10 durchgeführt. Alle Modelle laufen lokal — keine Cloud, keine externen Dienste.
+
+| | Qwen 3.5 4B | Qwen 3.5 9B | Qwen 3-VL 8B |
+|--|--|--|--|
+| **Parameter** | 4 Milliarden | 9 Milliarden | 8 Milliarden |
+| **Modellgröße** | 3,4 GB | 6,6 GB | 6,1 GB |
+| **Verarbeitungszeit (240 Seiten)** | ~5,7 Std. | ~6,9 Std. | **~7,3 Std.** |
+| **Seiten pro Stunde** | 42 | 35 | 33 |
+| **Decode-Geschwindigkeit** | 6,5 tok/s | 5,7 tok/s | **12,4 tok/s** |
+| **Qualität (von 9 Kriterien)** | 6/9 | **9/9** | **9/9** |
+
+> **Ergebnis:** Zwei von drei Modellen finden **alle 9 Kriterien** — vollständig lokal, ohne Cloud, ohne externe Abhängigkeit.
+
+### Warum dauert es 7 Stunden?
+
+Die Verarbeitungszeit pro Seite besteht aus drei Phasen:
+
+| Phase | Was passiert | Dauer pro Seite | Anteil |
+|-------|-------------|----------------|--------|
+| **Bilderkennung** | PDF-Seite wird als Bild verarbeitet | ~40 Sekunden | ~45% |
+| **Prefill** | Modell liest Bild + Prompt ein | ~36 Sekunden | ~40% |
+| **Decode** | Modell generiert strukturierte Antwort | ~14 Sekunden | ~15% |
+| **Gesamt** | | **~90 Sekunden** | 100% |
+
+> **Kernproblem:** Die Bilderkennung (Vision Encoder) ist auf einer CPU ~235× langsamer als auf einer GPU (40 Sekunden vs. 0,17 Sekunden). Dieser eine Schritt verursacht fast die Hälfte der gesamten Verarbeitungszeit. Mit einer GPU (DGX Spark) reduziert sich die Gesamtzeit pro Seite drastisch.
+
+### Hochrechnung: 14 Projekte
+
+| | IBM Power 10 | 2x DGX Spark |
+|--|--|--|
+| **1 Projekt (240 Seiten)** | ~7 Stunden | TBD (wird gemessen) |
+| **14 Projekte** | ~4 Tage | TBD (wird gemessen) |
+
+> **Hinweis:** Die 14 Projekte haben unterschiedliche Seitenanzahlen. Die Hochrechnung basiert auf Projekt 35764 (240 Seiten) als Durchschnitt. DGX Spark Werte werden nach Inbetriebnahme (KW 12/2026) gemessen und hier aktualisiert.
+>
+> **Wichtig:** Diese Benchmark testet nur die Extraktion — den ersten von zwei Schritten. Der zweite Schritt (Ähnlichkeitsanalyse / Kriteriennachweis-Generierung) wird separat benchmarked, sobald die Page-Index-Infrastruktur bereit ist.
+
+---
+
 ## Quellen
 
 - [Qwen 3.5 9B schlägt GPT-OSS 120B — VentureBeat](https://venturebeat.com/technology/alibabas-small-open-source-qwen3-5-9b-beats-openais-gpt-oss-120b-and-can-run)
@@ -199,3 +243,7 @@ Alle 6–12 Monate erreichen kleine Modelle das Intelligenzniveau von großen Mo
 - [IBM Power11 Announcement — NextPlatform](https://www.nextplatform.com/compute/2025/07/16/the-worlds-most-powerful-server-embiggens-a-bit-with-power11/)
 - [MLX FP4/FP8 Upcast-Verhalten — GitHub Issue #2962](https://github.com/ml-explore/mlx/issues/2962)
 - [MLX nvfp4/mxfp8 Quantize/Dequantize — PR #2688](https://github.com/ml-explore/mlx/pull/2688)
+- [Power 10 Decision Boundary Chart](https://github.com/MariusWilsch/REKERS__poc/blob/main/.claude/tracking/issue-1132/power10_territory.html)
+- [#1132 — Power 10 Extraction Runs (3 Modelle × 240 Seiten)](https://github.com/DaveX2001/deliverable-tracking/issues/1132)
+- [#929 — DGX Spark Research & Hardware-Strategie](https://github.com/DaveX2001/deliverable-tracking/issues/929)
+- [#1081 — Commercial Feasibility Artifact](https://github.com/DaveX2001/deliverable-tracking/issues/1081)
