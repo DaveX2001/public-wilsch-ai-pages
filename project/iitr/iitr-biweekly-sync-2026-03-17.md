@@ -21,11 +21,24 @@ DS-Kit Navigation Fortschritt präsentieren und Stellmachers Validierungs-Input 
 ### 1. Aktueller Stand — DS-Kit Navigationssystem
 ⏱️ 7 min
 
-Das Navigationssystem beantwortet aktuell 17 von 29 Testfragen korrekt. Seit dem letzten Termin wurde das Ausgabeformat verbessert: Antworten enthalten jetzt eine direkte Antwort, die Rechtsgrundlage und einen Kapitelhinweis zur Navigation im DS-Kit.
+Das Navigationssystem beantwortet aktuell 13 von 29 Testfragen korrekt (v7.1 Prompt, 16 Fails — davon sind alle Fails Retrieval-Probleme, nicht Format). Seit dem letzten Termin wurde das Ausgabeformat verbessert: Antworten enthalten jetzt eine direkte Antwort, die Rechtsgrundlage und einen Kapitelhinweis zur Navigation im DS-Kit.
 
 - 2-3 Beispielantworten werden live vorgeführt
 - Eine CSV-Datei mit allen 29 Fragen und Antworten wird im Anschluss zur Prüfung bereitgestellt
 - Ihre Rückmeldung (welche Antworten korrekt/falsch sind) fließt direkt in die nächste Verbesserungsrunde ein
+
+**Live-Demo Beispiele:**
+
+Erfolgsbeispiel — Direkte Antwort mit Navigation:
+> **Frage:** Wie häufig sollte ich meine Mitarbeiterinnen und Mitarbeiter schulen?
+> **Antwort:** Die Datenschutz-Schulung der Mitarbeiter sollte mindestens einmal im Jahr erfolgen. Dies ergibt sich aus der Erwartung der deutschen Datenschutz-Aufsichtsbehörden.
+> 📍 Navigation: DS-Kit → Kapitel FAQ #6
+
+Fehlerbeispiel — Ehrliche Weiterleitung:
+> **Frage:** Stellen Sie auch englischsprachige Zertifikate zur Verfügung?
+> **Antwort:** Zu Ihrer Frage bezüglich englischsprachiger Zertifikate habe ich im DS-Kit keine passenden Informationen gefunden. Bitte wenden Sie sich für eine fachliche Beratung direkt an dskit@iitr.de.
+
+**Framing:** Das Ausgabeformat funktioniert jetzt — kurze Antworten, Kapitelverweise, keine langen Listen mehr. Die Herausforderung liegt jetzt bei der Datenabdeckung: Wir haben heterogene Quellen (PDF, FAQ-CSV, Web-Inhalte aus core.iitr.de), und jede Quelle hat eine andere Struktur. Wir müssen verschiedene Retrieval-Ansätze testen, um sicherzustellen, dass das System die richtige Stelle auch tatsächlich findet. Die Infrastruktur und das Format stehen — als nächstes kommen die zusätzlichen Datenquellen und die Feinabstimmung der Suche. Die CSV mit allen 29 Fragen und Antworten stellen wir zur asynchronen Validierung bereit.
 
 **Zu klären:** Validierung der Antworten durch Herrn Stellmacher — asynchron über die CSV bis zum nächsten Bi-Weekly.
 
@@ -63,25 +76,6 @@ Wie beim letzten Termin besprochen: Wir haben uns in Singapur umgehört und eine
 - Nächster Schritt nur bei Bedarf — kein Aufwand ohne Ihr Go
 
 **Zu klären:** Ist das Thema weiterhin interessant? Falls ja, stellen wir die ausführliche Analyse zur Verfügung.
-
-## Live-Demo Beispiele
-
-### Erfolgsbeispiel — Direkte Antwort mit Navigation
-
-**Frage:** Wie häufig sollte ich meine Mitarbeiterinnen und Mitarbeiter schulen?
-
-**Antwort:** Die Datenschutz-Schulung der Mitarbeiter sollte mindestens einmal im Jahr erfolgen. Dies ergibt sich aus der Erwartung der deutschen Datenschutz-Aufsichtsbehörden.
-📍 Navigation: DS-Kit → Kapitel FAQ #6
-
-### Fehlerbeispiel — Ehrliche Weiterleitung
-
-**Frage:** Stellen Sie auch englischsprachige Zertifikate zur Verfügung?
-
-**Antwort:** Zu Ihrer Frage bezüglich englischsprachiger Zertifikate habe ich im DS-Kit keine passenden Informationen gefunden. Bitte wenden Sie sich für eine fachliche Beratung direkt an dskit@iitr.de.
-
-### Framing — Warum mehr Zeit für Retrieval nötig ist
-
-Das Ausgabeformat funktioniert jetzt — kurze Antworten, Kapitelverweise, keine langen Listen mehr. Die Herausforderung liegt jetzt bei der Datenabdeckung: Wir haben heterogene Quellen (PDF, FAQ-CSV, Web-Inhalte aus core.iitr.de), und jede Quelle hat eine andere Struktur. Wir müssen verschiedene Retrieval-Ansätze testen, um sicherzustellen, dass das System die richtige Stelle auch tatsächlich findet. Die Infrastruktur und das Format stehen — als nächstes kommen die zusätzlichen Datenquellen und die Feinabstimmung der Suche. Die CSV mit allen 29 Fragen und Antworten stellen wir zur asynchronen Validierung bereit.
 
 ## Meetingformat
 
