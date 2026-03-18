@@ -5,7 +5,7 @@ publish: true
 # DS-Kit Navigation — Production Readiness Design
 [[client-iitr]]
 
-Rebuilding the DS-Kit Navigation system on IITR's on-premise infrastructure using a two-track approach: vector RAG (Track B) ships first for client-facing results, while tree-based retrieval (Track A) remains the target architecture.
+Rebuilding the DS-Kit Navigation system on IITR's on-premise infrastructure using vector RAG: Typesense hybrid search with BGE-M3 embeddings, Docling document chunking, and Qwen 3.5 9B for answer generation. Current baseline: 17/29 on the test harness, iterating toward ≥26/29.
 
 ---
 
@@ -13,9 +13,9 @@ Rebuilding the DS-Kit Navigation system on IITR's on-premise infrastructure usin
 
 IITR's DS-Kit product serves ~3,500 customers who regularly contact support with recurring questions (27-28/day per Stellmacher). A navigation system reduces this support load by answering common questions automatically.
 
-A previous prototype (Typesense + chunked RAG) scored 17/29 on the test harness. The chunking approach proved fragile — vector-based RAG suffers from four structural limitations: lack of multi-hop reasoning, chunking breaking semantic integrity, low recall from embedding mismatch, and context confusion from redundant retrievals (see [RAG for Technical Manuals](https://pageindex.ai/blog/technical-manuals) for side-by-side evidence). That implementation is being retired.
+The initial prototype (Typesense + basic chunking + MiniLM embeddings) scored 17/29 (V1, January 2026). A rebuild with improved components — BGE-M3 embeddings (1024d), Docling HybridChunker (preserves heading hierarchy), and Qwen 3.5 9B via OpenRouter — matched the V1 score at 17/29 with zero errors in ~4 minutes. This is the current production baseline on IITR-STAGING.
 
-This project rebuilds the navigation system using two parallel retrieval tracks. **Track B (vector RAG)** uses semantic chunking, local embeddings, and Chroma to deliver initial results for the March 17 client sync. **Track A (tree-based retrieval)** uses PageIndex tree generation with LlamaIndex TreeSelectLeafRetriever for level-by-level traversal — producing traceable, chapter-referenced answers as a natural byproduct of tree navigation. Track A remains the long-term aspiration; Track B is the pragmatic shipping path.
+A parallel evaluation of tree-based retrieval (PageIndex + LlamaIndex TreeRetriever) was explored and abandoned — the OSS library lacks retrieval implementation, making it unviable for production use. Vector RAG with the improved component stack is the confirmed approach going forward.
 
 **This is NOT:**
 
@@ -27,13 +27,14 @@ IITR operates three separate RAG projects, each with distinct data and purpose. 
 | [Court Judgments](https://github.com/WILSCH-AI-SERVICES/IITR__IITR-RAG-Court-Judgments) | Court rulings RAG (Urteile) | German legal documents |
 | [Masterfragen](https://github.com/WILSCH-AI-SERVICES/IITR__IITR-RAG-Masterfragen) | GDPR Q&A (Masterfragen) | 22 Masterfragen CSV |
 
-Court Judgments and Masterfragen are not replaced by PageIndex — different projects, different data, different retrieval.
+Court Judgments and Masterfragen are separate projects with different data and retrieval — this design doc covers Navigation only.
 
 However, all three projects share IITR-STAGING infrastructure. A unified infrastructure design (Part 5) ensures they coexist safely — shared services (Ollama, Langfuse), one OpenWebUI serving layer with per-project pipeline filters, and per-project compose files connected via shared Docker network. This prevents the collateral damage observed during #1112 repo migration, where changes to Navigation broke Court-Judgments and Masterfragen serving paths.
 
 **Preconditions:**
 - Design artifacts from prior attempt preserved: Pflichtenheft, test questions with source references (29 Q&A + Quelle column), Masterfragen CSV (22 entries), Anwenderleitfaden PDF, 56 DS-Kit templates
-- PageIndex benchmarked on IITR-STAGING: Qwen 3.5 9B viable on available hardware (RTX 4000 SFF Ada, 20 GB VRAM)
+- Vector RAG baseline established: Typesense + BGE-M3 + Docling at 17/29 on IITR-STAGING (RTX 4000 SFF Ada, 20 GB VRAM)
+- Target architecture: monorepo with trunk-based development (see [#1182](https://github.com/DaveX2001/deliverable-tracking/issues/1182))
 - Financial reset: prior work uninvoiced, clean start with direct client relationship (Stellmacher as technical contact, Kraska as business contact)
 - IITR-STAGING infrastructure consolidated — two-layer compose model with shared services (iitr-infrastructure) and per-project stacks connected via shared Docker network (see Part 5)
 
@@ -44,7 +45,7 @@ However, all three projects share IITR-STAGING infrastructure. A unified infrast
 | Element | Definition |
 |---------|-----------|
 | **Goal** | Navigation system is production-ready: accurate answers with chapter-referenced navigation on the 29-question test set |
-| **Success** | Test harness scores ≥26/29 (>90%) across 4 evaluation dimensions (see Test Rubric). Answers include chapter reference from tree traversal path. Stellmacher/Kraska validate answer quality via sample review at bi-weekly meetings. |
+| **Success** | Test harness scores ≥26/29 (>90%) across 4 evaluation dimensions (see Test Rubric). Answers include chapter reference from retrieval source metadata. Stellmacher/Kraska validate answer quality via CSV review at bi-weekly meetings — feedback feeds back into iteration. |
 | **Done test** | Stellmacher sends a question to the navigation system, receives a chapter-referenced answer, and confirms it is correct — without developer involvement. |
 
 ---
@@ -61,25 +62,18 @@ Deploy the retrieval and serving infrastructure on IITR-STAGING.
 
 | Component | Role | Why |
 |-----------|------|-----|
-| **Qwen 3.5 9B** via Ollama | Single model for all pipeline stages | Tree traversal (think:false, forced by Ollama structured output), answer generation (think:true, +25% instruction-following). Benchmarked on IITR hardware: 0.76s per traversal call, ~8.5s full pipeline. |
+| **Qwen 3.5 9B** via Ollama + OpenRouter | Single model for answer generation | think:true for instruction-following (+25%). Benchmarked on IITR hardware. OpenRouter as inference fallback — eliminates Ollama timeout issues, ~4min for full 29-question test run. |
 | **OpenWebUI** | Chat frontend | Already deployed with IITR Keycloak SSO integration. Familiar to client (Stellmacher has used it). Pipeline filter system enables RAG backend integration. |
 | **RTX 4000 SFF Ada** (20 GB VRAM) | GPU inference | Available on IITR-STAGING. Sufficient for Qwen 3.5 9B inference. |
 | **Langfuse** | Observability + tracing | One OpenWebUI conversation = one Langfuse session. Traces every query through retrieval and generation. Enables improvement loop: identify failure patterns, measure iteration progress, provide evidence for client reviews. Already running on IITR-STAGING. |
 
-**Track B Components (focus — ships first):**
+**Retrieval Components:**
 
 | Component | Role | Why |
 |-----------|------|-----|
-| **[Typesense](https://typesense.org/)** | Hybrid search (keyword + vector) | Proven at 17/29 (58.6%) with BGE-M3 embeddings. Hybrid search combines BM25 keyword matching with vector similarity — outperformed Chroma (2/29) on same data. |
+| **[Typesense](https://typesense.org/)** | Hybrid search (keyword + vector) | Proven at 17/29 (58.6%) with BGE-M3 embeddings. Hybrid search combines BM25 keyword matching with vector similarity — outperformed pure vector search (Chroma: 2/29) on same data. |
 | **[BAAI/bge-m3](https://huggingface.co/BAAI/bge-m3)** | Embedding model | MIT, 1024d, served via HuggingFace TEI. Matched V1 baseline score. Replaced Qwen3-Embedding-4B (2560d) which underperformed on German domain text. |
 | **[Docling HybridChunker](https://ds4sd.github.io/docling/)** | Document chunking | Preserves heading hierarchy during chunking. Replaced Chonkie SemanticChunker which destroyed document structure (0/4 test answers). |
-
-**Track A Components (parallel if bandwidth):**
-
-| Component | Role | Why |
-|-----------|------|-----|
-| **PageIndex** (MIT, open-source) | Tree index generation | Converts PDFs and markdown into hierarchical tree JSON (node_id, title, summary, page_index, children). OSS library provides tree generation only — retrieval must be implemented separately (see PageIndex OSS Limitation below). |
-| **[LlamaIndex TreeSelectLeafRetriever](https://github.com/run-llama/llama_index/blob/main/llama-index-core/llama_index/core/indices/tree/select_leaf_retriever.py)** | Tree-based retrieval | Framework-provided level-by-level LLM traversal on tree structure. |
 
 **Infrastructure prerequisite:** IITR-STAGING server cleanup. Architecture principle: one environment per project, separate compose stacks.
 
@@ -97,19 +91,9 @@ Deploy the retrieval and serving infrastructure on IITR-STAGING.
 | **Retain** | MetaMCP | — | MCP gateway |
 | **Retain** | OpenWebUI | — | Chat frontend (Keycloak SSO) |
 
-#### PageIndex OSS Limitation
+#### Approach History
 
-PageIndex OSS ([VectifyAI/PageIndex](https://github.com/VectifyAI/PageIndex), MIT, 21.5k stars) ships tree generation only. The retrieval mechanisms described in their documentation — level-by-level traversal, hybrid MCTS, value-based search — exist exclusively in their commercial API/dashboard. The [cookbook](https://github.com/VectifyAI/PageIndex/blob/main/cookbook/pageindex_RAG_simple.ipynb) demonstrates a workaround: pass the entire tree (~30KB for one document, ~10K tokens) in a single LLM prompt and ask the model to select relevant node IDs. This approach does not scale — with 60+ documents, combined tree context exceeds any local model's context window.
-
-The intended retrieval design is level-by-level tree traversal: start at root nodes, LLM selects which children to descend into, recurse until leaf nodes. Each level requires one LLM call seeing only the current level's nodes (titles + summaries), not the entire tree. This is what makes tree-based retrieval superior to chunked vector RAG — the LLM reasons through document structure iteratively, producing traceable chapter references as a natural byproduct.
-
-**The principle stands: tree-based structure-aware retrieval > chunked vector RAG.** The implementation must change.
-
-#### Retrieval Approach — SA Decision
-
-**Track B (vector RAG):** Typesense hybrid search + BAAI/bge-m3 embeddings + Docling HybridChunker. Current score: 17/29 (58.6%), matching V1 baseline. ~90% of #1112 infrastructure (Ollama, OpenWebUI, Langfuse, compose stack) survives regardless of track. Existing PageIndex tree on server: `/home/shared/projects/IITR-RAG-Navigation/index/anwenderleitfaden-datenschutz-kit-2025-03_tree.json`
-
-**Track A (tree traversal):** LlamaIndex TreeSelectLeafRetriever on existing PageIndex tree JSON. Alternatives evaluated and discarded: RAPTOR (semantic clusters, loses heading hierarchy), GraphRAG/HiRAG (knowledge graph, not document tree), custom TreeRetriever (more code ownership but no framework support).
+Tree-based retrieval (PageIndex + LlamaIndex TreeRetriever) was evaluated as an alternative. PageIndex OSS ships tree generation only — retrieval mechanisms exist exclusively in their commercial API. The evaluation concluded that vector RAG with improved components (Typesense hybrid search, BGE-M3 embeddings, Docling chunking) is the confirmed production approach. See [#1093 comments](https://github.com/DaveX2001/deliverable-tracking/issues/1093) for full evaluation history.
 
 ### Part 2: Data Preparation
 
@@ -117,31 +101,18 @@ The intended retrieval design is level-by-level tree traversal: start at root no
 
 Ingest full documents, not cherry-picked by question. Text-only extraction, no visual elements.
 
-#### Track B Pipeline (focus)
+#### Ingestion Pipeline
 
-Extract text from all sources, chunk with Chonkie SemanticChunker, embed with Qwen3-Embedding, store in Chroma. The SemanticChunker groups sentences by semantic similarity — no heading hierarchy required.
+Extract text from all sources, chunk with Docling HybridChunker (preserves heading hierarchy), embed with BGE-M3 via TEI, store in Typesense for hybrid search (keyword + vector).
 
 **Quality gate:** Before ingestion, validate that text extraction succeeded (not empty, not garbled OCR artifacts) and content language is German. Truncated or corrupted extractions get re-extracted, not ingested as-is.
 
-| Source | Format | Track B Pipeline | Notes |
-|--------|--------|-----------------|-------|
-| Anwenderleitfaden | PDF | Extract text → SemanticChunker → Chroma | Primary knowledge base |
-| Templates (56 total) | PDF/Word/Excel | Extract text → SemanticChunker → Chroma | Download from core.iitr.de chapter 4 (Keycloak auth) |
-| Masterfragen | CSV/Excel | Convert to text → SemanticChunker → Chroma | 22 entries, knowledge source for 19/29 test questions |
-| core.iitr.de chapters 1-12 | Web | Extract → text → SemanticChunker → Chroma | 7/29 test questions depend on this. Chrome DevTools MCP as extraction tool (proven in [#798](https://github.com/DaveX2001/deliverable-tracking/issues/798)). Fallback: [agent-browser](https://github.com/vercel-labs/agent-browser). |
-
-#### Track A Pipeline
-
-All PageIndex input must have heading hierarchy. PageIndex `md_to_tree()` uses `#` characters to build the tree structure — flat text without headers produces a degenerate tree with poor retrieval. This applies to every source format: PDFs use `--pdf_path` (PageIndex handles structure natively), all other formats must be converted to markdown with proper heading hierarchy before ingestion.
-
-**Quality gate:** Before PageIndex ingestion, validate that every converted document has at least H1/H2 structure. Flat or poorly structured files get re-converted, not ingested as-is.
-
-| Source | Format | PageIndex Path | Notes |
-|--------|--------|---------------|-------|
-| Anwenderleitfaden | PDF | `--pdf_path` (native) | Primary knowledge base — zero conversion needed |
-| Templates (56 total) | PDF/Word/Excel | PDF: `--pdf_path`; Word/Excel: convert to structured markdown → `--md_path` | Download from core.iitr.de chapter 4 (Keycloak auth) |
-| Masterfragen | CSV/Excel | Convert to structured Q&A markdown → `--md_path` | 22 entries, knowledge source for 19/29 test questions |
-| core.iitr.de chapters 1-12 | Web | Extract → one combined markdown with full heading hierarchy (H1/H2/H3+) → `--md_path` | 7/29 test questions depend on this. Preserve native heading depth from core.iitr.de. |
+| Source | Format | Pipeline | Notes |
+|--------|--------|----------|-------|
+| Anwenderleitfaden | PDF | Extract text → Docling HybridChunker → BGE-M3 → Typesense | Primary knowledge base |
+| Templates (56 total) | PDF/Word/Excel | Extract text → Docling HybridChunker → BGE-M3 → Typesense | Download from core.iitr.de chapter 4 (Keycloak auth) |
+| Masterfragen | CSV/Excel | Convert to text → Docling HybridChunker → BGE-M3 → Typesense | 22 entries, knowledge source for 19/29 test questions |
+| core.iitr.de chapters 1-12 | Web | Extract → text → Docling HybridChunker → BGE-M3 → Typesense | 7/29 test questions depend on this. Chrome DevTools MCP as extraction tool (proven in [#798](https://github.com/DaveX2001/deliverable-tracking/issues/798)). Fallback: [agent-browser](https://github.com/vercel-labs/agent-browser). |
 
 **Data availability:** [Source Data Inventory (Google Drive)](https://drive.google.com/drive/folders/1gnxBulrnkGh-Oyly_jabofNo4SVivQhR) — INPUT/ (knowledge base) and TEST_RUBRIK/ (evaluation rubric). Templates and web chapters require Keycloak authentication for download/extraction.
 
@@ -155,7 +126,7 @@ Automated evaluation of the navigation system against the 29-question test set. 
 |------|-----------|------------|-----------|---------|
 | **Pass/Fail** | 1. Content Accuracy, 2. Format | Column B (expected answer) | AI (LLM judge — Sonnet 4.6) | Semantic match against expected answer. These dimensions determine the score. |
 | **Signal** | 3. Chapter Reference | Column C (Quelle) | Human (Stellmacher) | Warning signal — evaluate empirically with real outputs before defining detection rules. Stellmacher judges correctness at bi-weekly review. |
-| **Signal** | 4. Source Traceability | Column C (Quelle) | AI (signal only) | Is the Quelle source present in retrieved tree nodes? Warning if not — does not independently fail a question. |
+| **Signal** | 4. Source Traceability | Column C (Quelle) | AI (signal only) | Is the Quelle source present in retrieved chunks? Warning if not — does not independently fail a question. |
 
 **Column D (grooming discussion):** Consider adding a `chapter-reference-expected` (yes/no) column to the test CSV. Questions that reference a specific DS-Kit chapter (e.g., "Kapitel 8", "Kapitel 11, Unterpunkt 3") get `yes`. Support redirects and procedural answers get `no`. This lets the judge skip chapter reference evaluation for questions where no chapter applies. Observe chapter reference behavior empirically with real outputs first — bring findings to Stellmacher before committing to this structure.
 
@@ -183,38 +154,32 @@ Navigation hint appears only when the answer references a specific DS-Kit chapte
 
 Run the test harness, iterate toward ≥26/29.
 
-#### Track B Iteration (focus)
+#### Iteration Loop
 
-The iteration loop:
-
-1. Chunk all prepared documents via Chonkie, embed with Qwen3-Embedding, store in Chroma
+1. Chunk all prepared documents via Docling HybridChunker, embed with BGE-M3, store in Typesense
 2. Run test harness (29 questions × 4 dimensions)
 3. Analyze failures using the diagnostic chain (see below)
 4. Adjust retrieval knobs, re-run until ≥26/29
 
-**Track B retrieval knobs:**
-- **Chunker selection:** Chonkie offers multiple chunkers (SemanticChunker as start). Try different chunkers via test harness to find optimal retrieval quality.
-- **Embedding model:** Qwen3-Embedding-8B → 4B → bge-m3. Stick with these three — sufficient playground.
-- **Chunk parameters:** Size, overlap — tune based on failure analysis.
+**Retrieval knobs:**
+- **Chunker config:** Docling HybridChunker parameters — chunk size, overlap. Tune based on failure analysis.
+- **Embedding model:** BGE-M3 (1024d) via TEI. Proven baseline — replaced Qwen3-Embedding-4B which underperformed on German domain text.
+- **Search config:** Typesense hybrid search weighting (keyword vs vector balance).
 - **Prompts:** Answer generation instructions for Qwen 3.5 9B.
 
-#### Track A Iteration
+#### Client Feedback Checkpoint
 
-**Dual-model option:** Tree *traversal* (runtime) uses Qwen 3.5 9B locally. Tree *creation* (one-time) may use a stronger model (e.g., Sonnet 4.6 via OpenRouter) for higher-quality tree structure. Better trees = better retrieval without changing the runtime model.
+When confident in iteration results, send CSV report to Stellmacher for review. CSV columns: question, expected answer, RAG answer, expected source, actual source. Stellmacher provides feedback on semantic accuracy and format — feedback feeds back into the next iteration cycle. This is not every run; only when results warrant client review (e.g., after significant score improvement or before bi-weekly meeting).
 
-**Expert knowledge injection:** Inject domain-specific routing rules directly into the tree search prompt — no embedding fine-tuning needed. Example: "If query mentions Löschfristen, prioritize Kapitel 3." Build a set of IITR-specific routing rules from the 29 test questions and their Quelle column, then inject relevant rules per query. See [LLM Tree Search](https://docs.pageindex.ai/tutorials/tree-search/llm) for the prompt template and preference retrieval pattern.
-
-#### Diagnostic Chain (universal)
+#### Diagnostic Chain
 
 | Failure Type | Meaning | Fix | Owner |
 |-------------|---------|-----|-------|
 | **Data Source** | Answer data doesn't exist in ingested sources | Flag → Dev Lead → client provides missing data | Developer escalates |
-| **Retrieval** | Data exists but retrieval missed it | Track B: chunker/embedding/chunk params. Track A: expert knowledge rules, tree quality (regenerate with stronger model), heading hierarchy fixes. | Developer |
+| **Retrieval** | Data exists but retrieval missed it | Chunker config, embedding parameters, Typesense search weighting | Developer |
 | **Generation** | Right data retrieved, wrong answer produced | Prompt change (answer generation instructions) | Developer |
 
 Dependency: Data Source → Retrieval → Generation. Fix data gaps first, then retrieval, then generation. This is a universal RAG diagnostic pattern.
-
-Present sample answers to Stellmacher at bi-weekly meeting (Mar 17) for qualitative validation.
 
 ### Part 5: Unified Infrastructure
 
@@ -224,7 +189,7 @@ IITR-STAGING hosts three RAG projects that share infrastructure. This part defin
 
 Per SA directive ("why always deploy another one?"), cross-project services run as single shared instances. Project-specific services (pipeline filters, vector stores) live in their respective repos.
 
-**Target architecture:** Mono repo with subproject structure. The four current repos (`iitr-infrastructure`, `IITR-RAG-Navigation`, `IITR-RAG-Court-Judgments`, `IITR-RAG-Masterfragen`) are already deployment-coupled via `iitr-shared-network` — multi-repo adds git overhead without isolation benefit. Mono repo enables single CLAUDE.md with subproject routing, eliminates port conflicts from duplicate service definitions, and simplifies developer onboarding (one clone, one compose context). Migration is not scheduled — this documents the target.
+**Target architecture: Mono repo with trunk-based development** ([#1182](https://github.com/DaveX2001/deliverable-tracking/issues/1182)). The four current repos (`iitr-infrastructure`, `IITR-RAG-Navigation`, `IITR-RAG-Court-Judgments`, `IITR-RAG-Masterfragen`) are already deployment-coupled via `iitr-shared-network` — multi-repo adds git overhead without isolation benefit. Mono repo enables single CLAUDE.md with subproject routing, eliminates port conflicts from duplicate service definitions, and simplifies developer onboarding. Migration is the first infrastructure proof point.
 
 **Layer 1 — Shared Infrastructure** (`/home/shared/projects/iitr-infrastructure/`):
 
@@ -232,8 +197,6 @@ Per SA directive ("why always deploy another one?"), cross-project services run 
 |---------|-----------|------|-------|
 | Ollama | rag-staging-ollama | 11436:11434 | Single GPU instance, all projects |
 | Langfuse | langfuse-web + 5 backing | 3003:3000 | Observability for all projects |
-| OpenWebUI | open-webui | 3006:8080 | Single instance, per-project Models (see Serving Layer) |
-| Pipelines | pipelines | 9099:9099 | Pipeline sidecar, hosts all project filters |
 
 **Layer 2 — Per-Project** (`/home/shared/projects/{project}/`):
 
@@ -243,25 +206,15 @@ Per SA directive ("why always deploy another one?"), cross-project services run 
 | IITR-RAG-V1 (Masterfragen) | Qdrant, pipeline filter (future) | `iitr-shared-network` |
 | IITR-RAG-V2 (Court-Judgments) | Pipeline filter (future) | `iitr-shared-network` |
 
-OpenWebUI + Pipelines are shared infrastructure. Currently deployed in the Navigation compose stack — migration to `iitr-infrastructure/` pending. All projects contribute pipeline filters mounted into the Pipelines sidecar.
+OpenWebUI + Pipelines are shared infrastructure. Currently deployed in the Navigation compose stack — migration to `iitr-infrastructure/` pending as part of monorepo transition. All projects contribute pipeline filters mounted into the Pipelines sidecar.
 
 #### Serving Layer
 
-One OpenWebUI instance serves all three projects via the [Models feature](https://docs.openwebui.com/features/ai-knowledge/models). Each project is an OpenWebUI **Model** — a preset that wraps the base Ollama model (Qwen 3.5 9B) and binds project-specific configuration:
+One OpenWebUI instance serves all three projects. Each project is a pipeline filter in the Pipelines sidecar. Users select which project to query via model selection in the OpenWebUI UI.
 
-| Model (preset) | Filter | Knowledge | System Prompt | Access |
-|----------------|--------|-----------|---------------|--------|
-| **DS-Kit Navigation** | `typesense_rag_filter` | Anwenderleitfaden + Templates + FAQ | Navigation-specific generation prompt | Stellmacher, Kraska, Wilsch AI |
-| **Court Judgments** | `court_judgments_filter` (future) | Court rulings corpus | Legal domain prompt | TBD |
-| **Masterfragen** | `masterfragen_filter` (future) | 22 Masterfragen Q&A | GDPR Q&A prompt | TBD |
-
-Users select which project to query by choosing the corresponding Model in the OpenWebUI chat interface. Each Model's bound Filter routes the query through the correct pipeline.
+**Standard pattern:** All projects use OpenWebUI pipeline filters. Masterfragen's legacy Flask proxy (`simple_app.py`) will be converted to a pipeline filter to standardize the serving pattern.
 
 **Per-model access control:** Each Model has visibility settings — clients see only their project's Model(s). Stellmacher and Kraska see "DS-Kit Navigation" only. Internal users (Wilsch AI) see all Models for testing and development.
-
-**Standard pattern:** All projects use OpenWebUI pipeline filters bound to Models. Masterfragen's legacy Flask proxy (`simple_app.py`) will be converted to a pipeline filter to standardize the serving pattern.
-
-**Track coexistence:** Navigation has two tracks (Track A tree traversal, Track B vector RAG). Both are pipeline filters, but only one is active at a time — explicit mode switching via Pipelines valve configuration, not Ollama VRAM auto-eviction. This prevents GPU memory conflicts on the 20 GB RTX 4000.
 
 #### Directory Structure & Cleanup
 
@@ -280,7 +233,7 @@ Canonical path: `/home/shared/projects/`. Per [Ops Manual](https://mariuswilsch.
 
 | Directory | Reason |
 |-----------|--------|
-| `typesense/` | Old standalone Typesense instance (retired). Navigation now runs Typesense within its own compose stack. |
+| `typesense/` | Retired approach |
 | `langfuse/` | Absorbed into iitr-infrastructure |
 | `openlit/` | No running containers |
 | `signoz/` | No running containers |
@@ -293,22 +246,22 @@ Canonical path: `/home/shared/projects/`. Per [Ops Manual](https://mariuswilsch.
 
 No consolidation. Each project owns its data store:
 
-- **Typesense** — Navigation (current, 17/29 with BGE-M3). Hybrid search (keyword + vector). In Navigation compose.
-- **Chroma** — Navigation Track B experiment (2/29, not active). Remains in Navigation compose for future evaluation.
+- **Typesense** — Navigation (hybrid search, 17/29 with BGE-M3). In Navigation compose.
 - **Qdrant** — Masterfragen (in V1 compose)
 
 TEI (text-embeddings-inference) serves BAAI/bge-m3 (1024d) for Typesense vector embeddings. Lives in Navigation compose.
 
 #### Caddy Routing
 
-Single domain pointing to one OpenWebUI instance. Project separation happens via OpenWebUI Models, not Caddy routing:
+Per-project subdomains, all pointing to one OpenWebUI backend:
 
-| Domain | Target | Purpose |
-|--------|--------|---------|
-| `rag-staging.iitr-cloud.de` | localhost:3006 | OpenWebUI (all projects via Models) |
-| `langfuse.iitr-cloud.de` | localhost:3003 | Langfuse observability |
+| Subdomain | Project | Target |
+|-----------|---------|--------|
+| `rag-staging.iitr-cloud.de` | Navigation | localhost:3006 |
+| `urteile.iitr-cloud.de` | Court-Judgments | localhost:3006 |
+| `langfuse.iitr-cloud.de` | Langfuse | localhost:3003 |
 
-Remove stale `qdrant-staging.iitr-cloud.de` entry (internal service, should not be publicly exposed). No per-project subdomains needed — users select their project via Model selection in the UI.
+Add `masterfragen.iitr-cloud.de` when Masterfragen pipeline filter is restored. Remove stale `qdrant-staging.iitr-cloud.de` entry (internal service, should not be publicly exposed).
 
 #### Deployment Contract
 
@@ -331,14 +284,7 @@ Order matters: infrastructure first, then project stacks (they depend on shared 
 - Portal: `https://core.iitr.de/tenant/3520/page/82173` — DS-Kit web interface chapters 1-12
 - [Source Data Inventory (Drive)](https://drive.google.com/drive/folders/1gnxBulrnkGh-Oyly_jabofNo4SVivQhR) — INPUT/ + TEST_RUBRIK/
 
-**PageIndex:**
-- [GitHub repo](https://github.com/VectifyAI/PageIndex) — MIT, open-source, vectorless tree-based RAG
-- [Docs](https://docs.pageindex.ai/) — framework reference, cookbooks, tutorials
-- [LLM Tree Search](https://docs.pageindex.ai/tutorials/tree-search/llm) — prompt template + expert knowledge injection pattern (required reading)
-- [RAG for Technical Manuals](https://pageindex.ai/blog/technical-manuals) — validates PageIndex over vector RAG, 4 failure modes (required reading)
-- [Hybrid Tree Search](https://docs.pageindex.ai/tutorials/tree-search/hybrid) — AlphaGo-inspired parallel retrieval (Track A reference only)
-
-**Track B (Vector RAG):**
+**Vector RAG Stack:**
 - [Typesense](https://typesense.org/) — hybrid search engine (keyword + vector), current production approach
 - [BAAI/bge-m3](https://huggingface.co/BAAI/bge-m3) — MIT embedding model (1024d), served via HuggingFace TEI
 - [Docling](https://ds4sd.github.io/docling/) — document chunking (HybridChunker preserves heading hierarchy)
@@ -359,6 +305,9 @@ Order matters: infrastructure first, then project stacks (they depend on shared 
 - [2026-01-15 Client Meeting](https://app.fireflies.ai/view/01KF0N6JDANZB4JGW9WEP4GNMC) — data gap discussion + dual-answer decision with Stellmacher/Kraska
 - [2026-03-04 Contract Meeting](https://drive.google.com/file/d/1wS9Z8jjH-hkeaCW5aQZ9aTXWBqIQ24H9/view) — Stellmacher cost corridor requirements, Kraska contract approval
 - [2026-03-14 Grooming](https://app.fireflies.ai/view/01KKPCF74TMEAYTM0PQEBBD5HW) — PageIndex OSS limitation discovery, retrieval approach discussion
+- [2026-03-17 KI-Update IITR](https://app.fireflies.ai/view/01KKB4PD373XWHY3K0B0PDZMSC) — client sync: format confirmed, CSV feedback loop, staging consolidation
+- [2026-03-18 Strategy Meeting](https://app.fireflies.ai/view/01KM0CAF30PJ3V27S2RDB15BHQ) — Vector B confirmed as approach, monorepo + trunk-based, issue cleanup
+- [2026-03-18 Grooming](https://app.fireflies.ai/view/01KM0732PDYDAT62D5DFDAHV01) — trunk-first decomposition, spike pattern, design docs updated only after proof points
 
 **Sessions:**
 - Original design: /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-IITR--IITR-NAVIGATION/46a000cb-3044-40d7-adaf-e30987553859.jsonl
@@ -370,4 +319,4 @@ Order matters: infrastructure first, then project stacks (they depend on shared 
 - PageIndex limitation extraction pass: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/66749a56-5f2d-4554-b902-cc4a76dd89f6.jsonl
 - SA Decision + Track B extraction: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude_projects-03-IITR--deliverable/a1ca960f-e5da-47cd-bfcf-7a59d1ce8859.jsonl
 - Pass 6 (Unified Infrastructure): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/5347bf5c-62cd-49e1-83dd-fdda0c893b26.jsonl
-- Pass 6 review (mono repo + Models feature): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/ba15606f-d3d0-41c8-a0b1-4739f10d7f35.jsonl
+- Pass 7 (Vector B + monorepo update): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/3deb3c69-4606-426f-9f23-0a0af76ede45.jsonl
