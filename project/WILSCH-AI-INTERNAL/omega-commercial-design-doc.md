@@ -51,8 +51,7 @@ It found them.
 
 **Carlos chose a Spanish love song — and started by imitating Alejandro Fernandez.** You stopped him. You asked him who he was singing to — a real person, not a performance. Then you told him his job as a singer isn't to impress, it's to give permission — so that everyone in the room can feel the same way.
 
-By the end, Carlos wasn't performing anymore. He was connecting. The class watched it happen in real time.
-
+By the end, Carlos wasn't performing anymore. He was connecting.
 *AI extracted this from a 34-minute class recording.*
 
 [Watch the moment →](https://youtube.com/watch?v=dfw6GavSAKU&t=942)
