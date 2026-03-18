@@ -76,13 +76,12 @@ The clips feed a funnel: social media → omegabone.com → discovery session �
 ### 5. Next steps
 ⏱️ 5 min
 
-Wrap up with clear expectations for what happens after the meeting.
+Walk through the approach together, align on the discussion topics, and wrap up.
 
-- Indicative pricing proposal (Richtpreisangebot) sent within 24 hours
-- Proposal anchored on programme pricing discussed in Topic 4
+- Proposal sent within 24 hours based on what we clarify today
 - Timeline for Phase 1 kickoff if both sides agree
 
-**To resolve:** Confirm Omega is comfortable with a 24h turnaround on the proposal and align on any remaining questions.
+**To resolve:** Any remaining questions before the proposal goes out.
 
 ## Meeting Format
 
