@@ -13,11 +13,9 @@ description: "How Omega Bone's 300+ class recordings become post-ready social me
 
 You have 300 class recordings sitting on YouTube. Inside them are the moments that change your students' lives — the breakthroughs, the one-liners, the before-and-after transformations that prove your method works.
 
-But getting to them?
+But getting to them means sorting through hours of footage — and that's exhausting.
 
-> "Sorting through them makes my brain and my eyes bleed."
-
-You've tried generic clipping tools. They don't work. As Anthony put it: **"There's no topic"** for them to latch onto. Opus Clip finds engagement signals. Your content doesn't have engagement signals — it has *pearls*. Coaching moments buried in two-hour classes that only someone who understands your teaching philosophy could recognize.
+You've tried generic clipping tools. They don't work either. There's no topic for them to latch onto. Opus Clip finds engagement signals. Your content doesn't have engagement signals — it has *pearls*. Coaching moments buried in two-hour classes that only someone who understands your teaching philosophy could recognize.
 
 So the pearls stay buried. Your students' transformations go unseen. The content that could bring your next student to omegabone.com sits unwatched at the bottom of a YouTube archive.
 
