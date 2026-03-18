@@ -4,6 +4,7 @@ publish: true
 
 # Omega's Video Clipping Service — Meeting Agenda
 [[omega-clipping-meeting-agenda]]
+[[client-omega]]
 
 Meeting agenda for resolving open design questions from the [design doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-clipping-service-design).
 

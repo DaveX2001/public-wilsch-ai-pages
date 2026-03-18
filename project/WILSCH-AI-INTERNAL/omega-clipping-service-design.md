@@ -4,6 +4,7 @@ publish: true
 
 # Omega's AI Video Clipping Service
 [[omega-clipping-service-design]]
+[[client-omega]]
 
 Design doc for an AI-powered service that extracts "pearls" (high-value teaching moments) from Omega Bone's vocal coaching content and produces post-ready short-form clips for social media.
 
