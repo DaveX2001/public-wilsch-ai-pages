@@ -12,11 +12,10 @@ Meeting agenda for resolving open design questions from the [design doc](https:/
 Demonstrate proof of concept, resolve open design questions, and align on next steps before sending the proposal.
 
 1. **Pearl demo** — Walk through real examples, refine detection criteria together
-2. **Student consent** — Clarify consent framework for featuring individual students in marketing clips
-3. **Class recording structure** — Understand class flow so AI can segment recordings
-4. **Platform priority** — Decide scope for Pinterest (images) and LinkedIn
-5. **Programme pricing** — Understand programme tiers and student journey so the service proposal matches the business it supports
-6. **Next steps** — Indicative pricing proposal within 24h
+2. **Class recording structure** — Understand class flow so AI can segment recordings
+3. **Platform priority** — Decide scope for Pinterest (images) and LinkedIn
+4. **Programme pricing** — Understand programme tiers and student journey so the service proposal matches the business it supports
+5. **Next steps** — Indicative pricing proposal within 24h
 
 ## Pre-Read
 
@@ -33,20 +32,11 @@ Demonstrate proof of concept, resolve open design questions, and align on next s
 
 Walk through real pearl examples extracted from Omega's class recordings. See [Omega's Teaching Moments, Found by AI](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-commercial-design-doc).
 
+Since the classes were public YouTube live streams, consent for using clips in marketing should already be covered — but worth a quick confirmation.
+
 **To resolve:** Validate that the AI finds the right moments. Refine what to detect more of, less of, or differently.
 
-### 2. Student consent for featured clips
-⏱️ 5 min
-
-The Learn to Sing classes were public live streams on YouTube — students joined knowing they were recorded. Using individual students as featured subjects in marketing clips (especially transformation arcs tracking one person across sessions) is a different use case than the original class recording.
-
-- Classes had 10-25 students on camera in Zoom grid format
-- Transformation arcs require identifying and featuring specific individuals
-- Three students (Simon, Anthony, Ira) are in an active concert program producing story arcs by April
-
-**To resolve:** The consent framework for featuring individual students in marketing clips derived from class recordings.
-
-### 3. Class recording structure
+### 2. Class recording structure
 ⏱️ 5 min
 
 The AI needs to segment 2-3 hour class recordings into clippable units. The working assumption is: student performs → Omega gives feedback → next student, with ~5 performances per class. Additional structural elements (warm-up, group exercises, introductions) would change how the AI identifies segment boundaries.
@@ -57,7 +47,7 @@ The AI needs to segment 2-3 hour class recordings into clippable units. The work
 
 **To resolve:** The typical flow of a class recording from start to finish, including any recurring segments beyond individual performances.
 
-### 4. Platform priority beyond video clips
+### 3. Platform priority beyond video clips
 ⏱️ 5 min
 
 Phase 1 covers video clips for YouTube Shorts, TikTok, and Instagram Reels. Two additional platforms were discussed but not prioritized: Pinterest requires image + text posts (not video), and LinkedIn is where Omega reported making the most money — yet it wasn't discussed as a clip destination.
@@ -68,7 +58,7 @@ Phase 1 covers video clips for YouTube Shorts, TikTok, and Instagram Reels. Two 
 
 **To resolve:** Which platforms beyond YT/TT/IG should be included in the service scope, and in what priority order.
 
-### 5. Programme pricing and student journey
+### 4. Programme pricing and student journey
 ⏱️ 5 min
 
 The clips feed a funnel: social media → omegabone.com → discovery session → paid programme. Understanding the programme structure and what a student pays at each tier helps scope the service to match the business it supports — if the clips bring in even one additional student per month, the service should pay for itself.
@@ -79,13 +69,13 @@ The clips feed a funnel: social media → omegabone.com → discovery session �
 
 **To resolve:** The pricing of each programme tier and how students typically progress through them, so the service proposal can be sized appropriately.
 
-### 6. Next steps
+### 5. Next steps
 ⏱️ 5 min
 
 Wrap up with clear expectations for what happens after the meeting.
 
 - Indicative pricing proposal (Richtpreisangebot) sent within 24 hours
-- Proposal anchored on programme pricing discussed in Topic 5
+- Proposal anchored on programme pricing discussed in Topic 4
 - Timeline for Phase 1 kickoff if both sides agree
 
 **To resolve:** Confirm Omega is comfortable with a 24h turnaround on the proposal and align on any remaining questions.
@@ -93,9 +83,9 @@ Wrap up with clear expectations for what happens after the meeting.
 ## Meeting Format
 
 - **Type:** Discovery / alignment + proof of concept demo
-- **Duration:** ~40 min
+- **Duration:** ~30 min
 - **Expectation:** Omega reviews the commercial design doc beforehand, brings any questions
-- **Outcome:** All six discussion topics resolved → indicative pricing proposal sent within 24h
+- **Outcome:** All five discussion topics resolved → indicative pricing proposal sent within 24h
 
 ## Related
 
