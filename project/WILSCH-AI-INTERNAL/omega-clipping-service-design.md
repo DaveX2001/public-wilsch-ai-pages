@@ -2,7 +2,7 @@
 publish: true
 ---
 
-# Omega AI Video Clipping Service
+# Omega's AI Video Clipping Service
 [[omega-clipping-service-design]]
 
 Design doc for an AI-powered service that extracts "pearls" (high-value teaching moments) from Omega Bone's vocal coaching content and produces post-ready short-form clips for social media.
@@ -161,7 +161,7 @@ Pricing mechanics (actual numbers, tiers, success fee percentages) are not in sc
   - [Grooming 2026-03-08](https://drive.google.com/file/d/1fwumO3pBf5tRiCy08BU_qoPtxnzaj-m4/view)
   - [Fireflies Transcript](https://app.fireflies.ai/view/01KK6JXB75WTRS613Y4S56T5Z8)
 - **Commercial Doc:**
-  - [Commercial Design Doc — "Your Teaching Moments, Found by AI"](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-commercial-design-doc) — client-facing version (Pass 5)
+  - [Commercial Design Doc — "Omega's Teaching Moments, Found by AI"](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-commercial-design-doc) — client-facing version (Pass 5)
 - **Artifacts:**
   - [Figma: Vocal Coach Website Redesign](https://github.com/user-attachments/files/25824674/screencapture-figma-make-I5V9i7drJ3FCziHPcPHmDh-Vocal-Coach-Website-Redesign-2026-03-08-22_50_40.pdf) — 3-tier programme, avatar messaging, testimonial format
   - [YouTube: Come With Me Album (playlist)](https://www.youtube.com/playlist?list=PLFWa3WnH-5diGa82MJNQB0sgGKMzO89pz) — 10 tracks, album content

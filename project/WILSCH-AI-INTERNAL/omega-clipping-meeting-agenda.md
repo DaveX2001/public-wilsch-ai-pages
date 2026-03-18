@@ -2,7 +2,7 @@
 publish: true
 ---
 
-# Omega AI Video Clipping Service — Meeting Agenda
+# Omega's Video Clipping Service — Meeting Agenda
 [[omega-clipping-meeting-agenda]]
 
 Meeting agenda for resolving open design questions from the [design doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-clipping-service-design).
@@ -20,7 +20,7 @@ Demonstrate proof of concept, resolve open design questions, and align on next s
 
 ## Pre-Read
 
-- [Omega AI Video Clipping Service — Design Doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-clipping-service-design) — specifically the **Undefined** markers in Part 3 (Pearl Taxonomy) and Part 5 (Output Specification)
+- [Omega's Video Clipping Service — Design Doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-clipping-service-design) — specifically the **Undefined** markers in Part 3 (Pearl Taxonomy) and Part 5 (Output Specification)
 
 ---
 

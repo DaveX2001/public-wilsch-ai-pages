@@ -2,7 +2,7 @@
 publish: true
 ---
 
-# Pearl POC Results
+# Omega's Pearl POC Results
 [[omega-pearl-poc-results]]
 
 Proof of concept: AI pearl detection from Omega's Learn to Sing class recordings. 3 videos transcribed, 6 pearls extracted across all 4 taxonomy categories.
