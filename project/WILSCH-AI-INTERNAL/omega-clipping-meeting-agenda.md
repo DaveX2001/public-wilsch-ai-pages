@@ -14,7 +14,7 @@ Demonstrate proof of concept, resolve open design questions, and align on next s
 1. **Pearl demo** — Walk through real examples, refine detection criteria, confirm consent
 2. **Class formats** — Understand the different recording types and how they flow
 3. **Platform priority** — Decide scope for Pinterest (images) and LinkedIn
-4. **Programme pricing** — Understand programme tiers and student journey so the service proposal matches the business it supports
+4. **Programme pricing** — What a new student is worth, so the service pays for itself
 5. **Next steps** — Indicative pricing proposal within 24h
 
 ## Pre-Read
@@ -35,6 +35,7 @@ Walk through real pearl examples, then validate the detection categories togethe
 - **Pearl examples:** [Omega's Teaching Moments, Found by AI](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-commercial-design-doc)
 - **Pearl taxonomy:** [Part 3 — 4 categories](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-clipping-service-design#part-3-pearl-taxonomy) (coaching feedback, authenticity, transformation arc, quotable wisdom)
 - **Consent:** Classes were public YouTube live streams — confirm this covers clip usage
+- **The anchor:** Imagine someone scrolling TikTok sees this — do you think this brings you one more student per month?
 
 **To resolve:** Are these the right categories? What should the AI detect more of, less of, or differently?
 
@@ -62,16 +63,18 @@ Phase 1 covers video clips for YouTube Shorts, TikTok, and Instagram Reels. Two 
 
 **To resolve:** Which platforms beyond YT/TT/IG should be included in the service scope, and in what priority order.
 
-### 4. Programme pricing and student journey
+### 4. Programme pricing
 ⏱️ 5 min
 
-The clips feed a funnel: social media → omegabone.com → discovery session → paid programme. Understanding the programme structure and what a student pays at each tier helps scope the service to match the business it supports — if the clips bring in even one additional student per month, the service should pay for itself.
+The clips funnel into omegabone.com → discovery session → paid programme. To size the proposal so the service pays for itself from one additional student per month.
 
-- Three programme tiers discussed (30-day / 90-day / 3.5-month album)
-- Discovery session is the entry point (free, 30 min)
-- Current student base: ~10 regular students across remote and in-person
+- **Which programmes exist** and what each costs
+- **Do students stay or progress** — one-time programme or ongoing relationship?
+- **How many active students** currently
+- **How new students find Omega today** — current path before clips exist
+- **The vision:** Starts as a managed service (we operate the pipeline, curate clips, present for approval). Over time, the system learns and the pipeline runs itself — fresh clips appear in a staging area, Omega reviews and publishes
 
-**To resolve:** The pricing of each programme tier and how students typically progress through them, so the service proposal can be sized appropriately.
+**To resolve:** Programme pricing data to anchor the proposal around one incremental student per month.
 
 ### 5. Next steps
 ⏱️ 5 min
