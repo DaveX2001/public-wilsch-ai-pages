@@ -3,7 +3,6 @@ publish: true
 ---
 
 # Omega's Video Clipping Service — Meeting Agenda
-[[omega-clipping-meeting-agenda]]
 [[client-omega]]
 
 Meeting agenda for resolving open design questions from the [design doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-clipping-service-design).
@@ -12,7 +11,7 @@ Meeting agenda for resolving open design questions from the [design doc](https:/
 
 Demonstrate proof of concept, resolve open design questions, and align on next steps before sending the proposal.
 
-1. **Pearl POC demo** — Show real examples extracted from Omega's videos, then refine detection criteria together
+1. **Pearl demo** — Walk through real examples, refine detection criteria together
 2. **Student consent** — Clarify consent framework for featuring individual students in marketing clips
 3. **Class recording structure** — Understand class flow so AI can segment recordings
 4. **Platform priority** — Decide scope for Pinterest (images) and LinkedIn
@@ -29,7 +28,14 @@ Demonstrate proof of concept, resolve open design questions, and align on next s
 
 *Starting points for discussion, not limited to these.*
 
-### 1. Student consent for featured clips
+### 1. Pearl demo + signal refinement
+⏱️ 10 min
+
+Walk through real pearl examples extracted from Omega's class recordings. See [Omega's Teaching Moments, Found by AI](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-commercial-design-doc).
+
+**To resolve:** Validate that the AI finds the right moments. Refine what to detect more of, less of, or differently.
+
+### 2. Student consent for featured clips
 ⏱️ 5 min
 
 The Learn to Sing classes were public live streams on YouTube — students joined knowing they were recorded. Using individual students as featured subjects in marketing clips (especially transformation arcs tracking one person across sessions) is a different use case than the original class recording.
@@ -40,7 +46,7 @@ The Learn to Sing classes were public live streams on YouTube — students joine
 
 **To resolve:** The consent framework for featuring individual students in marketing clips derived from class recordings.
 
-### 2. Class recording structure
+### 3. Class recording structure
 ⏱️ 5 min
 
 The AI needs to segment 2-3 hour class recordings into clippable units. The working assumption is: student performs → Omega gives feedback → next student, with ~5 performances per class. Additional structural elements (warm-up, group exercises, introductions) would change how the AI identifies segment boundaries.
@@ -51,7 +57,7 @@ The AI needs to segment 2-3 hour class recordings into clippable units. The work
 
 **To resolve:** The typical flow of a class recording from start to finish, including any recurring segments beyond individual performances.
 
-### 3. Platform priority beyond video clips
+### 4. Platform priority beyond video clips
 ⏱️ 5 min
 
 Phase 1 covers video clips for YouTube Shorts, TikTok, and Instagram Reels. Two additional platforms were discussed but not prioritized: Pinterest requires image + text posts (not video), and LinkedIn is where Omega reported making the most money — yet it wasn't discussed as a clip destination.
@@ -61,18 +67,6 @@ Phase 1 covers video clips for YouTube Shorts, TikTok, and Instagram Reels. Two 
 - Each additional platform adds a distinct output pipeline
 
 **To resolve:** Which platforms beyond YT/TT/IG should be included in the service scope, and in what priority order.
-
-### 4. Pearl POC demo + signal refinement
-⏱️ 10 min
-
-We extracted real pearls from three of Omega's Learn to Sing class recordings using AI-powered content detection. This topic opens with showing those examples, then refining the detection criteria together.
-
-- **Pearl examples:** [POC Results — 6 pearls from 3 videos](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-pearl-poc-results)
-- Four pearl categories: coaching feedback, authenticity breakthrough, transformation arc, quotable wisdom
-- Each example includes the timestamp, transcript excerpt, and why it qualifies as a pearl
-- Omega and Anthony review: "Is this what you'd want to post? What's missing?"
-
-**To resolve:** Validate that the AI finds the right moments. Refine what to detect more of, less of, or differently.
 
 ### 5. Programme pricing and student journey
 ⏱️ 5 min

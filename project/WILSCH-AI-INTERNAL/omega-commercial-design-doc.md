@@ -5,7 +5,6 @@ description: "How Omega Bone's 300+ class recordings become post-ready social me
 ---
 
 # Omega's Teaching Moments, Found by AI
-[[omega-commercial-design-doc]]
 [[client-omega]]
 
 ---

@@ -3,7 +3,6 @@ publish: true
 ---
 
 # Omega Persona — "Secretly Wants to Be a Singer"
-[[omega-persona-burden-index]]
 [[client-omega]]
 
 Target avatar for the AI Video Clipping Service. Psychographic profile with burden index scoring each problem by severity and service relevance.
