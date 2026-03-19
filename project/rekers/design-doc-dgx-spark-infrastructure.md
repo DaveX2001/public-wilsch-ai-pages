@@ -108,7 +108,6 @@ Deploy MiniMax M2.5 for AVO. Start single-node with [FP8+INT4-AWQ](https://huggi
 - Engine: eugr/spark-vllm-docker (same container, `TP=2` via Ray for dual-node)
 - Reference: [wshobson/minimax-dgx-spark](https://github.com/wshobson/minimax-dgx-spark) — dedicated MiniMax inference server
 - Dependency: QSFP cable purchase (for dual-node)
-- Known issue: vLLM TP=2 + Qwen3-VL-30B has engine init failure (active NVIDIA forum thread)
 
 **Phase 4 — Performance Optimization**
 
@@ -122,7 +121,7 @@ Squeeze maximum throughput from the hardware. SGLang with EAGLE3 speculative dec
 - **Dual-Node Operations:** How are two nodes managed? One Tailscale entry per node or a cluster abstraction? Which node is the Ray head? How does SSH access work (one jump host or two independent entries)? Workaround strategy for known vLLM TP=2 + Qwen3-VL engine init failure.
 - **Midburg School Datacenter (NSC):** Timeline, power/cooling requirements, persistent networking. Tailscale handles connectivity regardless — placement logistics TBD.
 - **Docker Workflow:** Container management, model storage persistence across reboots, restart policies.
-- **Monitoring:** Prometheus exporter for GPU temp, power, throughput metrics. Relevant for sustained benchmark runs and production.
+- **Monitoring:** [Prometheus exporter](https://github.com/ateska/dgx-spark-prometheus) for GPU temp, power, throughput metrics. Relevant for sustained benchmark runs and production.
 
 ### Part 4 — Ecosystem Intelligence
 
