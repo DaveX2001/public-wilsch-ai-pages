@@ -29,14 +29,14 @@ IITR operates three separate RAG projects, each with distinct data and purpose. 
 
 Court Judgments and Masterfragen are separate projects with different data and retrieval — this design doc covers Navigation only.
 
-However, all three projects share IITR-STAGING infrastructure. A unified infrastructure design (Part 5) ensures they coexist safely — shared services (Ollama, Langfuse), one OpenWebUI serving layer with per-project pipeline filters, and per-project compose files connected via shared Docker network. This prevents the collateral damage observed during #1112 repo migration, where changes to Navigation broke Court-Judgments and Masterfragen serving paths.
+However, all three projects share IITR-STAGING infrastructure. The Unified Infrastructure section ensures they coexist safely — shared services (Ollama, Langfuse), one OpenWebUI serving layer with per-project pipeline filters, and per-project compose files connected via shared Docker network. This prevents the collateral damage observed during #1112 repo migration, where changes to Navigation broke Court-Judgments and Masterfragen serving paths.
 
 **Preconditions:**
 - Design artifacts from prior attempt preserved: Pflichtenheft, test questions with source references (29 Q&A + Quelle column), Masterfragen CSV (22 entries), Anwenderleitfaden PDF, 56 DS-Kit templates
 - Vector RAG baseline established: Typesense + BGE-M3 + Docling at 17/29 on IITR-STAGING (RTX 4000 SFF Ada, 20 GB VRAM)
 - Target architecture: monorepo with trunk-based development (see [#1182](https://github.com/DaveX2001/deliverable-tracking/issues/1182))
 - Financial reset: prior work uninvoiced, clean start with direct client relationship (Stellmacher as technical contact, Kraska as business contact)
-- IITR-STAGING infrastructure consolidated — two-layer compose model with shared services (iitr-infrastructure) and per-project stacks connected via shared Docker network (see Part 5)
+- IITR-STAGING infrastructure consolidated — two-layer compose model with shared services (iitr-infrastructure) and per-project stacks connected via shared Docker network (see Unified Infrastructure)
 
 ---
 
@@ -52,9 +52,9 @@ However, all three projects share IITR-STAGING infrastructure. A unified infrast
 
 ## Approach
 
-Five parts, ordered so each builds on the previous. Parts 1-4 produce testable artifacts. Part 5 defines the infrastructure that hosts all IITR projects.
+Five sections, ordered so each builds on the previous. The first four produce testable artifacts. Unified Infrastructure defines the hosting layer for all IITR projects.
 
-### Part 1: Stack
+### Stack
 
 Deploy the retrieval and serving infrastructure on IITR-STAGING.
 
@@ -95,7 +95,7 @@ Deploy the retrieval and serving infrastructure on IITR-STAGING.
 
 Tree-based retrieval (PageIndex + LlamaIndex TreeRetriever) was evaluated as an alternative. PageIndex OSS ships tree generation only — retrieval mechanisms exist exclusively in their commercial API. The evaluation concluded that vector RAG with improved components (Typesense hybrid search, BGE-M3 embeddings, Docling chunking) is the confirmed production approach. See [#1093 comments](https://github.com/DaveX2001/deliverable-tracking/issues/1093) for full evaluation history.
 
-### Part 2: Data Preparation
+### Data Preparation
 
 **Incremental ingestion with rubric checkpoints:** Ingest all sources as-is — no content modification (noise removal, reformatting) before measuring. Add sources one at a time, running the test harness after each addition to observe which questions each source answers. Ingestion order is the Developer's choice. Content cleaning (removing irrelevant sections, deduplication) is a post-scores optimization pass — only after initial results reveal where noise actually hurts.
 
@@ -116,7 +116,7 @@ Extract text from all sources, chunk with Docling HybridChunker (preserves headi
 
 **Data availability:** [Source Data Inventory (Google Drive)](https://drive.google.com/drive/folders/1gnxBulrnkGh-Oyly_jabofNo4SVivQhR) — INPUT/ (knowledge base) and TEST_RUBRIK/ (evaluation rubric). Templates and web chapters require Keycloak authentication for download/extraction.
 
-### Part 3: Test Rubric
+### Test Rubric
 
 Automated evaluation of the navigation system against the 29-question test set. Build the test harness **from scratch** — the existing harness in IITR-RAG-Navigation is inspiration only, not a base to extend. Use Sonnet 4.6 via OpenRouter as the LLM judge (external model evaluates local Qwen output — no self-evaluation).
 
@@ -150,7 +150,7 @@ Navigation hint appears only when the answer references a specific DS-Kit chapte
 
 **Ownership** (per [Dev Lead Witness & Review System](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/dev-lead-witness-review-system)): JA defines rubric dimensions and expected answers → SA approves rubric definition → Developer creates the LLM judge harness → Dev Lead approves test results via witness review of CSV report.
 
-### Part 4: Evaluation & Iteration
+### Evaluation & Iteration
 
 Run the test harness, iterate toward ≥26/29.
 
@@ -181,7 +181,7 @@ When confident in iteration results, send CSV report to Stellmacher for review. 
 
 Dependency: Data Source → Retrieval → Generation. Fix data gaps first, then retrieval, then generation. This is a universal RAG diagnostic pattern.
 
-### Part 5: Unified Infrastructure
+### Unified Infrastructure
 
 IITR-STAGING hosts three RAG projects that share infrastructure. This part defines the ownership model, deployment contract, and serving architecture so that changes to one project cannot break another.
 
@@ -193,12 +193,12 @@ Per SA directive ("why always deploy another one?"), cross-project services run 
 
 **Layer 1 — Shared Infrastructure** (`/home/shared/projects/iitr-infrastructure/`):
 
-| Service | Container | Port | Notes |
-|---------|-----------|------|-------|
-| Ollama | rag-staging-ollama | 11436:11434 | Single GPU instance, all projects |
-| OpenWebUI | dskit-openwebui | 3006:8080 | Chat frontend, serves all 3 projects via Models. Keycloak SSO. |
-| Pipelines | dskit-pipelines | 9299:9099 | Pipeline filter sidecar. All projects contribute filters. |
-| Langfuse | langfuse-web + 5 backing | 3003:3000 | Observability for all projects |
+| Service | Notes |
+|---------|-------|
+| Ollama | Single GPU instance, all projects |
+| OpenWebUI | Chat frontend, serves all 3 projects via Models. Keycloak SSO. |
+| Pipelines | Pipeline filter sidecar. All projects contribute filters. |
+| Langfuse | Observability for all projects |
 
 Currently OpenWebUI + Pipelines are deployed in the Navigation compose stack — migration to shared infra compose pending as part of monorepo transition (#1191).
 
@@ -257,10 +257,10 @@ TEI (text-embeddings-inference) serves BAAI/bge-m3 (1024d) for Typesense vector 
 
 Two domains. Project separation happens via OpenWebUI Models, not Caddy routing.
 
-| Domain | Service | Target |
-|--------|---------|--------|
-| `rag-staging.iitr-cloud.de` | OpenWebUI (all 3 projects) | localhost:3006 |
-| `langfuse.iitr-cloud.de` | Langfuse | localhost:3003 |
+| Domain | Service |
+|--------|---------|
+| `rag-staging.iitr-cloud.de` | OpenWebUI (all 3 projects) |
+| `langfuse.iitr-cloud.de` | Langfuse |
 
 Stale entries to remove: `qdrant-staging.iitr-cloud.de` (internal service), `urteile.iitr-cloud.de` (redundant — Court Judgments served via OpenWebUI Model selection, not separate subdomain).
 
