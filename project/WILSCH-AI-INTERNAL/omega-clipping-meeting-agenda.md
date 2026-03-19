@@ -9,13 +9,11 @@ Meeting agenda for resolving open design questions from the [design doc](https:/
 
 ## Meeting Goal
 
-Demonstrate proof of concept, resolve open design questions, and align on next steps before sending the proposal.
+✅ **Meeting held 2026-03-18 at NS.** All four design questions resolved — resolutions integrated into design doc Pass 6.
 
-1. **Pearl demo** — Walk through real examples, refine detection criteria, confirm consent
-2. **Class formats** — Understand the different recording types and how they flow
-3. **Platform priority** — Decide scope for Pinterest (images) and LinkedIn
-4. **Programme pricing** — What a new student is worth, so the service pays for itself
-5. **Next steps** — Indicative pricing proposal within 24h
+1. ✅ **Pearl signal definition** — 5 categories confirmed (coaching feedback, authenticity, transformation arcs, quotable wisdom, problem identification). POC validated narrative arc detection.
+2. ✅ **Platform priority** — YT/TT/IG confirmed. Pinterest/LinkedIn deferred.
+3. ✅ **Content boundaries** — Public YouTube = fair game. Omega curates sensitive content in staging. 1-on-1 format documented.
 
 ## Pre-Read
 
@@ -30,6 +28,8 @@ Demonstrate proof of concept, resolve open design questions, and align on next s
 ### 1. Pearl demo + signal refinement
 ⏱️ 10 min
 
+✅ **Resolved:** 5 pearl categories confirmed. Narrative arc (before→coaching→after) validated by POC as primary detection signal. Problem identification (5th category) grounded in 1-on-1 student intro segment.
+
 Walk through real pearl examples, then validate the detection categories together.
 
 - **Pearl examples:** [Omega's Teaching Moments, Found by AI](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-commercial-design-doc)
@@ -41,6 +41,8 @@ Walk through real pearl examples, then validate the detection categories togethe
 
 ### 2. Class formats
 ⏱️ 5 min
+
+✅ **Resolved:** 1-on-1 format confirmed as primary source. Structure: intro song → welcome → student intro → song → warmup → perform → coach. ~42 min per session. Group class structure deprioritized (quality).
 
 We know about group classes and private lessons — are there other recording formats? How does each one flow from start to finish? Is it continuous or structured in segments?
 
@@ -55,6 +57,8 @@ Understanding the different content types helps the AI know what to expect acros
 ### 3. Platform priority beyond video clips
 ⏱️ 5 min
 
+✅ **Resolved:** YouTube Shorts + TikTok + Instagram Reels confirmed. Pinterest/LinkedIn deferred — "focus on what's going to make more money."
+
 Phase 1 covers video clips for YouTube Shorts, TikTok, and Instagram Reels. Two additional platforms were discussed but not prioritized: Pinterest requires image + text posts (not video), and LinkedIn is where Omega reported making the most money — yet it wasn't discussed as a clip destination.
 
 - Pinterest: "just pictures. Pictures with the words" (Omega)
@@ -65,6 +69,8 @@ Phase 1 covers video clips for YouTube Shorts, TikTok, and Instagram Reels. Two 
 
 ### 4. Programme pricing
 ⏱️ 5 min
+
+✅ **Resolved:** Product matrix confirmed ($1k–$10.5k LTV). Retainer priced as fraction of student lifetime value. Commercial doc covers specifics.
 
 The clips funnel into omegabone.com → discovery session → paid programme. To size the proposal so the service pays for itself from one additional student per month.
 
@@ -98,3 +104,5 @@ Walk through the approach together, align on the discussion topics, and wrap up.
 
 - **Issue:** [Epic #1071](https://github.com/DaveX2001/deliverable-tracking/issues/1071) | [Design #1076](https://github.com/DaveX2001/deliverable-tracking/issues/1076)
 - **Design Doc:** [omega-clipping-service-design](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-clipping-service-design)
+- **Pearl POC:** [omega-pearl-poc-results](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-pearl-poc-results)
+- **Commercial Doc:** [omega-commercial-design-doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/omega-commercial-design-doc)
