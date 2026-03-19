@@ -143,18 +143,17 @@ The delegation protocol was originally designed for this context — parallel we
 
 **Researcher landscape (behavior layer):**
 
-| Tool | Eval loop mechanism | Interface |
-|------|-------------------|-----------|
-| 199-bio deep-research skill | 8-phase pipeline with validation script | Claude Code skill |
-| STORM (Stanford) | Multi-perspective dialogue, gap detection | Python framework (MIT) |
-| GPT-Researcher | Planner + recursive depth-diving | CLI + Python (Apache-2.0) |
-| LangChain open_deep_research | Plan → Search → Reflect sufficiency node | Python (LangGraph) |
-| OpenAI Deep Research | RL-trained backtracking (emergent) | API (closed) |
-| Gemini Deep Research | Explicit "am I done?" reasoning per iteration | API (closed) |
+| Skill | Eval loop mechanism | Source |
+|-------|-------------------|--------|
+| 199-bio deep-research | 8-phase pipeline (Scope→Plan→Retrieve→Triangulate→Synthesize→Critique→Refine→Package), validation script, 4 modes (quick/standard/deep/ultradeep) | [GitHub](https://github.com/199-biotechnologies/claude-deep-research-skill) |
+| Weizhena deep-research | Structured research with human-in-the-loop at every stage transition | [GitHub](https://github.com/Weizhena/Deep-Research-skills) |
+| willccbb deep-research | Lightweight config — Brave Search + e2b sandbox + fetch MCPs, Claude drives the loop | [GitHub](https://github.com/willccbb/claude-deep-research) |
+| glebis deep-research | Uses OpenAI Deep Research API, clarifying questions loop | [Smithery](https://smithery.ai/skills/glebis/deep-research) |
+| VoltAgent subagents | 100+ subagents incl. research-analyst, search-specialist | [GitHub](https://github.com/VoltAgent/awesome-claude-code-subagents) |
 
 **Key insight:** Claude IS the evaluation loop if the belief is right. The research skill (199-bio or custom) provides structure, but the sufficiency evaluation happens in Claude's native thinking — shaped by the protocol belief, not external tooling.
 
-**Undefined:** Fetcher replacement for read-website-fast (Jina Reader vs Markdownify vs Firecrawl). Researcher skill selection (199-bio vs custom build). Whether the evaluation loop should be encoded as a belief only or as a structured skill.
+**Undefined:** Fetcher replacement for read-website-fast (Jina Reader vs Markdownify vs Firecrawl). Researcher skill selection (199-bio vs Weizhena vs willccbb vs custom build). Whether the evaluation loop should be encoded as a belief only or as a structured skill.
 
 **Benchmarks discovered:**
 - [DeepResearch Bench](https://huggingface.co/spaces/muset-ai/DeepResearch-Bench-Leaderboard) — 100 PhD-level tasks, live leaderboard
