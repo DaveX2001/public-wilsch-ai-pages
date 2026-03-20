@@ -179,7 +179,7 @@ The CCI improvement cycle follows a two-path model that mirrors the developer's 
 
 **Observation routing and classification:** Every observation carries a session type marker:
 - **Session A** (default) — new behavioral failure. Routes to position epic.
-- **Session B** — diagnosis and fix. Implicit when running `/improve-system`. Routes to theme issue with commit link.
+- **Session B** — diagnosis and fix. The git commit IS the Session B artifact (commit message contains diagnosis, fix, and issue reference). No separate observation format — `/improve-system` produces the commit directly.
 - **Session C** — verification pass or fail on a known fix. Routes to theme issue.
 
 The observation protocol asks two questions at capture time: (1) destination — AI suggests a target, user confirms or provides issue number; (2) classification — Session A or Session C. Session B is auto-detected from `/improve-system` context. The session type marker appears in the observation format:
