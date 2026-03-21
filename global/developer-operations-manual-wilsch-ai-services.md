@@ -89,6 +89,8 @@ For now, reference:
 
 **Purpose:** Break the design doc into actionable sub-issues using trunk-first decomposition. Maximum 2-3 issues to the first proof point.
 
+**Proof point:** The assumption in the design doc whose failure would invalidate the most downstream work. Examples: "Does this OSS library support retrieval?" (technical), "Does the client's data match our schema?" (data dependency). Full types table in [ILR — Starting-Point Sub-Issues](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/issue-lifecycle-router#starting-point-sub-issues).
+
 ```
 /decompose → reads design doc → trunk boundary → spike or issues
 ```
