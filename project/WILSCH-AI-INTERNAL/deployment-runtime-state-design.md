@@ -157,6 +157,8 @@ Coolify and Dokploy both provide the preview environment primitive. Kamal does n
 
 **The platform does it, not the agent.** The agent writes code and pushes. The platform reacts to the push. No AI involvement in infrastructure decisions.
 
+**Structural enforcement: read-only SSH.** Rather than instructing agents "don't deploy via SSH" (documentation — ignorable), restrict the agent's SSH key to read-only operations on the server. The key can check logs, health, and container status, but physically cannot run `docker compose up`, `git pull`, or modify files. Deployment becomes impossible via SSH — it can only happen through the platform on push. This is the same "no decision point" principle from the Vercel research: don't ask the agent to make the right choice, remove the wrong choice entirely.
+
 **Undefined:** Development topology — does the developer work locally (worktree) with a remote preview on the server? Or does development happen on the server directly? GPU-dependent services (IITR Ollama) cannot run locally — the preview environment on the server must provide them. Hybrid model likely needed.
 
 **Undefined:** Platform selection — requires a spike. Prior experience: Coolify was used in 2025 and abandoned due to unreliable deployments ("stuff just not deploying"). Root cause unclear — may have been a Layer 3 problem (no recipe) rather than a Coolify problem. Nixpacks angle: platforms using Nixpacks (Coolify, Railway) auto-detect language and build without Dockerfiles — convention-over-configuration for the build step, which combined with the recipe convention for seeding could deliver push → build → seed → preview URL with zero configuration. Evaluation criteria: preview environment quality, Docker Compose support, Nixpacks reliability, CLI/API access, resource overhead on WILSCH-AI-SERVER.
@@ -189,7 +191,7 @@ Applied to deployment, combined with CCI #659 (CLAUDE.md as Router):
 
 This aligns with #659's router principle: CLAUDE.md routes to source files where truth lives. The recipe (`seed/`, `docker-compose.yml`, `Makefile`) IS the source of deployment truth. CLAUDE.md doesn't restate it.
 
-**Undefined:** Recipe authorship — who writes and maintains the `seed/` directory for each project? Candidates: (1) JA defines recipe requirements in the design doc as part of the Approach (e.g., "this project needs agent seed scripts + prompt files"), then Developer implements them during the implementation session. (2) Recipe becomes a standard section in every design doc, like ACs. (3) Recipe is infrastructure work owned by the SA/System Engineer, not the Developer. Needs position-level clarity.
+**Recipe authorship:** The Developer owns the recipe. The recipe is code — seed scripts, compose files, Makefile targets — written and maintained as part of the implementation, not as a separate infrastructure concern. The JA may define recipe requirements in the design doc (e.g., "this project needs volume seeds for X and Y"), but the Developer implements and maintains them, same as application code.
 
 ---
 
