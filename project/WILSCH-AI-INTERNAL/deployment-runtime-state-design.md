@@ -33,7 +33,7 @@ The fix is structural, not informational: everything needed to produce a working
 |---------|-----------|
 | **Goal** | Git is the single source of truth. The running system is derived from it — deterministically, without manual steps, without agent decisions about infrastructure. |
 | **Success** | A developer creates a worktree for an issue and receives a testable running system (not just isolated code). Push to staging branch produces a deployed, verifiable system. No SSH. No manual Docker commands. No CLAUDE.md deployment instructions. |
-| **Done test** | Clone any project repo. Run compose + seed with only `.env` credentials. Result: a working system indistinguishable from staging. If any manual step is required beyond `git clone` + `docker compose up` + `seed`, the recipe is incomplete. |
+| **Done test** | Developer pushes to worktree branch → platform spins up a working system automatically. No manual compose, no seed command, no SSH. The push IS the deployment. Fallback litmus test for the recipe itself: `git clone` + `docker compose up` + `seed` with only `.env` credentials must also produce a working system — this validates the recipe is complete, even when the platform handles execution. |
 
 ---
 
@@ -157,6 +157,8 @@ Coolify and Dokploy both provide the preview environment primitive. Kamal does n
 **Undefined:** Development topology — does the developer work locally (worktree) with a remote preview on the server? Or does development happen on the server directly? GPU-dependent services (IITR Ollama) cannot run locally — the preview environment on the server must provide them. Hybrid model likely needed.
 
 **Undefined:** Platform selection — Coolify vs Dokploy requires a spike. Evaluation criteria: preview environment quality, Docker Compose support, CLI/API access, resource overhead on WILSCH-AI-SERVER.
+
+**Undefined:** Recipe debugging — when the platform-triggered recipe fails, the developer needs a local escape hatch (`make seed` locally). How does the developer get visibility into platform-side failures? Logs, error reporting, fallback to manual execution.
 
 **Undefined:** Worktree skill integration — the current worktree skill (Step 5) asks about Docker volume copying. With preview environments, Step 5 changes: instead of copying volumes locally, the platform spins up a preview from the recipe. How does the worktree skill encode this? Does it trigger the platform via API? Or does the PR creation (Step 4) already trigger the platform automatically via GitHub App webhook?
 
