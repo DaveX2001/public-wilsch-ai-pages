@@ -401,6 +401,32 @@ Patterns surfaced from Anthropic's engineering blog and academic research. These
 
 **Undefined:** The paper's governing constraint is conciseness (~660 lines). Our CLAUDE.md files are longer. Does length impact thinking-layer effectiveness? Need empirical measurement.
 
+### Part 5: The Session B Workflow (Validated)
+
+Part 3 defines what to do per pattern. This part defines how to orchestrate a full Session B — the wrapper that makes Part 3 repeatable.
+
+**The workflow:**
+
+1. **Triage** — /improve-system reads observations from the release epic, clusters them into patterns, and produces a triage matrix. The matrix is the material to work from — without it, diagnosis is ad-hoc.
+
+2. **Read artifacts** — Read the current state of every artifact being diagnosed (CLAUDE.md, SKILL.md, agent body, and their surrounding context). Observations describe symptoms. The artifact contains the cause. Diagnosing from observations alone produces symptom-level fixes that don't stick.
+
+3. **Meta-diagnostic** *(iteration only)* — When a prior fix exists, ask: "Why didn't the last fix work?" Apply Step 1 (Dimensional Diagnosis) to the fix itself. This prevents repeating the same fix at the same altitude. First-time Session B skips this step — there's no prior fix to evaluate.
+
+4. **Walk each pattern through the 6 steps** — One pattern at a time. Each step within each pattern is a discussion window between user and AI — not a checkbox. The user shapes the fix at every stop. Patterns that dissolve under a prior pattern's fix are noted and skipped. The user can trigger live empirical testing at any step when evidence for a fix direction is needed.
+
+5. **Implement in-session** — The fix is written in the same session that diagnosed it. This is architecturally necessary: the context window accumulated during diagnosis IS the implementation context. Handing implementation to a separate session requires rebuilding diagnostic understanding from scratch — the most expensive failure mode. Artifacts are memory; the best time to write memory is when understanding is live.
+
+6. **Session C criteria** — Step 6 per pattern produces testable behavioral statements. Session C is organic — observe during natural usage rather than deliberate testing. If the fix doesn't hold, new observations feed the next iteration's triage.
+
+**Evidence — what goes wrong when steps are skipped:**
+
+| Skipped Step | Failure (session) | Consequence |
+|---|---|---|
+| Read artifacts | Diagnosed from observation memory only (a7efac67) | 15 min triage produced symptom-level analysis. User redirected: "Are you actually aware of the prompt and the skill?" After reading, diagnosis found the three-layer context stack issue. |
+| Read artifacts | Diagnosed L14 vs L46 from conversation memory (0667ce35) | Artifact could have changed since those sessions. User redirected: "Read current CLAUDE.md first." |
+| 6-step discipline | Disposition walk with mechanical options (e856612d) | Had PSM dimensions upfront but abandoned them during the walk. Fix approach should depend on dimension, but dimensions weren't used to determine fix type. |
+
 ---
 
 ## Source
@@ -412,6 +438,9 @@ Patterns surfaced from Anthropic's engineering blog and academic research. These
 - **Session (Pass 3):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/d9255fc6-0f63-48c1-8813-02ee8e34e039.jsonl
 - **Dev session analyzed:** 34d514fe-a8ee-4a46-87b9-9105b43d676f (DaveX2001, #1056 implementation — 83% belief-based thinking)
 - **Interpretability transcript:** [How Models Think](https://youtu.be/fGKNUvivvnc) (Anthropic team — Jack, Emanuel, Josh)
+- **Session (Part 5 — Session B Workflow):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/d0303262-fcde-48c0-8b34-d0ae953ae438.jsonl
+- **Evidence conversations (Part 5):** 72aba94d (CCI #619 Session B — reference workflow), 0667ce35 (CCI #619 iteration), e856612d (failure — dimensions abandoned), a7efac67 (failure — artifact not read)
+- **CCI #604 observations:** Last 20 comments — RESOLVE probing calibration, Session C pass validation
 - **Anthropic sources (Pass 3):** [Adaptive Thinking](https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking), [Best Practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices), [Context Engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents), [PSM](https://www.anthropic.com/research/persona-selection-model) ([deep dive](https://alignment.anthropic.com/2026/psm/))
 - **Academic (Pass 3):** [Codified Context](https://arxiv.org/abs/2602.20478) (283 sessions), [ContextCov](https://arxiv.org/abs/2603.00822) (723 repos), [Deliberative Alignment](https://arxiv.org/abs/2412.16339) (reasoning over specs in thinking)
 - **Position Epic:** [CCI #600 — System Engineer](https://github.com/DaveX2001/claude-code-improvements/issues/600)
