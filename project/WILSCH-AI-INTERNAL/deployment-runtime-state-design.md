@@ -94,22 +94,23 @@ The convention requires: everything above the irreducible line MUST be in git. E
 
 Every project ships with a **recipe**: the complete set of instructions to produce a working system from a git clone. The recipe is not documentation — it is executable code.
 
+**The convention:** Every named volume in `docker-compose.yml` must have a corresponding seed mechanism in git. The volume is the interface between git and the running system — what's inside (MongoDB data, prompt files, pipeline configs) is a project-specific implementation detail.
+
 **Standard project structure:**
 
 ```
 project-root/
-├── docker-compose.yml          # Layer 2: container definitions
+├── docker-compose.yml          # Layer 2: container definitions (declares volumes)
 ├── docker-compose.staging.yml  # Environment override (staging)
 ├── docker-compose.prod.yml     # Environment override (production)
-├── seed/                       # Layer 3: runtime state
-│   ├── seed.sh                 # Entrypoint: runs all seed steps in order
-│   ├── db/                     # Database migrations + seed data
-│   ├── agents/                 # Agent definitions (JSON exports)
-│   ├── prompts/                # System prompts, pipeline filters
-│   └── caddy/                  # Caddy .conf for this project's domains
+├── seed/                       # Layer 3: one entry per named volume
+│   ├── seed.sh                 # Entrypoint: seeds all volumes in order
+│   └── {volume-name}/          # Seed data for each named volume
 ├── .env.example                # Credential template (injection points)
 └── Makefile                    # Developer interface: make up, make seed, make staging
 ```
+
+The seed mechanism per volume is project-specific: SQL init scripts, MongoDB JSON exports, file copies, or volume tarballs. The convention doesn't prescribe the format — it prescribes that every volume has one.
 
 **The litmus test:** `cp .env.example .env && <fill credentials> && docker compose up -d && ./seed/seed.sh` produces a working system. If it doesn't, the recipe is incomplete.
 
