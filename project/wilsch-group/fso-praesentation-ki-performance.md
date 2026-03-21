@@ -95,12 +95,12 @@ Jede Hardware kann ein FP04-Modell **laden und speichern** — das spart Speiche
 
 | | IBM Power 10 | IBM Power 11 | 2x DGX Spark | Mac Studio M3 Ultra |
 |--|--|--|--|--|
-| **TTFT (Prefill)** | ~90 s/Seite | TBD | TBD | TBD |
-| **TPS (Decode)** | 12,4 tok/s | TBD | TBD | TBD |
-| **240 Seiten** | ~7 Stunden | TBD | TBD | TBD |
-| **Qualität** | **9/9** Kriterien | TBD | TBD | TBD |
+| **TTFT (Prefill)** | ~90 s/Seite | TBD | **<1 s/Seite** | TBD |
+| **TPS (Decode)** | 12,4 tok/s | TBD | **40,2 tok/s** | TBD |
+| **240 Seiten** | ~7 Stunden | TBD | **~21 Minuten** | TBD |
+| **Qualität** | **9/9** Kriterien | TBD | **9/9** Kriterien | TBD |
 
-> **Hinweis:** Power 10 Werte sind gemessen (240 PDF-Seiten, Qwen 3-VL 8B, Projekt 35764). Qualität = 9 von 9 Extraktionskriterien gefunden. Werte für andere Systeme stehen aus — Benchmark wird nach Inbetriebnahme der DGX Spark nachgeholt.
+> **Hinweis:** Power 10 und DGX Spark Werte sind gemessen (Qwen 3-VL 8B, Projekt 35764, 72 DPI). Power 10: 240 Seiten. DGX Spark: 294 Seiten (vollständiger Manifest), gemessen auf 1x Spark. Qualität = 9/9 auf beiden Plattformen. TTFT inkl. Vision Encoder — auf GPU <1s vs. CPU ~90s (~100×). Werte für Power 11 und Mac Studio stehen aus.
 
 ### Warum ist die effektive Bandbreite so unterschiedlich?
 
@@ -186,7 +186,7 @@ Alle 6–12 Monate erreichen kleine Modelle das Intelligenzniveau von großen Mo
 
 ---
 
-## Folie 5: REKERS Benchmark — Gemessene Ergebnisse auf Power 10
+## Folie 5: REKERS Benchmark — Gemessene Ergebnisse
 
 ### Testaufbau
 
@@ -207,23 +207,23 @@ Dieselbe Aufgabe (Kriterienextraktion aus 240 PDF-Seiten, Projekt 35764) wurde m
 
 Die Verarbeitungszeit pro Seite besteht aus drei Phasen:
 
-| Phase | Was passiert | Dauer pro Seite | Anteil |
-|-------|-------------|----------------|--------|
-| **Bilderkennung (Vision Encoder)** | Modell „sieht" die Seite — wandelt Pixel in Zahlen um, die das Sprachmodell versteht | ~40 Sekunden | ~45% |
-| **Prefill** | Sprachmodell liest die umgewandelten Daten + Aufgabenstellung ein | ~36 Sekunden | ~40% |
-| **Decode** | Modell generiert strukturierte Antwort | ~14 Sekunden | ~15% |
-| **Gesamt** | | **~90 Sekunden** | 100% |
+| Phase | Was passiert | Power 10 (CPU) | DGX Spark (GPU) | Speedup |
+|-------|-------------|----------------|-----------------|---------|
+| **Bilderkennung (Vision Encoder)** | Modell „sieht" die Seite — wandelt Pixel in Zahlen um | ~40 Sekunden | **~0,4 Sekunden** | ~91× |
+| **Prefill** | Sprachmodell liest die umgewandelten Daten ein | ~36 Sekunden | **~0,3 Sekunden** | ~120× |
+| **Decode** | Modell generiert strukturierte Antwort | ~14 Sekunden | **~4,6 Sekunden** | ~3× |
+| **Gesamt** | | **~90 Sekunden** | **~5,4 Sekunden** | **~17×** |
 
-> **Kernproblem:** Die Bilderkennung (Vision Encoder) ist auf einer CPU ~235× langsamer als auf einer GPU (40 Sekunden vs. 0,17 Sekunden). Dieser eine Schritt verursacht fast die Hälfte der gesamten Verarbeitungszeit. Mit einer GPU (DGX Spark) reduziert sich die Gesamtzeit pro Seite drastisch.
+> **Kernproblem gelöst:** Die Bilderkennung (Vision Encoder) war auf der CPU mit ~40 Sekunden der Engpass (~45% der Gesamtzeit). Auf der DGX Spark GPU: **0,4 Sekunden** — eine Beschleunigung um den Faktor 91. Zusätzlich ist auch der Prefill ~120× schneller. Nur Decode zeigt moderaten Speedup (~3×), da dort die Speicherbandbreite der Engpass ist, nicht die Rechenleistung.
 
 ### Hochrechnung: 14 Projekte
 
 | | IBM Power 10 | 2x DGX Spark |
 |--|--|--|
-| **1 Projekt (240 Seiten)** | ~7 Stunden | TBD (wird gemessen) |
-| **14 Projekte** | ~4 Tage | TBD (wird gemessen) |
+| **1 Projekt (240 Seiten)** | ~7 Stunden | **~21 Minuten** |
+| **14 Projekte** | ~4 Tage | **~2,5 Stunden** |
 
-> **Hinweis:** Die 14 Projekte haben unterschiedliche Seitenanzahlen. Die Hochrechnung basiert auf Projekt 35764 (240 Seiten) als Durchschnitt. DGX Spark Werte werden nach Inbetriebnahme (KW 12/2026) gemessen und hier aktualisiert.
+> **Hinweis:** Die 14 Projekte haben unterschiedliche Seitenanzahlen. Die Hochrechnung basiert auf gemessenen 672 Seiten/Stunde (1x DGX Spark, Qwen 3-VL 8B). Bei 2x DGX Spark: jeweils 7 Projekte pro Spark (trivial parallelisierbar). Power 10: ~33 Seiten/Stunde → **~20× langsamer** als DGX Spark.
 >
 > **Wichtig:** Diese Benchmark testet nur die Extraktion — den ersten von zwei Schritten. Der zweite Schritt (Ähnlichkeitsanalyse / Kriteriennachweis-Generierung) wird separat benchmarked, sobald die Page-Index-Infrastruktur bereit ist.
 
