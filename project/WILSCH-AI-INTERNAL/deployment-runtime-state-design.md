@@ -125,6 +125,8 @@ The seed mechanism per volume is project-specific: SQL init scripts, MongoDB JSO
 
 The Makefile is the only interface the developer (or CI/CD, or platform) uses. No raw Docker commands. No SSH into containers. The Makefile IS the convention.
 
+**Undefined:** Makefile evolution — if push = working system (platform handles everything), the Makefile becomes platform infrastructure, not a developer interface. How does this change the convention? Does the Makefile become what `package.json` build scripts are to Vercel — something the platform calls, not the developer?
+
 **Undefined:** Concrete recipe contents per project type (ROHDEX simple backend vs. IITR two-layer compose vs. Archibus LibreChat with agent state). Requires per-project audit in next extraction pass.
 
 **Undefined:** Staging → git reverse flow — when runtime state is created manually on staging (e.g., new agent configured via LibreChat UI), how does it get exported back into the `seed/` directory? This is the maintenance cycle for recipes.
