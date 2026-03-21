@@ -413,7 +413,7 @@ Part 3 defines what to do per pattern. This part defines how to orchestrate a fu
 
 3. **Meta-diagnostic** *(iteration only)* — When a prior fix exists, ask: "Why didn't the last fix work?" Apply Step 1 (Dimensional Diagnosis) to the fix itself. This prevents repeating the same fix at the same altitude. First-time Session B skips this step — there's no prior fix to evaluate.
 
-4. **Walk each pattern through the 6 steps** — One pattern at a time. Each step within each pattern is a discussion window between user and AI — not a checkbox. The user shapes the fix at every stop. Patterns that dissolve under a prior pattern's fix are noted and skipped. The user can trigger live empirical testing at any step when evidence for a fix direction is needed.
+4. **Walk each pattern through the 6 steps** — One pattern at a time. Each step within each pattern is a discussion window between user and AI — not a checkbox. The user shapes the fix at every stop. Patterns that appear to dissolve under a prior pattern's fix are still walked — the walk validates the dissolution claim rather than assuming it. The user can trigger live empirical testing at any step when evidence for a fix direction is needed.
 
 5. **Implement in-session** — The fix is written in the same session that diagnosed it. This is architecturally necessary: the context window accumulated during diagnosis IS the implementation context. Handing implementation to a separate session requires rebuilding diagnostic understanding from scratch — the most expensive failure mode. Artifacts are memory; the best time to write memory is when understanding is live.
 
