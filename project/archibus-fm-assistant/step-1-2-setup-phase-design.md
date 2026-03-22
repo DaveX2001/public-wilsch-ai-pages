@@ -894,6 +894,133 @@ The AI's behavioral quality is demo-blocking. Miguel judges whether the AI acts 
 
 *(Source: [Anthropic PSM](https://alignment.anthropic.com/2026/psm/). [CCI #629](https://github.com/DaveX2001/claude-code-improvements/issues/629) — PSM methodology. Session `9e7fda08` — ARCHIBUS persona design. Session `24d94df5` — belief #5 addition. Issue [#1094](https://github.com/DaveX2001/deliverable-tracking/issues/1094).)*
 
+### Part 7: Deployment Topology — Infra/App Convention
+
+Parts 1–6 designed what the pipeline does. This part defines how it deploys — applying the [Deployment & Runtime State convention](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/deployment-runtime-state-design) (CCI #646 Part 3) to Archibus. The convention splits every Docker project into two compose files: shared infrastructure (`docker-compose.infra.yml`) and isolated application services (`docker-compose.yml`). This eliminates the organic multi-stack wiring that caused deployment failures.
+
+**Scope:** This section covers `archibus-bulk-import` only. The `archibus_full-stack` FM-Assistant (live BEM operations — search assets, create work requests) is a separate product with zero shared code, different APIs, and an independent deployment lifecycle. It receives its own infra/app treatment separately.
+
+#### 7.1 Current State — Organic Multi-Stack Architecture
+
+Three compose stacks share a single server via a manually-created external network. No compose file owns the network — services join it via `docker network connect` or `external: true` declarations.
+
+```
+/home/shared/projects/
+├── archibus-bulk-import/         # Stack 1
+│   └── docker-compose.yml        → LibreChat (:3020), FastMCP (:8010), MongoDB
+│       network: archibus-agent (internal)
+│       + docker network connect librechat-shared (invisible)
+│
+├── archibus_full-stack/          # Stack 2
+│   └── docker-compose.yml        → FM-Assistant MCP prod (:8000), staging (:8001)
+│       network: librechat-shared (external: true)
+│
+└── (standalone)                  # Not in any compose
+    ├── LibreChat-staging (:3081)
+    ├── chromote (CDP browser)
+    └── trustgraph_rest
+```
+
+**The `librechat-shared` network is the hub:**
+
+| Container | Origin | How it joined |
+|-----------|--------|--------------|
+| LibreChat-staging | Standalone | Manual start on network |
+| archibus-bulk-import-fastmcp | Stack 1 | `docker network connect` (invisible — not in compose) |
+| archibus_fastmcp_staging | Stack 2 | `external: true` (declared in compose) |
+| chromote | Standalone | Manual start on network |
+| trustgraph_rest | Other stack | Unknown |
+
+**Why this breaks:** When one session runs `docker compose down` on any stack, containers on the shared network lose their peers. The cross-stack wiring via `docker network connect` is invisible state — not declared in any compose file, not recoverable from git, not visible to the next session. *(Evidence: CCI #646, CCI #635 — two sessions on the same server, one destroyed containers the other depended on.)*
+
+#### 7.2 Infra/App Classification
+
+The CCI #646 convention proposed LibreChat as infra (shared). Investigation of the actual development pattern reverses this: LibreChat is **app** (isolated per branch).
+
+**Why LibreChat is app, not infra:** Every pipeline step (#1055, #1056, #1057, #1064, #1180, #1189) included a LibreChat agent definition as a deliverable — system prompt, skill loading config, model selection. These definitions live in MongoDB, not in git. If two branches share one LibreChat instance, their agent definitions conflict. Volume cloning (CCI #646 Part 3 pattern) gives each worktree preview its own LibreChat + MongoDB with agent definitions cloned from staging.
+
+**Resulting classification for `archibus-bulk-import`:**
+
+| File | Services | Rationale |
+|------|----------|-----------|
+| **`docker-compose.infra.yml`** | *(none)* | No shared GPU services, no shared databases. Convention degrades gracefully — if no infra file exists, app compose runs standalone. |
+| **`docker-compose.yml`** | LibreChat, FastMCP, MongoDB | Full pipeline stack. Isolated per branch via `COMPOSE_PROJECT_NAME`. MongoDB carries agent definitions (volume-cloned from staging). |
+
+**What changes from today:**
+
+| Today | Convention |
+|-------|-----------|
+| `librechat-shared` external network | Eliminated — each stack has its own internal network |
+| `docker network connect` for FastMCP | Eliminated — LibreChat and FastMCP are in the same compose |
+| Standalone LibreChat-staging (:3081) | Absorbed into the app compose |
+| Cross-stack dependency on chromote | FM-Assistant concern, not bulk-import |
+
+**Volume cloning on preview deploy:** When the deploy script creates a preview environment (CCI #646 Part 4), it clones the app volumes from staging — including MongoDB with its agent definitions. The preview starts with a working copy of staging's agent configs. Agent definition changes in the preview don't affect staging. *(Bootstrap exception: first deploy with no staging — agent definitions are created manually once.)*
+
+#### 7.3 Health Endpoints
+
+Every service in `docker-compose.yml` must include a `healthcheck` block. The deploy script (CCI #646 Part 4) runs `docker compose up --wait` — if any health check fails, the deployment fails and the deploy-linker reports the failure to the issue.
+
+**Prescriptive health checks for `archibus-bulk-import`:**
+
+| Service | Check | Endpoint | Interval |
+|---------|-------|----------|----------|
+| **LibreChat** | HTTP GET | `http://localhost:3080/` → 200 | 30s, 10s timeout, 3 retries |
+| **FastMCP** | HTTP GET | `http://localhost:8000/sse` → 200 | 30s, 10s timeout, 3 retries |
+| **MongoDB** | Shell command | `mongosh --eval "db.runCommand('ping')"` → exit 0 | 30s, 10s timeout, 3 retries |
+
+**Compose healthcheck blocks (copy-paste):**
+
+```yaml
+services:
+  librechat:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  fastmcp:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/sse"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mongodb:
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+**Four-level backpressure** (from CCI #646 Part 4) applied to Archibus:
+
+| Level | Check | What it catches |
+|-------|-------|-----------------|
+| 1 | `docker compose config` | Invalid compose file syntax |
+| 2 | `docker compose up --wait` | Health check failures (above) |
+| 3 | `curl -f $PREVIEW_URL` | Routing/reachability broken (Caddy config) |
+| 4 | `docker compose logs \| grep error` | Runtime errors in application logs |
+
+Each level returns an exit code. GHA reads it: 0 = success, non-zero = failure. Binary, deterministic, no AI interpretation.
+
+**Note:** This is infrastructure-level backpressure (deploy-time health verification). The application-level backpressure (§6.1 — edit_file correction loop for API rejections) is a separate concern operating at a different layer.
+
+#### 7.4 Project-Specific Scripts
+
+Archibus does not require project-specific scripts. The convention's script categories and their applicability:
+
+| Script Category | Needed? | Reasoning |
+|----------------|---------|-----------|
+| **Data ingestion** | No | Pipeline runs on-demand via `step3_execute` tool (§6.1). No background ingestion, no cron, no data files to index. |
+| **Seed data** | No | MongoDB self-initializes on first start. LibreChat creates its DB schema. `data/` and `skills/` directories are bind-mounted from git — no copy step. |
+| **Bootstrap** | No (manual) | First deploy with no staging to clone from: agent definitions are created manually once via the LibreChat UI. Subsequent deploys clone volumes. Not worth scripting for a one-time operation. |
+| **Config import** | No | All MCP configuration is in `docker-compose.yml` (environment variables) and skill files (git). No external config to import. |
+
+*(Source: Extraction pass 2026-03-22 — server investigation + RESOLVE with David. [Grooming transcript 2026-03-22](https://app.fireflies.ai/view/01KMB243RF95QP9ZFG9VGBWFX9). [CCI #646 Design Doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/deployment-runtime-state-design). Session cdfaca64-7d32-4552-ac68-af0b947881f3.)*
+
 ---
 
 ## Source
@@ -901,8 +1028,10 @@ The AI's behavioral quality is demo-blocking. Miguel judges whether the AI acts 
 - **Design docs:**
   - [Chain 1B: Bulk Entry Design](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/chain-1b-bulk-entry-design) (parent router)
   - [Step 3: Fill Level-by-Level](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/chain-1b-step3-design)
+  - [Deployment & Runtime State Convention (CCI #646)](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/deployment-runtime-state-design)
 - **Transcripts:**
   - [AI Data Entry Demo (Feb 23, 2026)](/Users/verdant/Downloads/AI Data Entry Demo Transcript.txt)
+  - [Grooming 2026-03-22](https://app.fireflies.ai/view/01KMB243RF95QP9ZFG9VGBWFX9)
 - **Data artifacts:**
   - [AssetImportDescription (36 fields)](https://docs.google.com/spreadsheets/d/12xs98WKdpTLHz8U6mccOXo5clFwCqvOviuEch_VNMTw/edit)
   - [Housekeeping Tracker (FMM)](/Users/verdant/Downloads/Housekeeping Tracker Jan 2026 v1.xlsb) — second Excel sample for hierarchy inference testing
@@ -928,6 +1057,7 @@ The AI's behavioral quality is demo-blocking. Miguel judges whether the AI acts 
 - **Reference:** [Anthropic Prompt Engineering Course](https://www.youtube.com/watch?v=ysPbXH0LpIE) — 10-section mechanical prompt recipe
 - **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/d39c2d40-a2af-4063-ae8e-ebacd36a83ae.jsonl
 - **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/ff776065-b200-4fda-98bf-c957873ae951.jsonl
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/cdfaca64-7d32-4552-ac68-af0b947881f3.jsonl
 - **Transcript:** [Rein <> Marius (Mar 11, 2026)](https://app.fireflies.ai/view/01KKE7GE79F1AYWE4AJCCEHYFK) — Step 2b enum resolution, extended properties, asset types scope, demo requirements
 - **Reference:** [Anthropic Skills Guide PDF](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) — Category 3 MCP Enhancement pattern, progressive disclosure architecture
 - **Reference:** [LiteLLM Skills docs](https://docs.litellm.ai/docs/skills) — `container.skills` parameter, `/v1/skills` endpoint
