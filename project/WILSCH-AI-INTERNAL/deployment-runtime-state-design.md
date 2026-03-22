@@ -5,15 +5,17 @@ publish: true
 # Deployment & Runtime State — Convention Over Configuration
 [[docker-deployment]]
 
-Design for eliminating the deployment decision surface through runtime state codification, standardized project recipes, and convention-over-configuration. Absorbs CCI #646 (Deployment & Staging Workflow Not Embodied) and CCI #640 (CI/CD Auto-Deployment).
+Design for eliminating deployment decisions through a two-file compose convention (infra/app), automated preview environments via GHA, and structural enforcement (read-only SSH). Git push is the only deployment interface — no SSH, no manual Docker commands. Absorbs CCI #646 (Deployment & Staging Workflow Not Embodied), #640 (CI/CD Auto-Deployment), and #659 (CLAUDE.md as Router).
 
 ---
 
 ## Problem Statement
 
-A git clone followed by `docker compose up` does not produce a working system. Runtime state — Docker volumes, agent configurations, pipeline prompts, database seeds — lives outside git. When this state is lost, manually recreated, or deployed to the wrong container, every downstream process breaks: testing, verification, and deployment.
+A git clone followed by `docker compose up` does not produce a working system. Runtime state — Docker volumes, agent configurations, pipeline prompts, database seeds, cross-stack network wiring, container startup order — lives outside git. When this state is lost, manually recreated, or deployed to the wrong container, every downstream process breaks.
 
-This creates a structural gap between the **worktree** (isolated code) and the **running system** (code + runtime state). The developer works in a worktree that represents code, not the system. Testing requires the full system, which only exists on staging — with state that no one version-controls. The gap widens with every manual `docker cp`, every untracked agent definition, every prompt that lives in a volume instead of a file.
+This creates two gaps. **Reproducibility:** the worktree represents code, not the system. Testing requires the full system, which only exists on staging. **Traceability:** operations performed via SSH leave zero git trail. The issue-commit-linker only fires on commits — SSH work is invisible to the next session. Git is the inter-session memory; SSH is amnesia.
+
+Evidence from 5 operator sessions (CCI #635): edits made directly on the server via SSH, containers run live, git state managed after the fact. Two sessions operating on the same server simultaneously — one ran `docker compose down`, destroying containers the other session depended on. The root cause: organic multi-stack architecture with manual cross-stack wiring (`docker network connect`) that no compose file declares.
 
 Documentation-based fixes (CLAUDE.md deployment identity) do not close this gap. IITR's CLAUDE.md had a 7-section schema including Server Access, Deployment, and Domains — the agent still went to the wrong path twice in the same session. Research confirms: more agent context rules [reduce task success rates while increasing inference cost](https://www.augmentcode.com/blog/your-agents-context-is-a-junk-drawer) (ETH Zurich, 2026), and [passive context outperforms active retrieval](https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals) by eliminating decision points (Vercel, 2026). Adding more instructions to CLAUDE.md — including deployment identity — increases noise in a context window where every line competes for the agent's attention.
 
@@ -31,9 +33,9 @@ The fix is structural, not informational: everything needed to produce a working
 
 | Element | Definition |
 |---------|-----------|
-| **Goal** | Git is the single source of truth. The running system is derived from it — deterministically, without manual steps, without agent decisions about infrastructure. |
-| **Success** | A developer creates a worktree for an issue and receives a testable running system (not just isolated code). Push to staging branch produces a deployed, verifiable system. No SSH. No manual Docker commands. No CLAUDE.md deployment instructions. |
-| **Done test** | Developer pushes to worktree branch → platform spins up a working system automatically. No manual compose, no seed command, no SSH. The push IS the deployment. Fallback litmus test for the recipe itself: `git clone` + `docker compose up` + `seed` with only `.env` credentials must also produce a working system — this validates the recipe is complete, even when the platform handles execution. |
+| **Goal** | Git is the single source of truth for both code AND runtime state. The running system is derived from it — deterministically, without manual steps. Every state change leaves a git trail. |
+| **Success** | A developer creates a worktree, pushes, and receives a preview URL with a running system — volumes cloned from staging, health checked, reported to the issue. No SSH. No manual Docker commands. Every deployment is traceable via issue-commit-linker and deploy-linker. |
+| **Done test** | Developer pushes to worktree branch → GHA deploys preview → health check passes → deploy-linker posts URL to issue. No SSH, no manual compose, no seed command. The push IS the deployment. |
 
 ---
 
@@ -51,26 +53,36 @@ A Docker backend has three layers. The deployment confusion pattern (#646, #635)
 
 Layer 1 and 2 are solved. Worktrees isolate code. Docker builds images deterministically from code. The entire Ship with Confidence workflow (AC verify, smoke test, human witness) operates on Layer 1 and 2.
 
-Layer 3 is where state lives outside git:
-- **LibreChat agent definitions** live in MongoDB, not in code (Archibus #1189: deployed to wrong container volume)
-- **Pipeline prompts** deployed via `docker cp`, never committed (IITR #1191 Finding 4: golden prompt lost during migration)
-- **Database state** seeded manually after container startup
-- **Caddy routing** configured via SSH, not version-controlled per project
+Audit of real compose files reveals Layer 3 is more than volumes:
 
-Every deployment failure in the CCI #646 evidence chain traces back to Layer 3. The fix targets this layer specifically.
+| What's missing | Archibus evidence | IITR evidence |
+|---------------|-------------------|---------------|
+| **Volume contents** | `staging_mongodb_data` (agent configs), `staging_meili_data`, `staging_pgdata2` | `openwebui_data`, `typesense-data`, `qdrant_storage`, `ollama_data` |
+| **Cross-stack networks** | `librechat-shared` — manual `docker network connect` between 3 compose files | `iitr-shared-network` — connects navigation, masterfragen, infrastructure |
+| **Startup order** | — | Pipeline filter scores 0/29 if Typesense isn't ready at startup |
+| **Port assignments** | 3081 (staging) vs 3020 (spike) — hardcoded, can't run two stacks | 3006 (OpenWebUI), 8109 (Typesense), 11434 (Ollama) |
+| **Container names** | `LibreChat-staging` hardcoded | Mixed: some hardcoded, some `${COMPOSE_PROJECT_NAME}` |
+| **GPU allocation** | — | TEI + Ollama share one GPU — can't duplicate |
 
-### Part 2 — Git = Truth
+The root cause is organic multi-stack architecture. Archibus has 3 separate compose files manually wired via external networks. When one session ran `docker compose down`, it destroyed containers another session depended on — because the cross-stack wiring (`docker network connect`) was invisible state.
 
-The direction of truth flips:
+Every deployment failure in the CCI #646 evidence chain traces back to Layer 3. The fix targets the full runtime topology, not just volumes.
+
+### Part 2 — Git = Truth + Memory
+
+The direction of truth flips — and git becomes the inter-session memory:
 
 | | Today | Convention |
 |---|-------|-----------|
 | **Truth lives in** | Running system (staging server) | Git repository |
-| **Git contains** | Partial copy (code + compose) | Complete recipe (code + compose + seed) |
+| **Git contains** | Partial copy (code + compose) | Complete system definition (code + compose + Caddy + state manifests) |
 | **Deploy means** | Manual reconstruction of runtime state | Automated derivation from git |
 | **State drift** | Accumulates silently between deploys | Impossible — every deploy starts from recipe |
+| **Audit trail** | SSH ops invisible to next session | Every push = commit = issue-commit-linker |
 
-This is the same principle as infrastructure-as-code (Terraform), applied to Docker runtime state. The system state IS the code.
+Two principles, equally important:
+- **Reproducibility:** the system is derivable from git — deterministically, without manual steps
+- **Traceability:** every state change goes through git, so the issue-commit-linker captures it. The next session reads the commit history and knows what happened. No SSH = no amnesia.
 
 **What can be codified:**
 
@@ -90,82 +102,120 @@ This is the same principle as infrastructure-as-code (Terraform), applied to Doc
 
 The convention requires: everything above the irreducible line MUST be in git. Everything below is accepted as an external dependency with a documented injection point.
 
-### Part 3 — The Recipe Convention
+### Part 3 — The Infra/App Convention
 
-Every project ships with a **recipe**: the complete set of instructions to produce a working system from a git clone. The recipe is not documentation — it is executable code.
+The organic multi-stack architecture is the root cause (Part 1). The fix: split every project into two compose files that declare the boundary between shared infrastructure and isolated application services.
 
-**The convention:** Every named volume in `docker-compose.yml` must have a corresponding seed mechanism in git. The volume is the interface between git and the running system — what's inside (MongoDB data, prompt files, pipeline configs) is a project-specific implementation detail.
+**`docker-compose.infra.yml`** — shared services. Runs once on the server, never duplicated per branch. Contains GPU services, databases that are shared, model weights. Creates the `{project}-infra` network.
 
-**Standard project structure:**
+**`docker-compose.yml`** — application services. Isolated per branch via `COMPOSE_PROJECT_NAME`. Contains the code being developed and tested. Connects to the infra network as external.
 
 ```
-project-root/
-├── docker-compose.yml          # Layer 2: container definitions (declares volumes)
-├── docker-compose.staging.yml  # Environment override (staging)
-├── docker-compose.prod.yml     # Environment override (production)
-├── seed/                       # Layer 3: one entry per named volume
-│   ├── seed.sh                 # Entrypoint: seeds all volumes in order
-│   └── {volume-name}/          # Seed data for each named volume
-├── .env.example                # Credential template (injection points)
-└── Makefile                    # Developer interface: make up, make seed, make staging
+Server
+├── infra (always running, one instance)
+│   ├── Ollama (GPU)
+│   ├── TEI (GPU)
+│   └── network: iitr-infra
+│
+├── staging (app compose, main branch)
+│   ├── OpenWebUI → connects to iitr-infra
+│   ├── Pipelines → connects to iitr-infra
+│   └── volumes: staging_openwebui_data, staging_typesense-data
+│
+└── preview-issue-1234 (app compose, worktree branch)
+    ├── OpenWebUI → connects to iitr-infra (SAME Ollama)
+    ├── Pipelines → connects to iitr-infra (SAME TEI)
+    └── volumes: issue-1234_openwebui_data (cloned from staging)
 ```
 
-The seed mechanism per volume is project-specific: SQL init scripts, MongoDB JSON exports, file copies, or volume tarballs. The convention doesn't prescribe the format — it prescribes that every volume has one.
+**Why this works across projects:**
 
-**The litmus test:** `cp .env.example .env && <fill credentials> && docker compose up -d && ./seed/seed.sh` produces a working system. If it doesn't, the recipe is incomplete.
+| Project | Infra (shared) | App (isolated per branch) |
+|---------|---------------|--------------------------|
+| **IITR** | Ollama, TEI, Langfuse | OpenWebUI, Pipelines, Typesense |
+| **Archibus** | LibreChat, MongoDB, MeiliSearch, pgvector | FastMCP (fm-assistant, bulk-import) |
+| **Simple backend** | Postgres (or nothing) | FastAPI service |
 
-**Makefile as convention surface:**
+Simple projects don't need an infra file. The convention degrades gracefully — if no `docker-compose.infra.yml` exists, the app compose runs standalone.
 
-| Target | What it does |
-|--------|-------------|
-| `make up` | Start all containers (compose up) |
-| `make seed` | Run seed/seed.sh (populate runtime state) |
-| `make staging` | Full staging deploy (up + seed + health check) |
-| `make health` | Verify system health (curl endpoints, check containers) |
+**The compose file is the handoff point** between human decisions and automated execution. Everything upstream (JA design, Developer implementation) is design. Everything downstream (deploy script, GHA) is deterministic. The compose file carries all design decisions — the script just reads them.
 
-The Makefile is the only interface the developer (or CI/CD, or platform) uses. No raw Docker commands. No SSH into containers. The Makefile IS the convention.
+**Volume cloning replaces seed scripts.** On first preview deploy, app volumes are cloned from staging. No seed directory, no seed.sh, no Makefile. The staging system IS the seed. For bootstrap (first deploy with no staging), app services create their own state on first run — OpenWebUI creates its DB, Typesense starts empty, ingestion runs via GHA.
 
-**Undefined:** Makefile evolution — if push = working system (platform handles everything), the Makefile becomes platform infrastructure, not a developer interface. How does this change the convention? Does the Makefile become what `package.json` build scripts are to Vercel — something the platform calls, not the developer?
+**Undefined:** Volume state promotion — when a preview's volumes contain state the developer wants on staging (e.g., new agent config tested in preview), how does it transfer on PR merge? Options: export-to-git before merge, volume swap, or manual recreation. Requires a real case to evaluate.
 
-**Undefined:** Concrete recipe contents per project type (ROHDEX simple backend vs. IITR two-layer compose vs. Archibus LibreChat with agent state). Requires per-project audit in next extraction pass.
+### Part 4 — Push = Preview
 
-**Undefined:** Staging → git reverse flow — when runtime state is created manually on staging (e.g., new agent configured via LibreChat UI), how does it get exported back into the `seed/` directory? This is the maintenance cycle for recipes.
+The developer works locally in a worktree. Every push triggers a preview environment on the server — automatically, via GHA.
 
-### Part 4 — Preview Environments: Closing the Worktree Gap
+**Developer workflow:**
+1. `/worktree` skill creates branch + draft PR (existing behavior)
+2. Developer codes locally, runs unit tests (`uv run pytest`)
+3. Push → GHA triggers `deploy-preview.sh`
+4. Preview URL appears (e.g., `issue-1234.wilsch-deployment.com`)
+5. Test via URL, share with team
+6. More pushes → GHA redeploys (same volumes, new code)
+7. PR merged → GHA runs `cleanup-preview.sh` + `deploy-staging.sh`
 
-The worktree gives the developer isolated code. The recipe defines a reproducible system. A **preview environment** connects the two: when a worktree creates a PR, a platform automatically spins up the recipe into a running system with its own URL.
+The worktree skill's existing push behavior IS the deployment trigger. No modifications to the skill. No GTR hooks. No local Docker.
 
-**Target flow:**
+**Deploy script (`scripts/deploy-preview.sh`, ~60 lines):**
 
-1. Developer creates worktree → worktree skill creates draft PR (existing behavior)
-2. Platform detects PR → runs `docker compose up` + `seed/seed.sh` from that branch
-3. Preview URL assigned (e.g., `issue-1189.wilsch-deployment.com`)
-4. Developer has: code locally (worktree) + running system remotely (preview)
-5. PR merged or closed → preview torn down automatically
+```bash
+BRANCH=$1
+# 1. Parse volumes from app compose
+VOLUMES=$(docker compose config --volumes)
+# 2. Clone staging volumes (first deploy only)
+for vol in $VOLUMES; do
+  docker volume create "${BRANCH}_${vol}"
+  docker run --rm -v "staging_${vol}:/from:ro" \
+    -v "${BRANCH}_${vol}:/to" alpine cp -a /from/. /to/
+done
+# 3. Start with branch-scoped names
+COMPOSE_PROJECT_NAME=$BRANCH docker compose up -d --wait
+# 4. Caddy route
+echo "${BRANCH}.wilsch-deployment.com { reverse_proxy localhost:${PORT} }" \
+  > caddy/previews/${BRANCH}.conf
+git add caddy/previews/ && git commit -m "caddy: preview ${BRANCH}"
+caddy reload
+```
 
-This is the Vercel model applied to Docker backends. The developer never SSHs. The agent never chooses a container. The platform IS the deployment.
+**Cleanup script (`scripts/cleanup-preview.sh`, ~20 lines):**
+Compose down, remove volumes, remove Caddy config, commit removal.
 
-**Self-hosted PaaS options evaluated:**
+**GHA workflow (3 triggers):**
 
-| Platform | Preview PRs | CLI | Server overhead | Fit |
-|----------|------------|-----|-----------------|-----|
-| **Coolify** | Built-in (GitHub App) | Limited | Server daemon | Strongest preview support |
-| **Dokploy** | Supported | Limited | Docker Swarm | Better multi-server |
-| **Kamal** (37signals) | Not supported | CLI-first | Zero daemon | No preview environments |
+| Trigger | Action | Script |
+|---------|--------|--------|
+| Push to feature branch | Deploy preview | `deploy-preview.sh` |
+| PR closed/merged | Tear down preview | `cleanup-preview.sh` |
+| Push to staging branch | Update staging | `deploy-staging.sh` |
 
-Coolify and Dokploy both provide the preview environment primitive. Kamal does not — it solves deployment automation but not the worktree→system gap.
+**Back pressure (script-level, not AI-level):**
 
-**The platform does it, not the agent.** The agent writes code and pushes. The platform reacts to the push. No AI involvement in infrastructure decisions.
+| Level | Check | What it catches |
+|-------|-------|----------------|
+| 1 | `docker compose config` | Invalid compose file |
+| 2 | `docker compose up --wait` | Health check failures |
+| 3 | `curl -f $PREVIEW_URL` | Routing/reachability broken |
+| 4 | `docker compose logs \| grep error` | Runtime errors in logs |
 
-**Structural enforcement: read-only SSH.** Rather than instructing agents "don't deploy via SSH" (documentation — ignorable), restrict the agent's SSH key to read-only operations on the server. The key can check logs, health, and container status, but physically cannot run `docker compose up`, `git pull`, or modify files. Deployment becomes impossible via SSH — it can only happen through the platform on push. This is the same "no decision point" principle from the Vercel research: don't ask the agent to make the right choice, remove the wrong choice entirely.
+Each level returns an exit code. GHA reads it: 0 = success, non-zero = failure. Binary, deterministic, no AI interpretation.
 
-**Undefined:** Development topology — does the developer work locally (worktree) with a remote preview on the server? Or does development happen on the server directly? GPU-dependent services (IITR Ollama) cannot run locally — the preview environment on the server must provide them. Hybrid model likely needed.
+**Deploy-linker:** GHA step that posts deployment status to the issue: `📦 Preview deployed: URL` on success, `❌ Preview failed` on failure. Extracts issue number from branch name. Automatic.
 
-**Undefined:** Platform selection — requires a spike. Prior experience: Coolify was used in 2025 and abandoned due to unreliable deployments ("stuff just not deploying"). Root cause unclear — may have been a Layer 3 problem (no recipe) rather than a Coolify problem. Nixpacks angle: platforms using Nixpacks (Coolify, Railway) auto-detect language and build without Dockerfiles — convention-over-configuration for the build step, which combined with the recipe convention for seeding could deliver push → build → seed → preview URL with zero configuration. Evaluation criteria: preview environment quality, Docker Compose support, Nixpacks reliability, CLI/API access, resource overhead on WILSCH-AI-SERVER.
+**Caddy configs live in git** — not `/etc/caddy/`. The deploy script generates a config file, commits it, syncs to server. Every route change is a git commit → issue-commit-linker captures it.
 
-**Undefined:** Recipe debugging — when the platform-triggered recipe fails, the developer needs a local escape hatch (`make seed` locally). How does the developer get visibility into platform-side failures? Logs, error reporting, fallback to manual execution.
+**Read-only SSH enforcement:** Three server users:
+- `agent` — restricted, investigation only (logs, inspect, read files)
+- `deploy` — full access, GHA only (key in GitHub Secrets)
+- `marius`/`david` — full access, human emergency use
 
-**Undefined:** Worktree skill integration — the current worktree skill (Step 5) asks about Docker volume copying. With preview environments, Step 5 changes: instead of copying volumes locally, the platform spins up a preview from the recipe. How does the worktree skill encode this? Does it trigger the platform via API? Or does the PR creation (Step 4) already trigger the platform automatically via GitHub App webhook?
+The AI's SSH config only sees the `agent` user. Deployment via SSH is structurally impossible — it can only happen through git push → GHA. Same "no decision point" principle: remove the wrong choice entirely.
+
+**Data operations (ingestion):** Read-only SSH forces all writes through git. Data files go in the repo, GHA runs ingestion scripts on push. The commit that added data IS the audit trail. For UI-level state changes (agent configured via OpenWebUI), a volume manifest cron detects size changes and commits notifications to git.
+
+**Undefined:** Data ingestion pipeline design — the trigger mechanism for "data changed in git → GHA runs ingestion on server" needs a concrete implementation pattern. Related to the dbt/Flyway model (declarative files + reconciliation loop).
 
 ### Part 5 — CLAUDE.md Implications: What Dies, What Stays
 
@@ -185,13 +235,18 @@ Applied to deployment, combined with CCI #659 (CLAUDE.md as Router):
 - Known gotchas that aren't in code (e.g., "temperature 0 for RAG with small models")
 - Architecture decisions not obvious from reading code
 - Credential locations (which `.env` vars are needed, where to get them)
-- Route to recipe: `→ See seed/ for runtime state setup`
+- Route to compose: `→ See docker-compose.infra.yml for shared services`
 
-**The filter (from Augment):** For each CLAUDE.md line, ask: "Would the agent make a mistake without this?" If no — delete it. If the answer is "yes, but the recipe or platform handles it now" — also delete it.
+**The filter (from Augment):** For each CLAUDE.md line, ask: "Would the agent make a mistake without this?" If no — delete it. If the answer is "yes, but the compose convention or GHA handles it now" — also delete it.
 
-This aligns with #659's router principle: CLAUDE.md routes to source files where truth lives. The recipe (`seed/`, `docker-compose.yml`, `Makefile`) IS the source of deployment truth. CLAUDE.md doesn't restate it.
+This aligns with #659's router principle: CLAUDE.md routes to source files where truth lives. The compose files (`docker-compose.yml`, `docker-compose.infra.yml`) ARE the source of deployment truth.
 
-**Recipe authorship:** The Developer owns the recipe. The recipe is code — seed scripts, compose files, Makefile targets — written and maintained as part of the implementation, not as a separate infrastructure concern. The JA may define recipe requirements in the design doc (e.g., "this project needs volume seeds for X and Y"), but the Developer implements and maintains them, same as application code.
+**Compose authorship and the JA standard section:** Every JA design doc for a Docker project includes a deployment topology section:
+- **Infra/app split** — which services are shared vs isolated
+- **Test rubric** — what "healthy" means (health endpoints, smoke test)
+- **Project-specific scripts** — does this project need ingestion? Config import?
+
+The JA designs the split. The Developer writes the compose files and project-specific scripts. The Dev Lead checks that the convention was followed. The compose files are code — maintained as part of the implementation, same as application code.
 
 ---
 
@@ -227,7 +282,20 @@ This aligns with #659's router principle: CLAUDE.md routes to source files where
 - [2026-03-11 Grooming](https://app.fireflies.ai/view/01KKEHEX9ESP51H73NZRMKTRRG) — CI/CD idea origin, ops manual ownership transfer
 - [2026-03-20 Grooming](https://drive.google.com/file/d/16oDF5LAbBiCrXi5tXgyma5iZ2PCgL3_a/view) — #1189 wrong-container discovery live
 
-**Session:** 🗒️ Session 6fd2a15f-748a-4d9f-b551-2da0574da41b
+**Pass 2 Evidence (operator conversations):**
+- [David: Archibus #1189 — wrong container deploy](https://github.com/MariusWilsch/claude-code-conversation-store/blob/main/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/b9f80acd-3f1a-470b-a2d1-1b35dfc725a3.jsonl)
+- [David: Archibus multi-session — docker compose down disaster](https://github.com/MariusWilsch/claude-code-conversation-store/blob/main/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/289660df-41cd-4e98-9381-f49c248d5ea0.jsonl)
+- [David: IITR #1191 — mono-repo migration + test harness](https://github.com/MariusWilsch/claude-code-conversation-store/blob/main/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/d301ee6f-d848-46a6-a57b-5f5db116cac9.jsonl)
+- [David: IITR — wrong staging path investigation](https://github.com/MariusWilsch/claude-code-conversation-store/blob/main/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/a3ca882c-690b-446b-a594-0309aa836e75.jsonl)
+
+**Pass 2 Research:**
+- [Back pressure for agents](https://banay.me/dont-waste-your-backpressure/) — automated feedback enables delegation down the org chart
+- [Organization Chart — Wilsch AI Services](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/organization-chart-wilsch-ai-services) — VP/Delivery path: JA designs → Developer builds → Dev Lead checks
+- [CodeRabbit git-worktree-runner](https://github.com/coderabbitai/git-worktree-runner) — evaluated, not needed (push IS the trigger)
+
+**Sessions:**
+- 🗒️ Session 6fd2a15f (Pass 1 — design doc extraction)
+- 🗒️ Session b3ede71b (Pass 2 — real project grounding + conversation evidence)
 
 ---
 
