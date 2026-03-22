@@ -276,7 +276,7 @@ Ihre Power 10 bleibt unverändert — Datenbanken, ERP, alles wie gehabt. Wir st
 
 > ⭐ **Unsere Empfehlung:** Die lokale KI-Appliance als sofortiger Einstieg. 40× schneller als Power 10 bei der Dokumentenverarbeitung — für ~€3.700 statt ~€150.000. Die disaggregierte Inferenz (Option 2) ist der strategische Upgrade-Pfad für maximale Leistung.
 >
-> ¹ Gemessen: 1.319 Seiten/Stunde vs 33 Seiten/Stunde (Projekt 35764, 294 Seiten, 9/9 Qualität). Details: Folie 2 + Folie 5. Quelle: [#1232](https://github.com/DaveX2001/deliverable-tracking/issues/1232).
+> ¹ Gemessen: 6.853 Seiten/Stunde (8 parallele Anfragen) vs 33 Seiten/Stunde (Projekt 35764, 294 Seiten, 9/9 Qualität). Details: Folie 2 + Folie 5. Quelle: [#1232](https://github.com/DaveX2001/deliverable-tracking/issues/1232).
 > ² Quelle: [EXO Labs Benchmark](https://blog.exolabs.net/nvidia-dgx-spark/) — Prefill/Decode-Trennung auf separater Hardware.
 
 ---
