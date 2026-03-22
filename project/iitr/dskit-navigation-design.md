@@ -199,6 +199,8 @@ Per SA directive ("why always deploy another one?"), cross-project services run 
 | OpenWebUI | Chat frontend, serves all 3 projects via Models. Keycloak SSO. |
 | Pipelines | Pipeline filter sidecar. All projects contribute filters. |
 | Langfuse | Observability for all projects |
+| Typesense | Hybrid search (keyword + vector). All projects use separate collections via one instance. |
+| TEI (bge-m3) | BAAI/bge-m3 (1024d) embedding service. Single endpoint for all projects. |
 
 OpenWebUI + Pipelines are deployed in the shared infrastructure compose stack.
 
@@ -206,15 +208,15 @@ OpenWebUI + Pipelines are deployed in the shared infrastructure compose stack.
 
 | Project | Owns | Connects to shared via |
 |---------|------|----------------------|
-| `navigation/` | Typesense, TEI | `iitr-shared-network` |
-| `masterfragen/` | Qdrant, pipeline filter (future) | `iitr-shared-network` |
-| `court-judgments/` | Pipeline filter (future) | `iitr-shared-network` |
+| `navigation/` | Pipeline filter, collection `dskit_navigation` | `iitr-shared-network` |
+| `masterfragen/` | Pipeline filter, collection `dskit_masterfragen` | `iitr-shared-network` |
+| `court-judgments/` | Pipeline filter, collection `urteile` | `iitr-shared-network` |
 
 #### Serving Layer
 
 One OpenWebUI instance serves all three projects. Each project is a pipeline filter in the Pipelines sidecar. Users select which project to query via model selection in the OpenWebUI UI.
 
-**Standard pattern:** All projects use OpenWebUI pipeline filters. Masterfragen's legacy Flask proxy (`simple_app.py`) will be converted to a pipeline filter to standardize the serving pattern.
+**Standard pattern:** All projects use OpenWebUI pipeline filters. Each project contributes a pipeline filter via volume mount into the shared Pipelines container. Pipeline filters handle retrieval (Typesense hybrid search) and prompt compilation per project.
 
 **Per-model access control:** Each Model has visibility settings managed via OpenWebUI admin. By default, clients (Stellmacher, Kraska) see all production-ready Models across all three projects. Models under active development are hidden from clients until ready. Internal users (Wilsch AI) see all Models at all times.
 
@@ -231,12 +233,15 @@ Canonical path: `/home/shared/projects/`. Mono-repo migration completed ([#1191]
 
 #### Vector Stores
 
-No consolidation. Each project owns its data store:
+All projects share one Typesense instance and one TEI endpoint (BGE-M3, 1024d) in shared infrastructure. Each project owns a separate collection — data is isolated, engine is shared.
 
-- **Typesense** — Navigation (hybrid search, 17/29 with BGE-M3). In Navigation compose.
-- **Qdrant** — Masterfragen (in V1 compose)
+| Collection | Project | Data |
+|------------|---------|------|
+| `dskit_navigation` | Navigation | Anwenderleitfaden PDF + templates + web chapters + Q&A |
+| `dskit_masterfragen` | Masterfragen | 22 Masterfragen Q&A entries |
+| `urteile` | Court Judgments | German court rulings |
 
-TEI (text-embeddings-inference) serves BAAI/bge-m3 (1024d) for Typesense vector embeddings. Lives in Navigation compose.
+Qdrant (previously used by Masterfragen) and Qwen3-Embedding-8B (previously used by Court Judgments) are retired. BGE-M3 is the standard embedding model across all projects (Marius directive).
 
 #### Caddy Routing
 
@@ -247,7 +252,7 @@ Two domains. Project separation happens via OpenWebUI Models, not Caddy routing.
 | `rag-staging.iitr-cloud.de` | OpenWebUI (all 3 projects) |
 | `langfuse.iitr-cloud.de` | Langfuse |
 
-Stale entries to remove: `qdrant-staging.iitr-cloud.de` (internal service), `urteile.iitr-cloud.de` (redundant — Court Judgments served via OpenWebUI Model selection, not separate subdomain).
+
 
 #### Deployment Contract
 
@@ -309,6 +314,7 @@ Order matters: infrastructure first, then project stacks (they depend on shared 
 - Pass 7 (Vector B + monorepo update): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/3deb3c69-4606-426f-9f23-0a0af76ede45.jsonl
 - Pass 8 (SA review — access control fix): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/65c03d49-b808-4011-b16e-7607e99f1b9a.jsonl
 - Pass 10 (mono-repo reference update): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/e2d015aa-d5c4-4c0b-9372-9a83783d9d3f.jsonl
+- Pass 11 (MF Typesense consolidation): /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-03-IITR--deliverable/85060f90-01bf-4532-9e1e-5425e5ccd92e.jsonl
 
 ---
 
