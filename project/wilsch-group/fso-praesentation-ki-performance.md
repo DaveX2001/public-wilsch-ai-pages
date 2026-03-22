@@ -221,12 +221,13 @@ Die Verarbeitungszeit pro Seite besteht aus drei Phasen:
 
 | Phase | Was passiert | Power 10 (CPU) | DGX Spark (vLLM) | Speedup |
 |-------|-------------|----------------|------------------|---------|
-| **Bilderkennung (Vision Encoder)** | Modell „sieht" die Seite — wandelt Pixel in Zahlen um | ~40 Sekunden | **~0,1 Sekunden** | ~400× |
-| **Prefill** | Sprachmodell liest die umgewandelten Daten ein | ~36 Sekunden | **~0,14 Sekunden** | ~257× |
-| **Decode** | Modell generiert strukturierte Antwort | ~14 Sekunden | **~2,5 Sekunden** | ~6× |
+| **Einlesen** | Modell sieht die Seite und versteht den Inhalt — Bilderkennung + Sprachverarbeitung in einem parallelen Schritt | ~76 Sekunden | **~0,24 Sekunden** | **~317×** |
+| **Antworten** | Modell generiert strukturierte Antwort — ein Wort nach dem anderen (sequentiell) | ~14 Sekunden | **~2,5 Sekunden** | ~6× |
 | **Gesamt** | | **~90 Sekunden** | **~2,7 Sekunden** | **~33×** |
 
-> **Kernproblem gelöst:** Die Bilderkennung (Vision Encoder) war auf der CPU mit ~40 Sekunden der Engpass (~45% der Gesamtzeit). Auf der DGX Spark GPU mit vLLM + FP04-MoE: **unter 0,1 Sekunden**. Prefill ebenfalls ~257× schneller. Decode zeigt moderaten Speedup (~6×) — dort ist die Speicherbandbreite der Engpass, nicht die Rechenleistung. Das FP04-MoE-Modell (30B Parameter, 3B aktiv) erreicht durch weniger aktive Parameter pro Token höhere Decode-Geschwindigkeit als dichte Modelle.
+> **Warum der extreme Unterschied beim Einlesen?** Einlesen ist eine parallele Berechnung — alle Daten der Seite werden gleichzeitig verarbeitet. Eine GPU mit 6.144 Kernen erledigt das in Millisekunden. Eine CPU mit 5 Kernen braucht über eine Minute, weil sie die gleiche Arbeit mit tausendmal weniger parallelen Recheneinheiten erledigen muss.
+>
+> **Warum ist Antworten nur 6× schneller?** Antworten ist sequentiell — jedes Wort hängt vom vorherigen ab. Hier zählt nicht Rechenleistung, sondern wie schnell die Hardware das Modell aus dem Speicher lesen kann (Speicherbandbreite). Die GPU ist hier nur moderat schneller als die CPU.
 
 ### Hochrechnung: 14 Projekte
 
