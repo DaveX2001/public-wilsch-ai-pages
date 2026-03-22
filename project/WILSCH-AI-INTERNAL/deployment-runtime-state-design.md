@@ -77,23 +77,23 @@ The direction of truth flips — and git becomes the inter-session memory:
 | **Truth lives in** | Running system (staging server) | Git repository |
 | **Git contains** | Partial copy (code + compose) | Complete system definition (code + compose + Caddy + state manifests) |
 | **Deploy means** | Manual reconstruction of runtime state | Automated derivation from git |
-| **State drift** | Accumulates silently between deploys | Impossible — every deploy starts from recipe |
+| **State drift** | Accumulates silently between deploys | Impossible — every deploy starts from volume clone + compose |
 | **Audit trail** | SSH ops invisible to next session | Every push = commit = issue-commit-linker |
 
 Two principles, equally important:
 - **Reproducibility:** the system is derivable from git — deterministically, without manual steps
 - **Traceability:** every state change goes through git, so the issue-commit-linker captures it. The next session reads the commit history and knows what happened. No SSH = no amnesia.
 
-**What can be codified:**
+**How runtime state travels (volume cloning replaces codification):**
 
-| Component | Codification method | Already done? |
-|-----------|-------------------|---------------|
-| DB schemas | Migration scripts | Yes (most projects) |
-| DB seed data | SQL/JSON seed scripts in `seed/` | Rarely |
-| Pipeline filters / prompts | Git-tracked files, volume-mounted | IITR fixed post-Finding 4 |
-| LibreChat agent definitions | MongoDB seed scripts (JSON export) | No — [feature requested upstream](https://github.com/danny-avila/LibreChat/discussions/10019) |
-| Caddy routing | `.conf` files in repo, deployed with project | IITR partially |
-| Docker networking | Defined in docker-compose.yml | Yes |
+| State type | Mechanism | In git? |
+|-----------|-----------|---------|
+| DB data (MongoDB, Postgres, Qdrant) | Volume clone from staging | No — volumes are the truth |
+| Pipeline filters / prompts | Bind mount from git | Yes — file changes are commits |
+| Agent definitions (OpenWebUI, LibreChat) | Volume clone (stored in DB) | No — volume manifest tracks changes |
+| Caddy routing | `.conf` files in `caddy/` dir | Yes — committed by deploy script |
+| Docker networking | Infra/app compose convention | Yes — compose files in git |
+| Search indexes (Typesense, Meili) | Volume clone + ingestion via GHA | Partial — ingestion scripts in git |
 
 **What cannot be codified (irreducible):**
 - **Credentials** — `.env` files, gitignored. Injected from secrets management or manual setup.
@@ -150,7 +150,7 @@ The developer works locally in a worktree. Every push triggers a preview environ
 
 **Developer workflow:**
 1. `/worktree` skill creates branch + draft PR (existing behavior)
-2. Developer codes locally, runs unit tests (`uv run pytest`)
+2. Developer codes locally
 3. Push → GHA triggers `deploy-preview.sh`
 4. Preview URL appears (e.g., `issue-1234.wilsch-deployment.com`)
 5. Test via URL, share with team
@@ -159,29 +159,31 @@ The developer works locally in a worktree. Every push triggers a preview environ
 
 The worktree skill's existing push behavior IS the deployment trigger. No modifications to the skill. No GTR hooks. No local Docker.
 
-**Deploy script (`scripts/deploy-preview.sh`, ~60 lines):**
+**Deploy script (`scripts/deploy-preview.sh`):**
 
-```bash
-BRANCH=$1
-# 1. Parse volumes from app compose
-VOLUMES=$(docker compose config --volumes)
-# 2. Clone staging volumes (first deploy only)
-for vol in $VOLUMES; do
-  docker volume create "${BRANCH}_${vol}"
-  docker run --rm -v "staging_${vol}:/from:ro" \
-    -v "${BRANCH}_${vol}:/to" alpine cp -a /from/. /to/
-done
-# 3. Start with branch-scoped names
-COMPOSE_PROJECT_NAME=$BRANCH docker compose up -d --wait
-# 4. Caddy route
-echo "${BRANCH}.wilsch-deployment.com { reverse_proxy localhost:${PORT} }" \
-  > caddy/previews/${BRANCH}.conf
-git add caddy/previews/ && git commit -m "caddy: preview ${BRANCH}"
-caddy reload
+```
+INPUT: branch name
+
+1. READ volume names from docker-compose.yml
+2. FOR EACH volume: CLONE staging volume → branch-scoped copy
+3. START app compose with COMPOSE_PROJECT_NAME = branch
+4. WAIT for health checks to pass
+5. GENERATE Caddy config for {branch}.wilsch-deployment.com
+6. COMMIT Caddy config to git
+7. RELOAD Caddy
 ```
 
-**Cleanup script (`scripts/cleanup-preview.sh`, ~20 lines):**
-Compose down, remove volumes, remove Caddy config, commit removal.
+**Cleanup script (`scripts/cleanup-preview.sh`):**
+
+```
+INPUT: branch name
+
+1. STOP app compose for this branch
+2. REMOVE branch-scoped volumes
+3. REMOVE Caddy config
+4. COMMIT removal to git
+5. RELOAD Caddy
+```
 
 **GHA workflow (3 triggers):**
 
@@ -217,18 +219,20 @@ The AI's SSH config only sees the `agent` user. Deployment via SSH is structural
 
 **Undefined:** Data ingestion pipeline design — the trigger mechanism for "data changed in git → GHA runs ingestion on server" needs a concrete implementation pattern. Related to the dbt/Flyway model (declarative files + reconciliation loop).
 
+**Undefined:** Worktree skill integration — the skill's existing push triggers GHA, but should the skill also: (a) inform the developer about the upcoming preview URL, (b) remove the Docker volume copying step (Step 5) since volume cloning is now server-side, (c) detect compose files and mention the deployment convention? Requires evaluation against the current skill implementation.
+
 ### Part 5 — CLAUDE.md Implications: What Dies, What Stays
 
 The Vercel AGENTS.md research and Augment's "junk drawer" analysis converge on one finding: agent context files should contain only what prevents specific failures the agent would otherwise make. Everything else is noise that degrades performance.
 
 Applied to deployment, combined with CCI #659 (CLAUDE.md as Router):
 
-**What dies (platform handles it):**
-- Deployment identity (container name, port, server path) — the recipe IS the identity
-- Branch→server mapping — the platform routes branches to environments
-- `make staging` instructions — CI/CD or platform triggers on push
-- Caddy subdomain convention — platform manages routing
-- SSH access details — no one SSHs anymore
+**What dies (GHA + compose convention handles it):**
+- Deployment identity (container name, port, server path) — the compose file IS the identity
+- Branch→server mapping — GHA routes branches to environments
+- `make staging` instructions — GHA triggers on push
+- Caddy subdomain convention — deploy script manages routing, configs in git
+- SSH access details — read-only for investigation only
 
 **What stays (prevents failures the agent would make):**
 - Build/test/run commands (`uv sync`, `uv run pytest`)
