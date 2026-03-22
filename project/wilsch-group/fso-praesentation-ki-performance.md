@@ -11,6 +11,10 @@ Präsentationsmaterial für das FSO-Seminar am 27. März 2026. Erklärt die leis
 
 ## Folie 1: Performance-bestimmende Faktoren für KI
 
+> **Was Sie von Datenbanken kennen:** Mehr RAM = mehr Daten im Speicher. Mehr Kerne = mehr parallele Abfragen. Mehr IOPS = schnellere Zugriffe. Bei KI gelten andere Regeln.
+>
+> KI-Modelle haben **zwei Arbeitsphasen** mit unterschiedlichen Engpässen. Mehr RAM allein hilft nicht — die entscheidende Frage ist: **Wie schnell kann die Hardware rechnen (Prefill) und wie schnell kann sie Daten lesen (Decode)?** Diese Unterscheidung bestimmt jede Hardware-Entscheidung.
+
 ### Zwei Verarbeitungsarten
 
 | | Prefill (Einlesen) | Decode (Auslesen) |
@@ -56,17 +60,18 @@ Jeder Parameter eines Modells ist eine Zahl (z.B. `0.0472`). Diese Zahl wird mit
 
 Jede Hardware kann ein FP04-Modell **laden und speichern** — das spart Speicher auf allen Systemen. Der entscheidende Unterschied liegt in der **Berechnung**:
 
-| | Modell laden (FP04) | Berechnung durchführen |
-|--|--|--|
-| **DGX Spark (Blackwell)** | ✅ 4 GB | ✅ **Nativ bei FP04** — 1.000 TFLOPS |
-| **Mac Studio (M3 Ultra)** | ✅ 4 GB | ⬆️ Umwandlung zu FP16 — 65 TFLOPS |
-| **IBM Power 10** | ✅ 4 GB | ⬆️ Umwandlung zu BF16 — 2 TFLOPS |
+| | Modell laden (FP04) | Berechnung | Spec (TFLOPS) | Gemessen (FP04-Modell) |
+|--|--|--|--|--|
+| **DGX Spark (Blackwell)** | ✅ 4 GB | FP04 via Marlin-Kernel¹ | 1.000 TFLOPS (Spec) | **63,3 tok/s Decode, 343ms TTFT** |
+| **Apple M5 Ultra (proj.)** | ✅ 4 GB | ✅ Nativ via Neural Acc. | TBD | TBD (erwartet ~Mitte 2026) |
+| **Mac Studio (M3 Ultra)** | ✅ 4 GB | ⬆️ Upcast zu FP16 | 65 TFLOPS | Kein FP04-Vorteil bei Berechnung |
+| **IBM Power 10** | ✅ 4 GB | ⬆️ Upcast zu BF16 | 2 TFLOPS | Kein FP04-Vorteil bei Berechnung |
 
-> **Alle sparen Speicher.** Aber nur NVIDIA kann bei niedrigerer Präzision auch **schneller rechnen**. Apple und IBM müssen die Zahlen intern wieder vergrößern (Upcast), bevor sie rechnen können — kein Geschwindigkeitsvorteil bei der Berechnung.
+> ¹ **Technisches Detail:** Der DGX Spark (SM121-Chip) nutzt FP04 derzeit über den Marlin-Kernel — eine gewichtsbasierte FP04-Kompression, die in höherer Präzision rechnet. Das ist nicht dasselbe wie volle native FP04-Tensor-Core-Berechnung, liefert aber messbare Vorteile: **4,65× schnelleres Decode** und **1,83× schnelleres Prefill** gegenüber dem gleichen Modell in BF16 (gemessen mit llama-benchy, synthetische Benchmarks). Ein nativer FP04-Pfad (FLASHINFER_CUTLASS, PR #98) wurde ebenfalls getestet: 29% schnelleres Prefill, 7% langsameres Decode — besser für dokumentenlastige Workloads.
 >
-> Das ist der eigentliche Vorteil der NVIDIA Tensor Cores: nicht nur weniger Speicher, sondern auch **15x schnellere Berechnung** bei FP04 im Vergleich zu FP16.
+> **Spektrum statt Schwarz-Weiß:** NVIDIA führt heute bei FP04-Inferenz — auch wenn der Mechanismus (Marlin) technisch kein „natives FP04" im Chip-Sinne ist. Apple M5 Ultra wird voraussichtlich Mitte 2026 echte native FP04-Berechnung via GPU Neural Accelerators bieten. IBM Spyre (Power11) hat ebenfalls FP04-Unterstützung, benötigt aber eigene Kernel und ein neues Power11-System. Die Landschaft bewegt sich.
 >
-> **Wann ist das relevant?** Bei **Prefill** (Einlesen) — dort ist die Rechenleistung der Engpass. Bei Decode (Auslesen) ist die Speicherbandbreite der Engpass, und die Rechenleistung reicht auf allen Systemen aus. Für Anwendungen mit hohem Einlese-Anteil (z.B. Dokumentenverarbeitung, PDF-Analyse) ist der Unterschied zwischen nativer FP04-Berechnung und Upcast daher **entscheidend**.
+> **Wann ist das relevant?** Bei **Prefill** (Einlesen) — dort ist die Rechenleistung der Engpass. Bei Decode (Auslesen) ist die Speicherbandbreite der Engpass. Für Dokumentenverarbeitung (95% Prefill) ist der Unterschied zwischen FP04-fähiger und FP16-only Hardware **entscheidend**.
 
 ---
 
@@ -74,33 +79,40 @@ Jede Hardware kann ein FP04-Modell **laden und speichern** — das spart Speiche
 
 ### Hardware + OS
 
-| | 1x IBM Power 10 | 1x IBM Power 11 | 2x NVIDIA DGX Spark | Apple Mac Studio M3 Ultra | Apple Mac Studio M5 Ultra (projiziert)¹ |
-|--|--|--|--|--|--|
-| **Kerne** | 5 CPU | 15 CPU | 2x 6.144 GPU | 80 GPU | 80 GPU + Neural Accelerators |
-| **Kerne (Art)** | POWER10 (VSX + MMA) | POWER11 (VSX + MMA) | Blackwell (CUDA + Tensor) | Apple GPU | Apple GPU + Neural Acc. |
-| **Rechenleistung (FP16)** | ~2 TFLOPS | ~8 TFLOPS | 2x 125 = **250 TFLOPS** | 65,5 TFLOPS | ~66 TFLOPS |
-| **Rechenleistung (FP04)** | — | — | 2x 500 = **1.000 TFLOPS** | — (Upcast zu FP16) | ✅ Nativ (TBD TFLOPS) |
-| **RAM** | 128 GB DDR4 | 1.024 GB DDR5 | 2x 128 = 256 GB LPDDR5x | 256 GB LPDDR5x | bis 512 GB LPDDR5x |
-| **RAM Bandbreite (theoretisch)** | ~400 GB/s | ~1.200 GB/s | 2x 273 = 546 GB/s | 819 GB/s | ~1.228 GB/s |
-| **Effektive Bandbreite** | **137 GB/s** (gemessen, ~34%) | TBD | ~460 GB/s (~85%) | ~700 GB/s (~85%) | ~1.044 GB/s (~85%) |
-| **Speicher (SSD/HDD)** | 500 GB SAS | TBD | 2x 4 TB NVMe | 1–8 TB NVMe | 1–8 TB NVMe |
-| **Betriebssystem** | AlmaLinux 10.0 | TBD | Ubuntu / DGX OS | macOS | macOS |
-| **Architektur** | ppc64le | ppc64le | ARM (aarch64) | ARM (aarch64) | ARM (aarch64) |
-| **Stückzahl** | 1 (vorhanden) | 1 (verfügbar) | 2 (geplant) | 1 (Referenz) | — (erwartet ~Mitte 2026) |
-| **Preis** | ~50.000–100.000 € | ~50.000–100.000 € | 2x ~3.700 € = **~7.400 €** | ~4.000–10.000 € | ~5.000–12.000 € (geschätzt) |
+| | 1x IBM Power 10 | 1x NVIDIA DGX Spark | Apple Mac Studio M3 Ultra | Apple M5 Ultra (proj.)¹ | 8× IBM Spyre (Power11)² | NVIDIA H100 (Datacenter)³ |
+|--|--|--|--|--|--|--|
+| **Kerne** | 5 CPU | 6.144 GPU | 80 GPU | 80 GPU + Neural Acc. | 32 AI-Kerne × 8 Karten | 16.896 GPU |
+| **Rechenleistung (FP16)** | ~2 TFLOPS | ~100 TFLOPS | 65,5 TFLOPS | ~66 TFLOPS | TBD | ~1.979 TFLOPS |
+| **Rechenleistung (FP04)** | — | 500 TFLOPS (Spec) | — (Upcast) | ✅ Nativ (TBD) | FP04/INT4 (custom Kernel) | ~3.958 TFLOPS |
+| **RAM** | 128 GB DDR4 | 128 GB LPDDR5x | 256 GB LPDDR5x | bis 512 GB LPDDR5x | 1 TB LPDDR5 | 80 GB HBM3 |
+| **RAM Bandbreite** | ~400 GB/s (137 gemessen) | 273 GB/s | 819 GB/s | ~1.200 GB/s | 1.600 GB/s | 3.350 GB/s |
+| **Leistungsaufnahme** | ~1.000 W (System) | ~100 W | ~370 W | ~190 W | ~600 W (8 Karten) | ~700 W (GPU allein) |
+| **Betriebssystem** | AlmaLinux 10.0 | Ubuntu / DGX OS | macOS | macOS | RHEL 9.6+ | Linux |
+| **Software-Ökosystem** | Ollama (ppc64le) | CUDA, vLLM, Ollama | MLX, Ollama | MLX, Ollama | Custom Kernel (PyTorch) | CUDA, vLLM, TRT-LLM |
+| **Eigenständiger Computer** | ✅ | ✅ | ✅ | ✅ | ❌ (PCIe-Karte für Power11) | ❌ (benötigt Host-Server) |
+| **Preis** | ~50.000–100.000 € | **~3.700 €** | ~4.000–10.000 € | ~5.000–12.000 € | ~100.000–150.000 €⁴ | ~30.000–40.000 €⁵ |
 
-> ¹ **M5 Ultra (projiziert):** Basierend auf 2x M5 Max Spezifikationen — gleiches Prinzip wie M3 Ultra = 2x M3 Max. Apple M5-Generation hat mit den „GPU Neural Accelerators" erstmals native FP04-Berechnung in Hardware. Kombination aus nativer FP04-Berechnung + ~1.228 GB/s Bandbreite könnte den DGX Spark in beiden Dimensionen (Prefill und Decode) herausfordern. Erwartet ~Mitte 2026 (WWDC).
+> ¹ **M5 Ultra (projiziert):** Basierend auf 2× M5 Max. Erstmals native FP04-Berechnung via GPU Neural Accelerators. Erwartet ~Mitte 2026 (WWDC).
+>
+> ² **IBM Spyre:** 8 PCIe-Karten im ENZ0 Expansion Drawer. Benötigt ein neues **Power11-System** (S1122/S1124) — nicht kompatibel mit bestehenden Power10-Installationen. 5nm ASIC, LPDDR5, 75W pro Karte. Software: eigenes PyTorch-Backend mit Red Hat AI Inference Server (vLLM). Quellen: [IBM Newsroom](https://newsroom.ibm.com/2025-10-07-ibm-introduces-the-spyre-accelerator-for-commercial-availability), [IBM Research](https://research.ibm.com/blog/lifting-the-cover-on-the-ibm-spyre-accelerator).
+>
+> ³ **NVIDIA H100:** Datacenter-GPU als Goldstandard-Referenz. Theoretische Werte — nicht von uns getestet. Benötigt zusätzlich Host-Server, Netzwerk-Infrastruktur, Kühlung. Gesamtsystemkosten deutlich höher als GPU-Preis allein.
+>
+> ⁴ Spyre-Systempreis inkl. Power11-Server + 8 Karten + Expansion Chassis + RHEL-Subscription. Keine offizielle IBM-Preisliste veröffentlicht — Schätzung basierend auf IT Jungle Analyse.
+>
+> ⁵ H100-GPU-Preis ohne Host-Server. Gesamtsystem (DGX H100): ~€200.000+.
 
-### Benchmark-Ergebnisse (PDF-Dokumentenverarbeitung, Qwen 3-VL 8B)
+### Benchmark-Ergebnisse (PDF-Dokumentenverarbeitung)
 
-| | IBM Power 10 | IBM Power 11 | 2x DGX Spark | Mac Studio M3 Ultra |
-|--|--|--|--|--|
-| **TTFT (Prefill)** | ~90 s/Seite | TBD | **<1 s/Seite** | TBD |
-| **TPS (Decode)** | 12,4 tok/s | TBD | **40,2 tok/s** | TBD |
-| **240 Seiten** | ~7 Stunden | TBD | **~21 Minuten** | TBD |
-| **Qualität** | **9/9** Kriterien | TBD | **9/9** Kriterien | TBD |
+| | IBM Power 10 | 1x DGX Spark (sequentiell) | 1x DGX Spark (parallel) |
+|--|--|--|--|
+| **Modell** | Qwen 3-VL 8B | Qwen 3-VL 30B-A3B NVFP4 | Qwen 3-VL 30B-A3B NVFP4 |
+| **TTFT (Prefill)** | ~90 s/Seite | ~0,24 s/Seite | ~0,24 s/Seite |
+| **TPS (Decode)** | 12,4 tok/s | 79,5 tok/s | 79,5 tok/s |
+| **Seiten pro Stunde** | 33 | 1.319 | **6.853** |
+| **Qualität** | **9/9** Kriterien | **9/9** Kriterien | **9/9** Kriterien |
 
-> **Hinweis:** Power 10 und DGX Spark Werte sind gemessen (Qwen 3-VL 8B, Projekt 35764, 72 DPI). Power 10: 240 Seiten. DGX Spark: 294 Seiten (vollständiger Manifest), gemessen auf 1x Spark. Qualität = 9/9 auf beiden Plattformen. TTFT inkl. Vision Encoder — auf GPU <1s vs. CPU ~90s (~100×). Werte für Power 11 und Mac Studio stehen aus.
+> **Hinweis:** Gemessen auf Projekt 35764, 72 DPI, 294 Seiten. Power 10: Ollama, CPU-only (Parallelisierung nicht möglich — NUM_PARALLEL=2 bringt nur 1,03×). DGX Spark: vLLM mit FP04-MoE-Modell (30B Parameter, 3B aktiv), Sweet Spot bei 8 parallelen Anfragen. Bei 16 Anfragen sinkt der Durchsatz (GPU-Decode-Bandbreite gesättigt). Quelle: [#1232](https://github.com/DaveX2001/deliverable-tracking/issues/1232).
 
 ### Warum ist die effektive Bandbreite so unterschiedlich?
 
@@ -207,29 +219,90 @@ Dieselbe Aufgabe (Kriterienextraktion aus 240 PDF-Seiten, Projekt 35764) wurde m
 
 Die Verarbeitungszeit pro Seite besteht aus drei Phasen:
 
-| Phase | Was passiert | Power 10 (CPU) | DGX Spark (GPU) | Speedup |
-|-------|-------------|----------------|-----------------|---------|
-| **Bilderkennung (Vision Encoder)** | Modell „sieht" die Seite — wandelt Pixel in Zahlen um | ~40 Sekunden | **~0,4 Sekunden** | ~91× |
-| **Prefill** | Sprachmodell liest die umgewandelten Daten ein | ~36 Sekunden | **~0,3 Sekunden** | ~120× |
-| **Decode** | Modell generiert strukturierte Antwort | ~14 Sekunden | **~4,6 Sekunden** | ~3× |
-| **Gesamt** | | **~90 Sekunden** | **~5,4 Sekunden** | **~17×** |
+| Phase | Was passiert | Power 10 (CPU) | DGX Spark (vLLM) | Speedup |
+|-------|-------------|----------------|------------------|---------|
+| **Bilderkennung (Vision Encoder)** | Modell „sieht" die Seite — wandelt Pixel in Zahlen um | ~40 Sekunden | **~0,1 Sekunden** | ~400× |
+| **Prefill** | Sprachmodell liest die umgewandelten Daten ein | ~36 Sekunden | **~0,14 Sekunden** | ~257× |
+| **Decode** | Modell generiert strukturierte Antwort | ~14 Sekunden | **~2,5 Sekunden** | ~6× |
+| **Gesamt** | | **~90 Sekunden** | **~2,7 Sekunden** | **~33×** |
 
-> **Kernproblem gelöst:** Die Bilderkennung (Vision Encoder) war auf der CPU mit ~40 Sekunden der Engpass (~45% der Gesamtzeit). Auf der DGX Spark GPU: **0,4 Sekunden** — eine Beschleunigung um den Faktor 91. Zusätzlich ist auch der Prefill ~120× schneller. Nur Decode zeigt moderaten Speedup (~3×), da dort die Speicherbandbreite der Engpass ist, nicht die Rechenleistung.
+> **Kernproblem gelöst:** Die Bilderkennung (Vision Encoder) war auf der CPU mit ~40 Sekunden der Engpass (~45% der Gesamtzeit). Auf der DGX Spark GPU mit vLLM + FP04-MoE: **unter 0,1 Sekunden**. Prefill ebenfalls ~257× schneller. Decode zeigt moderaten Speedup (~6×) — dort ist die Speicherbandbreite der Engpass, nicht die Rechenleistung. Das FP04-MoE-Modell (30B Parameter, 3B aktiv) erreicht durch weniger aktive Parameter pro Token höhere Decode-Geschwindigkeit als dichte Modelle.
 
 ### Hochrechnung: 14 Projekte
 
-| | IBM Power 10 | 2x DGX Spark |
+| | IBM Power 10 | 1x DGX Spark |
 |--|--|--|
-| **1 Projekt (240 Seiten)** | ~7 Stunden | **~21 Minuten** |
-| **14 Projekte** | ~4 Tage | **~2,5 Stunden** |
+| **1 Projekt (294 Seiten)** | ~8,9 Stunden | **~2,6 Minuten** |
+| **14 Projekte** | ~5 Tage | **~36 Minuten** |
 
-> **Hinweis:** Die 14 Projekte haben unterschiedliche Seitenanzahlen. Die Hochrechnung basiert auf gemessenen 672 Seiten/Stunde (1x DGX Spark, Qwen 3-VL 8B). Bei 2x DGX Spark: jeweils 7 Projekte pro Spark (trivial parallelisierbar). Power 10: ~33 Seiten/Stunde → **~20× langsamer** als DGX Spark.
+> **Hinweis:** Hochrechnung basiert auf gemessenen 6.853 Seiten/Stunde (1x DGX Spark, 8 parallele Anfragen, Qwen 3-VL 30B-A3B NVFP4 via vLLM). Power 10: ~33 Seiten/Stunde (Parallelisierung nicht möglich) → **~207× langsamer**.
 >
 > **Wichtig:** Diese Benchmark testet nur die Extraktion — den ersten von zwei Schritten. Der zweite Schritt (Ähnlichkeitsanalyse / Kriteriennachweis-Generierung) wird separat benchmarked, sobald die Page-Index-Infrastruktur bereit ist.
+
+### Warum so schnell? Drei Faktoren
+
+**1. Richtige Hardware — 6.144 statt 5 Kerne**
+
+Eine CPU ist für schnellen Zugriff auf einzelne Daten optimiert — ideal für Datenbanken und ERP. Eine GPU ist für massiven parallelen Durchsatz optimiert — ideal für KI. Die Power 10 hat 5 CPU-Kerne. Der DGX Spark hat 6.144 GPU-Kerne. Jeder Kern verarbeitet einen Teil der KI-Berechnung gleichzeitig.
+
+**2. Richtiges Modell — FP04 + MoE-Architektur**
+
+Das FP04-MoE-Modell (30 Milliarden Parameter, davon nur 3 Milliarden pro Anfrage aktiv) nutzt die GPU-Kerne effizienter als herkömmliche Modelle. Weniger aktive Parameter pro Wort = weniger Rechenaufwand = höhere Geschwindigkeit. Die Qualität bleibt gleich (9/9 Kriterien).
+
+**3. Richtige Parallelisierung — 8 Seiten gleichzeitig**
+
+Die GPU kann 8 Seiten gleichzeitig verarbeiten — der Durchsatz steigt von 1.319 auf 6.853 Seiten pro Stunde. Ab 16 gleichzeitigen Anfragen ist die Speicherbandbreite gesättigt — der Sweet Spot liegt bei 8.
+
+> **Warum kann die Power 10 das nicht?** Wir haben es getestet: mit 2 parallelen Anfragen steigt der Durchsatz um nur 3% (1,03×). Die 5 CPU-Kerne sind bereits mit einer einzigen KI-Anfrage voll ausgelastet. Parallelisierung erfordert Tausende von Kernen — genau das, was eine GPU bietet.
+
+---
+
+## Folie 6: Kaufentscheidung — Drei Wege zur lokalen KI
+
+![Infrastruktur-Vergleich: Kompakte KI-Appliance vs. IBM Spyre-System](kaufentscheidung-infra-vergleich.png)
+
+### Kernaussage
+
+Ihre Power 10 bleibt unverändert — Datenbanken, ERP, alles wie gehabt. Wir stellen eine eigenständige KI-Infrastruktur daneben, die sofort einsatzbereit ist.
+
+| | Option 1: Lokale KI-Appliance ⭐ | Option 2: Disaggregierte Inferenz | Option 3: IBM Spyre Integration |
+|--|--|--|--|
+| **Konzept** | Eigenständiger KI-Computer neben Ihrer bestehenden Infrastruktur | Zwei spezialisierte Geräte — Einlesen und Auslesen auf jeweils optimaler Hardware | KI-Beschleunigerkarten innerhalb des IBM-Ökosystems |
+| **Preis** | **~€3.700** | ~€8.000–14.000 | ~€100.000–150.000 |
+| **Eigenständig** | ✅ Vollständiger Computer | ✅ Zwei eigenständige Computer | ❌ Erweiterungskarten — benötigt neues Power11-System |
+| **Ihre bestehende Infrastruktur** | Unverändert | Unverändert | Neues System erforderlich |
+| **Software-Ökosystem** | Offenes Ökosystem (CUDA, vLLM, PyTorch) | + Apple MLX, EXO-Cluster | Proprietäre Kernel |
+| **Gemessener Speedup** | ~207× vs Power 10¹ | ~2,8× zusätzlich² | Nicht getestet |
+
+> ⭐ **Unsere Empfehlung:** Die lokale KI-Appliance als sofortiger Einstieg. 40× schneller als Power 10 bei der Dokumentenverarbeitung — für ~€3.700 statt ~€150.000. Die disaggregierte Inferenz (Option 2) ist der strategische Upgrade-Pfad für maximale Leistung.
+>
+> ¹ Gemessen: 1.319 Seiten/Stunde vs 33 Seiten/Stunde (Projekt 35764, 294 Seiten, 9/9 Qualität). Details: Folie 2 + Folie 5. Quelle: [#1232](https://github.com/DaveX2001/deliverable-tracking/issues/1232).
+> ² Quelle: [EXO Labs Benchmark](https://blog.exolabs.net/nvidia-dgx-spark/) — Prefill/Decode-Trennung auf separater Hardware.
 
 ---
 
 ## Quellen
+
+### Extraction Pass — Session 2026-03-22
+
+**Transcripts:**
+- [March 14 — Ulrich + David + Marius (Hardware-Strategie, FSO)](https://app.fireflies.ai/view/01KKP083AR8GQPCYDPZ8S5HKVW)
+- [March 21 — Marius + David (Benchmark-Ergebnisse, Kaufentscheidung)](https://app.fireflies.ai/view/01KM872GJ8213CZMA4ZKTJEBGA)
+
+**Issue-Quellen:**
+- [#1232 — vLLM Full Extraction Benchmark (294 Seiten, 1.319 pg/hr)](https://github.com/DaveX2001/deliverable-tracking/issues/1232)
+- [#1220 — vLLM FP4 Spike (4,65× Decode, 1,83× TTFT)](https://github.com/DaveX2001/deliverable-tracking/issues/1220)
+- [#1222 — Native FP4 Tensor Core Validation](https://github.com/DaveX2001/deliverable-tracking/issues/1222)
+- [#1205 — DGX Spark Ollama Benchmark (3 Modelle × 294 Seiten)](https://github.com/DaveX2001/deliverable-tracking/issues/1205)
+- [#1196 — FSO Seminar Webseiten (David, wilsch-ai-site)](https://github.com/DaveX2001/deliverable-tracking/issues/1196)
+
+**Externe Quellen:**
+- [EXO Labs — DGX Spark + Mac Studio Disaggregated Inference](https://blog.exolabs.net/nvidia-dgx-spark/)
+- [IBM Newsroom — Spyre Accelerator Announcement](https://newsroom.ibm.com/2025-10-07-ibm-introduces-the-spyre-accelerator-for-commercial-availability)
+- [IBM Research — Spyre Architecture Deep-Dive](https://research.ibm.com/blog/lifting-the-cover-on-the-ibm-spyre-accelerator)
+- [Hardware-Strategie Kaufentscheidung (Drive)](https://docs.google.com/document/d/1ex9bruT-KPZHsEegVJYr0xf2mSOQ2ngmRlt4UdPGCjw/edit)
+
+### Ursprüngliche Quellen
 
 - [Qwen 3.5 9B schlägt GPT-OSS 120B — VentureBeat](https://venturebeat.com/technology/alibabas-small-open-source-qwen3-5-9b-beats-openais-gpt-oss-120b-and-can-run)
 - [NVIDIA DGX Spark Hardware-Spezifikationen](https://docs.nvidia.com/dgx/dgx-spark/hardware.html)
