@@ -59,33 +59,33 @@ An observation has two parts:
 
 This format was validated live during the extraction session — an output format observation was posted to CCI #589 as a comment instead of creating a new issue.
 
-**Format standard.** Each observation comment follows a three-part structure that mirrors the `/issue-comment` pattern:
+**Format standard.** Each observation comment follows this structure:
 
 ```
-## Observation: [short problem name]
-[1-2 sentences — the problem frame not found in the source itself.
-The hook adds semantic meaning the source doesn't carry: naming the
-behavior problem so the System Engineer knows what to look for.]
+**Session A**
 
-## Source
-[conversation path — auto-resolved from current session]
-
-## Origin
-[traceline/beta-user | internal/team | internal/marius — auto-resolved
-from session context]
+**Hook:** [short problem name — 1-2 sentences, the problem frame
+not found in the source itself]
+**Source:** 🗒️ Session {id}
 ```
+
+Session type is contextual: default Session A (new observation). Session B is auto-detected from `/improve-system` context — the commit is the artifact, no separate observation format. Session C is an SE triage action — the SE posts a disposition comment on the theme issue when recognizing post-fix observations.
 
 **Constraints:**
 - One observation = one source. If the same behavior appears in three conversations, that is three observations. The accumulation on the position epic IS the pattern signal.
 - The hook names the behavior problem — not which standard was violated. Standard mapping is diagnosis work (System Engineer), not capture work (observer). The problem name implicitly signals the domain.
 - Problem-based enforcement happens through prompt guidance in the capture skill. The AI is always the formatter — whether the observer is a beta user, a team member, or Marius. The skill prompt contains examples of good hooks (behavior-naming) and bad hooks (solution-proposing).
-- The origin field gives the System Engineer the prioritization signal: observations from Traceline users carry product urgency; internal observations follow the normal accumulation cycle.
+**Resolved: Observation routing.** All observations route to position epics at capture time — no theme-level routing, no classification questions. The capture interaction stays frictionless: observer flags behavior → AI self-introspects which position epic → posts.
 
-**Undefined:** The origin auto-resolution mechanism — how the capture skill determines whether an observation comes from a Traceline user, a team member, or Marius. Candidates: GitHub username (github.actor from workflow dispatch), project context (soloforce = internal, plugin = traceline), or explicit user input. → Meeting agenda topic.
+Session C classification is an SE triage activity. During grooming or milestone review, the SE recognizes post-fix observations and moves them to theme issues. Capture stays fast, triage stays informed.
 
-**Undefined:** Observation routing UX — when multiple targets exist (position epic, release milestone themes, tooling issues), how does the AI narrow candidates and present options? The two-question protocol (destination + classification) establishes the logic, but the practical "which of these 5 issues?" experience needs design. Evidence: #623 (Witness Skill), #648 (Witness Ceremony Release), #605 (Dev Lead Position Epic) — all valid targets for the same observation domain.
+**Resolved: Two paths to release creation.**
 
-**Undefined:** Post-mortem as release epic creation trigger — a second path to release creation alongside atmospheric pressure. At milestone end, a structured post-mortem discussion surfaces project-specific learnings that become release epics. This is a different methodology from observation accumulation and requires its own design thinking. Evidence: [Grooming + Shutdown Ritual 2026-03-17](https://app.fireflies.ai/view/01KKXKGJB20Q1K0XDHXMH77BVM) — ITA post-mortem discussion revealed decomposition and spike gaps.
+1. **Atmospheric pressure** (bottom-up): Observations accumulate on position epics. SE recognizes a cluster around a coherent concern → creates release milestone.
+
+2. **Post-mortem** (top-down): Human conversation — during grooming, 1:1s, or retrospectives — surfaces systemic issues individual observations don't capture. Bigger-picture patterns visible when stepping back from a body of work (e.g., ITA post-mortem revealing decomposition gaps across projects). Directly creates a release milestone without prior observation accumulation.
+
+Both paths produce the same output (release milestone with theme issues). Difference is input: accumulated evidence vs. structured reflection.
 
 ### 3. Three-Level Hierarchy
 
@@ -177,21 +177,7 @@ The CCI improvement cycle follows a two-path model that mirrors the developer's 
 
 **Session C capture ceremony (needs spike):** A post-session prompt in the Claude Launcher asks the user about behavioral observations after each Claude session. The launcher survives Claude's exit (`subprocess.run` instead of `execvpe`), checks open release milestones, and presents a terminal prompt. Implementation details (config file vs dynamic lookup, UX) require a spike before building. See `~/.claude/lib/claude_launcher.py`.
 
-**Observation routing and classification:** Every observation carries a session type marker:
-- **Session A** (default) — new behavioral failure. Routes to position epic.
-- **Session B** — diagnosis and fix. The git commit IS the Session B artifact (commit message contains diagnosis, fix, and issue reference). No separate observation format — `/improve-system` produces the commit directly.
-- **Session C** — verification pass or fail on a known fix. Routes to theme issue.
-
-The observation protocol asks two questions at capture time: (1) destination — AI suggests a target, user confirms or provides issue number; (2) classification — Session A or Session C. Session B is auto-detected from `/improve-system` context. The session type marker appears in the observation format:
-
-```
-**Session A** / **Session C: PASS ✅** / **Session C: FAIL ❌**
-
-**Hook:** [behavior description]
-**Source:** 🗒️ Session {id}
-```
-
-While a release milestone is open, new observations of the same behavior route to the theme issue as Session C evidence. After the milestone closes, new observations route to the position epic as Session A evidence for potential future clustering.
+**Observation routing:** All observations route to position epics at capture time. Session type defaults to Session A (new observation). Session B is auto-detected from `/improve-system` context — the commit is the artifact. Session C classification happens at SE triage, not capture — the SE recognizes post-fix observations during grooming and posts a disposition comment on the theme issue.
 
 For instruction artifacts, conversations are the design material (not design docs or tracking.md). The JA design doc step does not apply — the SE runs `/improve-system` Session B directly against deduplicated conversations.
 
@@ -226,7 +212,7 @@ Under the founder model, only one driver is partially active. Under the dedicate
 
 **Milestone strategy:** CCI milestones align to the SE's 1:1 cadence with the manager. Weekly or biweekly review sessions serve as the "client meeting" equivalent — the SE presents status, the manager sets priorities, and milestones scope the work between reviews. This is the same structure as deliverable-tracking milestones tied to client sync meetings.
 
-**Undefined:** Stability gates — how fixes move between deployment stages (SE environment → team → Traceline product). This requires a behavioral testing infrastructure equivalent to what automated tests provide for code — a systematic way to verify AI behavior changes before and after deployment. This is a separate project from the board structure design, connected to Session C verification methodology. → Separate workstream.
+**Deferred: Stability gates.** Session C (organic verification) is sufficient for the current improvement cycle. Formal deployment gates (SE environment → team → Traceline) are a future workstream, connected to behavioral testing infrastructure.
 
 ### 7. Operator Epics
 
@@ -263,8 +249,6 @@ The CCI board (GitHub Project P3) is dissolved. Its structural function is repla
 - Release epic issues (#604, #616) → convert to milestones, their sub-issues become milestoned theme issues
 - Standalone CCI issues → triage during grooming (milestone or close)
 
-**Undefined:** Spike issue format — timebox validation ("can it do X?") before decomposing further. Referenced in ITA post-mortem discussion but format not yet designed. The spike serves as the validation gate between decomposition batches.
-
 ---
 
 ## Source
@@ -300,6 +284,8 @@ The CCI board (GitHub Project P3) is dissolved. Its structural function is repla
 - **Issue Lifecycle Router:** [Published](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/issue-lifecycle-router) — milestone lifecycle, starting-point sub-issues, decomposition discipline
 - **Claude Code Hooks:** [Official docs](https://code.claude.com/docs/en/hooks) — SessionEnd/Stop hook feasibility for Session C ceremony
 - **Claude Launcher:** `~/.claude/lib/claude_launcher.py` — post-session Session C prompt mechanism
+- **Session (extraction pass 7 — Undefined resolution: origin deferred, routing simplified, post-mortem resolved, stability gates deferred, spike moved to decomposition):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/a6475222-a890-45a6-bb5f-bcb19dfbd237.jsonl
+- **SE Position Epic (#600):** 30 comments reviewed — 5 recent observations (post-pass-6) + context comment for Track A/B next steps
 
 ---
 
