@@ -25,20 +25,15 @@ Kein Anbieter vereint Art. 27 Vertretung, DSGVO-Beratung und Präsenz vor Ort in
 
 **Quellen**
 
-¹ Forrester APAC Privacy Survey 2024
-https://www.forrester.com/blogs/gdpr-isnt-enough-navigate-privacy-regulations-in-apac/
+¹ [Forrester APAC Privacy Survey 2024](https://www.forrester.com/blogs/gdpr-isnt-enough-navigate-privacy-regulations-in-apac/)
 
-² Cruxi Art. 27 Anbieterverzeichnis
-https://cruxi.ai/pages/directories/gdpr-art27/gdpr-article-27-representative-list.html
+² [Cruxi Art. 27 Anbieterverzeichnis](https://cruxi.ai/pages/directories/gdpr-art27/gdpr-article-27-representative-list.html)
 
-³ EU-Singapur Digitalhandelsabkommen
-https://policy.trade.ec.europa.eu/news/eu-singapore-digital-trade-agreement-enters-force-2026-02-02_en
+³ [EU-Singapur Digitalhandelsabkommen](https://policy.trade.ec.europa.eu/news/eu-singapore-digital-trade-agreement-enters-force-2026-02-02_en)
 
-⁴ EU-Kommission Angemessenheitsbeschlüsse
-https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/adequacy-decisions_en
+⁴ [EU-Kommission Angemessenheitsbeschlüsse](https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/adequacy-decisions_en)
 
-⁵ PDPC EU DSGVO-Leitfaden
-https://www.pdpc.gov.sg/Help-and-Resources/2017/10/EU-GDPR
+⁵ [PDPC EU DSGVO-Leitfaden](https://www.pdpc.gov.sg/Help-and-Resources/2017/10/EU-GDPR)
 
 ---
 
