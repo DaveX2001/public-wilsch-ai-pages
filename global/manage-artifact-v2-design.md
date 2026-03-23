@@ -458,7 +458,7 @@ Each reference document governs a different artifact type and serves both diagno
 | [Skills Guide](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/complete-guide-building-skills-claude) | SKILL.md | `~/.claude/skills/{name}/SKILL.md` | "Which workflow pattern is broken?" | Progressive disclosure, 5 patterns, structure. Key tool: skill-creator |
 | [Prompting Best Practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) | Crosses both | Both locations | "Is reasoning correct but output wrong?" | Examples, WHY over WHAT, format control |
 
-The [Skills Explained](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/skills-explained-prompts-projects-mcp-subagents) taxonomy backs the separation: Skills = procedural knowledge ("here's how to do things"), Projects = background knowledge ("here's what you need to know").
+The [Skills Explained](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/skills-explained-prompts-projects-mcp-subagents) taxonomy backs the separation: Skills = procedural knowledge ("here's how to do things"), Projects = background knowledge ("here's what you need to know"). In Claude Code, the codebase IS most of the background knowledge — Claude can already see it. Project CLAUDE.md should only carry what Claude can't derive from the repo: business context, client info, system access, architecture decisions not obvious from code.
 
 #### Separation of Concerns
 
