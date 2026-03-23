@@ -931,6 +931,16 @@ Three compose stacks share a single server via a manually-created external netwo
 | chromote | Standalone | Manual start on network |
 | trustgraph_rest | Other stack | Unknown |
 
+**Server investigation (2026-03-23):**
+
+Live `librechat-shared` containers confirmed: `trustgraph_rest`, `LibreChat-staging`, `chromote`, `archibus_fastmcp_staging`, `archibus-bulk-import-fastmcp-1`. After the refactor, only LibreChat-staging + archibus_fastmcp_staging remain (fm-assistant's concern).
+
+**Dead services to remove:**
+- `chromote` — unhealthy for 6+ weeks, browser automation not used by bulk-import
+- `trustgraph_rest` — purpose unknown, no dependency identified
+
+**Orphan volumes (13):** From old `COMPOSE_PROJECT_NAME` values (`archibus-custom`, `archibus-dev`, `librechat`). No running container mounts them. Cleaned up as part of the refactor: `archibus-custom_dev_*` (3), `archibus-dev_dev_*` (3), `archibus-staging_pgdata2` (1), `librechat_dev_*` (3), `librechat_pgdata2` (1), `librechat_staging_*` (2).
+
 **Why this breaks:** When one session runs `docker compose down` on any stack, containers on the shared network lose their peers. The cross-stack wiring via `docker network connect` is invisible state — not declared in any compose file, not recoverable from git, not visible to the next session. *(Evidence: CCI #646, CCI #635 — two sessions on the same server, one destroyed containers the other depended on.)*
 
 #### 7.2 Infra/App Classification
@@ -956,6 +966,16 @@ The CCI #646 convention proposed LibreChat as infra (shared). Investigation of t
 | Cross-stack dependency on chromote | FM-Assistant concern, not bulk-import |
 
 **Volume cloning on preview deploy:** When the deploy script creates a preview environment (CCI #646 Part 4), it clones the app volumes from staging — including MongoDB with its agent definitions. The preview starts with a working copy of staging's agent configs. Agent definition changes in the preview don't affect staging. *(Bootstrap exception: first deploy with no staging — agent definitions are created manually once.)*
+
+**Migration path (from current state to convention):**
+
+1. Replace the multi-stack architecture with a single self-contained compose file per the infra/app classification above
+2. Migrate the chat interface from the shared instance to a project-owned instance
+3. Update routing to point at the new instance
+4. Sever the `librechat-shared` network dependency
+5. Remove dead services and orphan volumes
+
+fm-assistant stays untouched — receives its own treatment separately.
 
 #### 7.3 Health Endpoints
 
@@ -1019,7 +1039,7 @@ Archibus does not require project-specific scripts. The convention's script cate
 | **Bootstrap** | No (manual) | First deploy with no staging to clone from: agent definitions are created manually once via the LibreChat UI. Subsequent deploys clone volumes. Not worth scripting for a one-time operation. |
 | **Config import** | No | All MCP configuration is in `docker-compose.yml` (environment variables) and skill files (git). No external config to import. |
 
-*(Source: Extraction pass 2026-03-22 — server investigation + RESOLVE with David. [Grooming transcript 2026-03-22](https://app.fireflies.ai/view/01KMB243RF95QP9ZFG9VGBWFX9). [CCI #646 Design Doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/deployment-runtime-state-design). Session cdfaca64-7d32-4552-ac68-af0b947881f3.)*
+*(Source: Extraction pass 2026-03-22 — server investigation + RESOLVE with David. [Grooming transcript 2026-03-22](https://app.fireflies.ai/view/01KMB243RF95QP9ZFG9VGBWFX9). [CCI #646 Design Doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/deployment-runtime-state-design). Session cdfaca64-7d32-4552-ac68-af0b947881f3. Pass 3: Session aa9eb012 — Archibus exemplar validation, self-contained compose, migration path, orphan volume cleanup.)*
 
 ---
 
