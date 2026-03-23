@@ -90,7 +90,7 @@ Two principles, equally important:
 |-----------|-----------|---------|
 | DB data (MongoDB, Postgres, Qdrant) | Volume clone from staging | No — volumes are the truth |
 | Pipeline filters / prompts | Bind mount from git | Yes — file changes are commits |
-| Agent definitions (OpenWebUI, LibreChat) | Volume clone (stored in DB) | No — volume manifest tracks changes |
+| Agent definitions (OpenWebUI, LibreChat) | Volume clone (stored in DB) | No — detected at witness ceremony ([CCI #623](https://github.com/DaveX2001/claude-code-improvements/issues/623)) |
 | Caddy routing | `.conf` files in `caddy/` dir | Yes — committed by deploy script |
 | Docker networking | Infra/app compose convention | Yes — compose files in git |
 | Search indexes (Typesense, Meili) | Volume clone + ingestion via GHA | Partial — ingestion scripts in git |
@@ -155,15 +155,17 @@ The compose file + one env var (`COMPOSE_PROJECT_NAME`) = complete project ident
 
 **Volume cloning replaces seed scripts.** On first preview deploy, app volumes are cloned from staging. No seed directory, no seed.sh, no Makefile. The staging system IS the seed. For bootstrap (first deploy with no staging), app services create their own state on first run — OpenWebUI creates its DB, Typesense starts empty, ingestion runs via GHA.
 
-**Volume state promotion:** State changes that should survive a preview must enter git before PR merge. The preview volume itself is ephemeral — deleted on cleanup.
+**Volume state promotion is one-directional by design.** Staging→preview via volume clone (proven: #1238 AC1 reproduced all MongoDB data exactly — 29 collections, 1 agent, 7 categories, 1 user identical to staging). Preview→staging does NOT transfer automatically. Industry research confirms: no platform (Vercel, Railway, Render, Fly.io, Coolify, Neon, PlanetScale, Supabase) supports bidirectional volume state promotion. Data never travels back.
 
-| State type | Codification path |
-|-----------|------------------|
-| Agent config (system prompt, MCP connections, model) | Migration script: `scripts/migrations/NNN-description.js` |
-| Pipeline prompts / skill files | Already in git (bind-mounted) — no promotion needed |
-| Search index config | Ingestion script in git — re-runs on deploy |
+When a developer creates state in a preview (e.g., configures an agent via LibreChat UI), that state lives in the preview's volumes. On PR merge, code travels via git — volume state does not. Detection and reconciliation happen at witness ceremony time:
 
-**Undefined:** Agent config export/import mechanism — LibreChat stores agents in MongoDB. The exact export path (mongoexport, LibreChat API, or manual recreation) needs a spike against one real project (Archibus bulk-import) to evaluate feasibility and developer friction.
+| Concern | Mechanism | Owner |
+|---------|-----------|-------|
+| **Detection** | Witness Check 7 — diff volume metadata between preview and staging at review time | Dev Lead ([CCI #623](https://github.com/DaveX2001/claude-code-improvements/issues/623)) |
+| **Reconciliation** | Agent-browser guided manual recreation on staging (e.g., recreate agent config in LibreChat UI) | Developer, guided by Dev Lead |
+| **Audit** | ACs encode expected volume changes ("agent available in selector" = DB config change) | JA design doc |
+
+Pipeline prompts and skill files are bind-mounted from git — no promotion needed. Search index ingestion is project-specific (see Part 4).
 
 ### Part 4 — Push = Preview
 
@@ -178,7 +180,7 @@ The developer works locally in a worktree. Every push triggers a preview environ
 6. More pushes → GHA redeploys (same volumes, new code)
 7. PR merged → GHA runs `cleanup-preview.sh` + `deploy-staging.sh`
 
-The worktree skill's existing push behavior IS the deployment trigger. No modifications to the skill. No GTR hooks. No local Docker.
+The worktree skill's existing push behavior IS the deployment trigger. No GTR hooks. No local Docker. The skill's Step 5 (local Docker volume handling) is removed — volume cloning is now server-side. In its place, the skill detects compose files and monitors the deploy script's back-pressure output, reporting deployment status in-session.
 
 **Deploy script (`scripts/deploy-preview.sh`):**
 
@@ -230,6 +232,17 @@ Each level returns an exit code. GHA reads it: 0 = success, non-zero = failure. 
 
 **Caddy configs live in git** — not `/etc/caddy/`. The deploy script generates a config file, commits it, syncs to server. Every route change is a git commit → issue-commit-linker captures it.
 
+**Caddy coexistence with legacy configs.** The server has 20+ manually-created `.conf` files in `/etc/caddy/conf.d/` serving production and staging routes. The deploy script coexists with these — it only manages configs it creates, identified by naming convention:
+
+| Config type | Naming pattern | Managed by |
+|------------|---------------|------------|
+| Preview environments | `preview-{repo}-issue-{N}.conf` | Deploy/cleanup scripts |
+| Staging/production | Project-specific names (e.g., `bulk-import.conf`) | Manual (legacy) or future migration |
+
+Preview naming cannot collide with production naming — one is branch-scoped (`issue-N`), the other is project-scoped. Cleanup script matches `preview-*-issue-{N}*` to remove only script-managed configs. Legacy configs are untouched indefinitely. Migration happens naturally as projects adopt the convention.
+
+**Proof point (#1238):** Manual deploy/cleanup cycle validated on WILSCH-AI-SERVER against Archibus bulk-import (AC1-AC4 passed). Volume cloning produces a faithful staging replica. Port isolation via Docker port 0 prevents binding conflicts. Preview and staging coexist without interference — staging data, services, and routing remain unchanged throughout the full lifecycle. Cleanup leaves zero residual resources. Evidence: [#1238 verification](https://github.com/DaveX2001/deliverable-tracking/issues/1238).
+
 **Read-only SSH enforcement — 6-layer structural design:**
 
 Three server users, each structurally limited:
@@ -249,7 +262,7 @@ Three server users, each structurally limited:
 
 The AI's SSH config only sees the `agent` user. Deployment via SSH is structurally impossible — it can only happen through git push → GHA. Same "no decision point" principle: remove the wrong choice entirely.
 
-**Data operations (ingestion):** Read-only SSH forces all writes through git. Data files go in the repo, GHA runs ingestion scripts on push. The commit that added data IS the audit trail. For UI-level state changes (agent configured via OpenWebUI), a volume manifest cron detects size changes and commits notifications to git.
+**Data operations (ingestion):** Read-only SSH forces all writes through git. Data files go in the repo, GHA runs ingestion scripts on push. The commit that added data IS the audit trail.
 
 **Testing model — two-stage:**
 
@@ -260,9 +273,7 @@ The AI's SSH config only sees the `agent` user. Deployment via SSH is structural
 
 Before final testing on the preview, the developer rebases code AND re-clones volumes from staging — minimizing divergence. PRs merge sequentially; GHA deploys staging + health check after each merge. If the health check fails, the last merge is the culprit. No race condition — each merge is the only variable.
 
-**Undefined:** Data ingestion pipeline design — the trigger mechanism for "data changed in git → GHA runs ingestion on server" needs a concrete implementation pattern. Related to the dbt/Flyway model (declarative files + reconciliation loop).
-
-**Undefined:** Worktree skill integration — the skill's existing push triggers GHA, but should the skill also: (a) inform the developer about the upcoming preview URL, (b) remove the Docker volume copying step (Step 5) since volume cloning is now server-side, (c) detect compose files and mention the deployment convention? Requires evaluation against the current skill implementation.
+**Data ingestion is project-specific.** The core convention handles deployment (compose up, volume clone, Caddy routing). Data ingestion — populating search indexes, running ETL pipelines, importing seed data — varies per project. Archibus bulk-import requires none. IITR (Typesense, Qdrant) will design its own ingestion pipeline when it adopts the convention. The convention provides the hook point (GHA workflow + compose), individual projects extend it with project-specific scripts as needed.
 
 ### Part 5 — CLAUDE.md Implications: What Dies, What Stays
 
@@ -322,6 +333,15 @@ The ruleset auto-applies to every repo transferred to the org, including repos c
 
 This closes the last gap in the enforcement chain. Without branch protection, the AI can `git push` directly to staging from the local machine — bypassing the worktree→PR→GHA flow that Parts 1–5 depend on. With the ruleset, direct push returns 403. The only path to staging is: worktree branch → PR → merge → GHA deploys.
 
+### Part 7 — Scaling the Convention
+
+Parts 1–6 validated the mechanism against one project (Archibus bulk-import). Scaling to all projects raises four concerns, scoped for the GHA automation trunk:
+
+- **Distribution:** Deploy scripts are convention tooling, not project-specific. The GHA trunk produces a reusable GitHub Action any project can reference. Where it lives — dedicated action repo or shared tooling repo — is a distribution decision.
+- **Convention linter:** `docker compose config` validates syntax, not convention compliance. A CI linter on compose changes would structurally enforce: healthcheck blocks present, env-var ports, no external networks, self-contained stacks. Same principle as read-only SSH — remove the wrong choice.
+- **Adoption path:** How a project opts into push=preview. Convention-compliant compose → add GHA reference → first deploy establishes staging. The checklist needs definition.
+- **CI gate:** Whether PRs modifying `docker-compose.yml` should be validated against the convention before merge. Related to the convention linter — the linter is the tool, the CI gate is where it runs.
+
 ---
 
 ## Source
@@ -371,6 +391,11 @@ This closes the last gap in the enforcement chain. Without branch protection, th
 - [#646 comment — side-by-side compose comparison](https://github.com/DaveX2001/claude-code-improvements/issues/646#issuecomment-4109938814) — bulk-import (clean) vs FM-Assistant (organic)
 - [#1237 — Compose Refactor](https://github.com/DaveX2001/deliverable-tracking/issues/1237) (merged, Archibus first exemplar)
 
+**Pass 4 Evidence (proof point + verification):**
+- [#1238 — Deploy script manual preview](https://github.com/DaveX2001/deliverable-tracking/issues/1238) (AC1-AC4 passed, Trunk 1 complete)
+- [#1237 — Compose refactor](https://github.com/DaveX2001/deliverable-tracking/issues/1237) (closed, first convention exemplar)
+- [#623 — Witness Skill v1](https://github.com/DaveX2001/claude-code-improvements/issues/623) (Check 7 volume state diff, merge as witness outcome)
+
 **Pass 3 Research:**
 - [LinuxServer docker-socket-proxy](https://github.com/linuxserver/docker-socket-proxy) — read-only Docker API proxy, actively maintained (74 releases)
 - [Tecnativa docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy) — reference baseline, stale
@@ -382,6 +407,7 @@ This closes the last gap in the enforcement chain. Without branch protection, th
 - 🗒️ Session b3ede71b (Pass 2 — real project grounding + conversation evidence)
 - 🗒️ Session aa9eb012 (Pass 3 — Archibus exemplar validation + CI/CD testing model)
 - 🗒️ Session e8fef0b2 (Pass 3 — Archibus server cleanup + SSH enforcement design + branch protection)
+- 🗒️ Session 20e0c452 (Pass 4 — resolve Undefined markers + proof point absorption)
 
 ---
 
