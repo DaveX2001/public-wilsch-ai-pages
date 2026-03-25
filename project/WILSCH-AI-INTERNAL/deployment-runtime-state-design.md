@@ -155,6 +155,15 @@ The compose file + one env var (`COMPOSE_PROJECT_NAME`) = complete project ident
 
 **Volume cloning replaces seed scripts.** On first preview deploy, app volumes are cloned from staging. No seed directory, no seed.sh, no Makefile. The staging system IS the seed. For bootstrap (first deploy with no staging), app services create their own state on first run — OpenWebUI creates its DB, Typesense starts empty, ingestion runs via GHA.
 
+**Validation scope differs by compose type.** The app compose must be isolation-safe — it runs N copies simultaneously. The infra compose must be stability-safe — it runs once, referenced by name. The Level 0 convention validator (Part 4) applies different rulesets:
+
+| Compose | Validated for | Why |
+|---------|--------------|-----|
+| **App** (`docker-compose.yml`) | Isolation — no `container_name:`, no `external: true`, env-var ports, `deploy.entry` label present | Must coexist as multiple branch-scoped copies |
+| **Infra** (`docker-compose.infra.yml`) | Stability — healthchecks on every service, credentials in `.env` (not inline), creates the network app composes expect | Singleton — stable names and networks are correct here |
+
+`container_name:` is banned in app compose (breaks `COMPOSE_PROJECT_NAME` isolation) but expected in infra compose (GPU services referenced by stable name). The same directive is a violation in one context and correct in the other.
+
 **Volume state promotion is one-directional by design.** Staging→preview via volume clone (proven: #1238 AC1 reproduced all MongoDB data exactly — 29 collections, 1 agent, 7 categories, 1 user identical to staging). Preview→staging does NOT transfer automatically. Industry research confirms: no platform (Vercel, Railway, Render, Fly.io, Coolify, Neon, PlanetScale, Supabase) supports bidirectional volume state promotion. Data never travels back.
 
 When a developer creates state in a preview (e.g., configures an agent via LibreChat UI), that state lives in the preview's volumes. On PR merge, code travels via git — volume state does not. Detection and reconciliation happen at witness ceremony time:
@@ -212,25 +221,61 @@ INPUT: branch name
 
 | Trigger | Action | Script |
 |---------|--------|--------|
-| Push to feature branch | Deploy preview | `deploy-preview.sh` |
+| Push to feature branch | Deploy preview (app only) | `deploy-preview.sh` |
 | PR closed/merged | Tear down preview | `cleanup-preview.sh` |
-| Push to staging branch | Update staging | `deploy-staging.sh` |
+| Push to staging branch | Update staging (two-phase: infra then app) | `deploy-preview.sh staging` |
+
+**Infra deployment cadence.** Infra and app deploy at different cadences. Feature branch pushes deploy app compose only — the preview connects to already-running infra via the shared network. Staging merges deploy both: infra compose first (pull new images, restart changed services), then app compose. Infra changes on feature branches are visible in the PR but don't deploy until merge — the preview runs against current infra.
+
+This means adding a new infra service (e.g., Typesense) is sequential: merge the infra change first (establishes the service on staging), then branch off with app code that uses it. Breaking infra changes are rare and inherently risky — the PR review is the gate, not preview testing.
+
+**Entry point detection via compose label.** The deploy script must know which service gets the Caddy route. Industry convention (Traefik, caddy-docker-proxy, Coolify) uses Docker labels. The deployment convention uses a single label:
+
+```yaml
+services:
+  librechat:
+    labels:
+      deploy.entry: "3080"          # container port — script reads this
+    ports:
+      - "${LIBRECHAT_PORT:-0}:3080" # default 0 = auto-assign for previews
+```
+
+The script reads `deploy.entry` from compose config, finds the labeled service, queries its auto-assigned host port via `docker compose port`, and generates the Caddy config. No hardcoded service names or ports in the script — it works for any project.
+
+**Port auto-assignment convention.** Compose files default published ports to 0 (`${PORT_VAR:-0}:container_port`). Docker auto-assigns an available host port, preventing collisions between preview and staging. Local development uses `.env` to override with a stable port (e.g., `LIBRECHAT_PORT=3020`). The server has no port override — 0 kicks in, Docker picks a free port. The Level 0 validator checks: exactly one service has `deploy.entry`. Zero = fail (no entry point). More than one = fail (ambiguous).
 
 **Back pressure (script-level, not AI-level):**
 
 | Level | Check | What it catches |
 |-------|-------|----------------|
-| 0 | Compose lint (convention validator) | `container_name:`, `external: true`, missing `healthcheck:` |
+| 0 | Compose lint (convention validator) | `container_name:`, `external: true`, missing `healthcheck:`, missing `deploy.entry` |
+| 0s | Server pre-flight | Remote is HTTPS (not SSH), deploy user doesn't own checkout, git can't fetch origin, `.env` missing, Docker daemon inaccessible |
 | 1 | `docker compose config` | Invalid compose file |
 | 2 | `docker compose up --wait` | Health check failures |
 | 3 | `curl -f $PREVIEW_URL` | Routing/reachability broken |
 | 4 | `docker compose logs \| grep error` | Runtime errors in logs |
 
-Each level returns an exit code. GHA reads it: 0 = success, non-zero = failure. Binary, deterministic, no AI interpretation. Level 0 is static — runs in CI on every PR without needing the server. The compose validator codifies the naming convention (Part 3) into a machine-checkable artifact. Same principle as read-only SSH: remove the wrong choice instead of documenting against it.
+Each level returns an exit code. GHA reads it: 0 = success, non-zero = failure. Binary, deterministic, no AI interpretation. Level 0 is static — runs in CI on every PR without needing the server. Level 0s runs on the server before any deployment — it catches infrastructure prerequisites that would otherwise produce confusing errors ("Repository not found" when deploy keys are disabled, permission denied when ownership is wrong). Level 0s turns the 4 stacked infrastructure blockers discovered during Archibus adoption (#1251) into automated checks with clear error messages and remediation instructions.
+
+**Deploy-owned checkout model.** The deploy user clones all project repos to `/home/deploy/projects/{repo-name}` via SSH. Directory permissions: `deploy:dev-team 2775` (setgid ensures new files inherit `dev-team` group). This eliminates three infrastructure blockers that stacked during Archibus adoption:
+
+| Blocker | Root cause | How deploy-owned eliminates it |
+|---------|-----------|-------------------------------|
+| `git safe.directory` | Repo owned by marius, deploy can't pull | Deploy owns the checkout — ownership matches |
+| SSH vs HTTPS remote | Marius cloned via HTTPS, deploy has no HTTPS credentials | Deploy clones via SSH — remote matches auth method |
+| File group ownership | Files owned by `marius:marius`, deploy can't write | Deploy creates files as `deploy:dev-team` — setgid propagates |
+
+Human operators (marius, david) access deploy-owned directories via `dev-team` group membership — same read/write/Docker capabilities as today, different ownership direction. Emergency "break glass" access works via group permissions without sudo.
+
+**Update mode (subsequent pushes).** The first push to a branch clones staging volumes and creates a new preview. Subsequent pushes to the same branch skip volume cloning — they pull new code and restart services. Volumes persist across updates: agent configurations, test data, and database state survive code deployments. The deploy script detects whether the preview already exists (`docker compose ps`) and routes to the appropriate path: first deploy (clone + start) or update (pull + restart).
+
+**Staging deploy path.** The deploy script detects the `staging` branch and takes a different path: no volume cloning (staging IS the volume source), no Caddy config generation (staging has a permanent route). Staging deploy is: `git pull → docker compose up -d → health check`. For two-phase staging (see infra deployment cadence above), the GHA workflow runs `docker compose -f docker-compose.infra.yml up -d` first, then the app compose.
+
+**Workflow dedup.** A single `deploy.yml` handles all three triggers (preview, cleanup, staging). The spike-era `deploy-preview.yml` (single-purpose) must be deleted — both workflows match `issue-*` branches, causing duplicate GHA runs and confusing issue comments (one success, one failure on the same push).
 
 **Deploy-linker:** GHA step that posts deployment status to the issue: `📦 Preview deployed: URL` on success, `❌ Preview failed` on failure. Extracts issue number from branch name. Automatic.
 
-**Caddy configs live in git** — not `/etc/caddy/`. The deploy script generates a config file, commits it, syncs to server. Every route change is a git commit → issue-commit-linker captures it.
+**Caddy configs are ephemeral on the server.** The deploy script generates a config file in `/etc/caddy/conf.d/`, the cleanup script removes it. Preview configs are temporary by definition — they exist while the preview runs and disappear on PR merge. The deploy-linker posts the preview URL to the issue (audit trail). Committing preview configs to git was evaluated and rejected: each preview's config would only be visible on its own branch, creating no central overview of active routes. Periodic filesystem sweep (`ls /etc/caddy/conf.d/preview-*`) catches orphaned configs from abandoned branches or failed cleanups.
 
 **Caddy coexistence with legacy configs.** The server has 20+ manually-created `.conf` files in `/etc/caddy/conf.d/` serving production and staging routes. The deploy script coexists with these — it only manages configs it creates, identified by naming convention:
 
@@ -335,16 +380,18 @@ The ruleset auto-applies to every repo transferred to the org, including repos c
 
 This closes the last gap in the enforcement chain. Without branch protection, the AI can `git push` directly to staging from the local machine — bypassing the worktree→PR→GHA flow that Parts 1–5 depend on. With the ruleset, direct push returns 403. The only path to staging is: worktree branch → PR → merge → GHA deploys.
 
-**Undefined:** AI git identity and bypass model — the AI and human currently share one git identity (`marius`), making it structurally impossible to distinguish AI pushes from human pushes. A separate machine user (e.g., `claude-wilsch-ai` — name TBD) in the org would enable: (a) org ruleset bypass for humans only — AI must always PR, humans can push directly, (b) unambiguous audit trail — every commit shows who authored it, (c) server-side mapping — the `agent` SSH user maps to the AI's GitHub identity. Requires one additional Team seat ($4/mo). Alternative: GitHub App (no seat cost, different auth model). The exact identity model — machine user vs GitHub App, key management, `Co-Authored-By` conventions — needs a spike against one real project.
+**AI git identity: GitHub App.** The Undefined is resolved — GitHub App replaces both deploy keys and the machine user proposal. One App installed on the WILSCH-AI-SERVICES org provides: (a) org-wide repo access without per-repo deploy key setup, (b) distinct identity for audit trail — commits via the App are attributable to automation, not a human, (c) 1-hour auto-expiring tokens (no permanent credentials on the server), (d) no additional Team seat cost ($4/mo saved vs machine user). The App's installation token is generated via JWT helper script on the server, used for `git pull` during GHA deploys. The deploy-linker already runs as a GitHub App (the issue-commit-linker) — deploy access follows the same pattern. Server-side mapping: the `deploy` SSH user uses the App's credentials for git operations; the `agent` SSH user remains read-only (no git write access regardless of identity).
 
 ### Part 7 — Scaling the Convention
 
-Parts 1–6 validated the mechanism against one project (Archibus bulk-import). Scaling to all projects raises four concerns, scoped for the GHA automation trunk:
+Parts 1–6 validated the mechanism against one project (Archibus bulk-import). Scaling to all projects requires resolving distribution, validation, and adoption. The Archibus exemplar proved the mechanism for the simple case (self-contained stack, no shared infra). Pass 5 absorbed implementation learnings to prepare for multi-project adoption.
 
-- **Distribution:** Deploy scripts are convention tooling, not project-specific. The GHA trunk produces a reusable GitHub Action any project can reference. Where it lives — dedicated action repo or shared tooling repo — is a distribution decision.
+- **Distribution: Custom GitHub Action.** Convention tooling lives in `WILSCH-AI-SERVICES/deploy-action` as a custom GitHub Action. Projects write their own workflows (own triggers, project-specific steps like data ingestion) and reference the action: `uses: WILSCH-AI-SERVICES/deploy-action@v1`. The action receives inputs (`action: deploy-preview|cleanup|deploy-staging`, `compose-file`, `branch`). Version pinning via tags — projects upgrade at their own pace. This was chosen over reusable workflows because projects need different triggers and project-specific steps that a shared workflow can't accommodate.
 - **Convention linter:** `docker compose config` validates syntax, not convention compliance. A CI linter on compose changes would structurally enforce: healthcheck blocks present, env-var ports, no external networks, self-contained stacks. Same principle as read-only SSH — remove the wrong choice.
 - **Adoption path:** How a project opts into push=preview. Convention-compliant compose → add GHA reference → first deploy establishes staging. The checklist needs definition.
 - **CI gate:** Whether PRs modifying `docker-compose.yml` should be validated against the convention before merge. Related to the convention linter — the linter is the tool, the CI gate is where it runs.
+
+**Undefined:** Monorepo deploy strategy — single root compose (deploy everything on every push) vs per-subproject compose (path-filtered GHA jobs). Docker Compose selectively restarts only changed services, minimizing the risk of "deploy everything." However, volume cloning cost on first preview deploy scales with the number of volumes across all subprojects. Needs a spike with actual IITR compose to measure deploy time and disk usage before deciding. The convention default is one compose file per deploy unit — a monorepo either consolidates into one compose or treats each subproject as an independent deploy unit with path-filtered triggers.
 
 ### Spike Format
 
@@ -443,6 +490,18 @@ Undefined markers in this design doc become spike issues when ready for validati
 - [#1237 — Compose refactor](https://github.com/DaveX2001/deliverable-tracking/issues/1237) (closed, first convention exemplar)
 - [#623 — Witness Skill v1](https://github.com/DaveX2001/claude-code-improvements/issues/623) (Check 7 volume state diff, merge as witness outcome)
 
+**Pass 5 Evidence (Archibus retrospective):**
+- [#1251 — GHA deploy workflow](https://github.com/DaveX2001/deliverable-tracking/issues/1251) (closed, all 7 ACs, first project wired to push=preview)
+- [#1250 — GHA primitives spike](https://github.com/DaveX2001/deliverable-tracking/issues/1250) (closed, all 4 primitives proven)
+- [#646 comment — 4 stacked infrastructure blockers](https://github.com/DaveX2001/claude-code-improvements/issues/646) (safe.directory, deploy keys, SSH/HTTPS, setgid)
+- [#646 comment — deploy workflow collision observation](https://github.com/DaveX2001/claude-code-improvements/issues/646) (2026-03-25, two workflows on same push)
+
+**Pass 5 Research:**
+- [Traefik Docker routing](https://doc.traefik.io/traefik/reference/routing-configuration/other-providers/docker/) — label-based service discovery
+- [caddy-docker-proxy](https://github.com/lucaslorentz/caddy-docker-proxy) — Caddy native Docker label integration
+- [Coolify Docker Compose docs](https://coolify.io/docs/knowledge-base/docker/compose) — UI domain assignment + Traefik labels
+- [Kamal proxy configuration](https://kamal-deploy.org/docs/configuration/proxy/) — deploy.yml proxy block
+
 **Pass 3 Research:**
 - [LinuxServer docker-socket-proxy](https://github.com/linuxserver/docker-socket-proxy) — read-only Docker API proxy, actively maintained (74 releases)
 - [Tecnativa docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy) — reference baseline, stale
@@ -455,6 +514,7 @@ Undefined markers in this design doc become spike issues when ready for validati
 - 🗒️ Session aa9eb012 (Pass 3 — Archibus exemplar validation + CI/CD testing model)
 - 🗒️ Session e8fef0b2 (Pass 3 — Archibus server cleanup + SSH enforcement design + branch protection)
 - 🗒️ Session 20e0c452 (Pass 4 — resolve Undefined markers + proof point absorption)
+- 🗒️ Session ce6cc685 (Pass 5 — Archibus retrospective, IITR generalization, 12 resolutions)
 
 ---
 
