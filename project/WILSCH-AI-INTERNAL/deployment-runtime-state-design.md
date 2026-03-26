@@ -395,49 +395,6 @@ Parts 1–6 validated the mechanism against one project (Archibus bulk-import). 
 
 **Undefined:** Monorepo deploy strategy — single root compose (deploy everything on every push) vs per-subproject compose (path-filtered GHA jobs). Docker Compose selectively restarts only changed services, minimizing the risk of "deploy everything." However, volume cloning cost on first preview deploy scales with the number of volumes across all subprojects. Needs a spike with actual IITR compose to measure deploy time and disk usage before deciding. The convention default is one compose file per deploy unit — a monorepo either consolidates into one compose or treats each subproject as an independent deploy unit with path-filtered triggers.
 
-### Spike Format
-
-Undefined markers in this design doc become spike issues when ready for validation. The format (established across #1220, #1222, #1229, #1250):
-
-**What / Why.** Frame the spike's purpose and the risk it mitigates. A spike exists because an assumption blocks decomposition — the What names the assumption, the Why explains what breaks if it's wrong.
-
-**Spike Primitives.** Numbered table of independently testable claims. Each primitive isolates one variable — if the spike fails, the primitive table tells you which layer failed. Order primitives so each builds on the previous (P1 must pass before P2 is meaningful).
-
-**Proof Point.** The binary comparison or question the spike answers. Usually "does X produce the same result as Y?" or "does X work at all?" The proof point is what makes the spike pass or fail — without it, the spike is open-ended research, not validation.
-
-**Proven-vs-Assumed Map.** Output template with Status and Evidence columns, filled in during execution. Before the spike, claims are "Assumed" (empty evidence). After, each is "Proven" or "Failed" with a specific artifact. This is the spike's deliverable — the map travels back to the design doc or decomposition.
-
-**After Spike.** Routing logic for passes and fails. Passes unlock the next decomposition trunk. Fails identify which primitive broke and what the fallback is. Both outcomes are valuable — a failed spike prevents wasted implementation effort.
-
-```
-## What?
-{Assumption that blocks decomposition}
-
-## Why?
-{What breaks if the assumption is wrong}
-
-## Spike Primitives
-
-| # | Primitive | What's tested |
-|---|-----------|--------------|
-| 1 | {layer 1} | {isolated variable} |
-| 2 | {layer 2} | {builds on P1} |
-
-## Proof Point
-{Binary question — pass/fail}
-
-## Proven-vs-Assumed Map
-
-| Claim | Status | Evidence |
-|-------|--------|----------|
-| {claim 1} | Assumed | |
-| {claim 2} | Assumed | |
-
-## After Spike
-**Passes:** {next trunk / decomposition}
-**Fails:** {which primitive, fallback path}
-```
-
 ---
 
 ## Source
