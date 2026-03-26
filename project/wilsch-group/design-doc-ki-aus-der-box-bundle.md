@@ -81,7 +81,7 @@ We know both platforms and pick the right one for the customer's environment. Al
 
 **Data Connectors — the Dolmetscher layer:** Four connector types, each for a different data problem:
 
-<img src="https://mariuswilsch.github.io/public-wilsch-ai-pages/project/wilsch-group/ki-aus-der-box-telefonzentrale.png" width="100%" alt="Telefonzentrale — KI routet Anfragen an die richtige Datenquelle" />
+<img src="ki-aus-der-box-telefonzentrale.png" alt="Telefonzentrale — KI routet Anfragen an die richtige Datenquelle" width="100%">
 
 | Type | When to use | Example |
 |------|------------|--------|
