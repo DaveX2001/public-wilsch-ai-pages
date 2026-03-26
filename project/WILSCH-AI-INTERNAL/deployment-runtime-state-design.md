@@ -242,7 +242,9 @@ services:
 
 The script reads `deploy.entry` from compose config, finds the labeled service, queries its auto-assigned host port via `docker compose port`, and generates the Caddy config. No hardcoded service names or ports in the script — it works for any project.
 
-**Port auto-assignment convention.** Compose files default published ports to 0 (`${PORT_VAR:-0}:container_port`). Docker auto-assigns an available host port, preventing collisions between preview and staging. Local development uses `.env` to override with a stable port (e.g., `LIBRECHAT_PORT=3020`). The server has no port override — 0 kicks in, Docker picks a free port. The Level 0 validator checks: exactly one service has `deploy.entry`. Zero = fail (no entry point). More than one = fail (ambiguous).
+**Port auto-assignment convention.** Compose files default published ports to 0 (`${PORT_VAR:-0}:container_port`). Docker auto-assigns an available host port, preventing collisions between preview and staging. Local development uses `.env` to override with a stable port (e.g., `LIBRECHAT_PORT=3020`). The server has no port override — 0 kicks in, Docker picks a free port. The Level 0 validator checks: at least one service has `deploy.entry`. Zero = fail (no entry point declared).
+
+**Undefined:** Multi-entry-point routing — when multiple services have `deploy.entry`, each gets its own Caddy route using the service name as subdomain prefix (`{service}-{branch}.wilsch-deployment.com`). The script loops through all labeled services, queries each auto-assigned port, generates a route per service. Mechanically straightforward but untested — needs a spike to validate DNS wildcard, Caddy config generation, and deploy-linker output (which URL to post to the issue when multiple exist).
 
 **Back pressure (script-level, not AI-level):**
 
