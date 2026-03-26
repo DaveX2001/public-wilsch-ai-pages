@@ -110,6 +110,47 @@ This is a human decision, not an AI gate. The AI can suggest proof points and fl
 
 **IITR evidence (counterfactual):** A spike on "can PageIndex OSS do retrieval?" would have taken hours and saved 3 days of building on a broken foundation. The IITR post-mortem invented the spike primitive; Archibus validated it.
 
+**Spike issue template.** Undefined markers in design docs become spike issues when ready for validation. The format (established across #1220, #1222, #1229, #1250):
+
+**What / Why.** Frame the spike's purpose and the risk it mitigates. A spike exists because an assumption blocks decomposition — the What names the assumption, the Why explains what breaks if it's wrong.
+
+**Spike Primitives.** Numbered table of independently testable claims. Each primitive isolates one variable — if the spike fails, the primitive table tells you which layer failed. Order primitives so each builds on the previous (P1 must pass before P2 is meaningful).
+
+**Proof Point.** The binary comparison or question the spike answers. Usually "does X produce the same result as Y?" or "does X work at all?" The proof point is what makes the spike pass or fail — without it, the spike is open-ended research, not validation.
+
+**Proven-vs-Assumed Map.** Output template with Status and Evidence columns, filled in during execution. Before the spike, claims are "Assumed" (empty evidence). After, each is "Proven" or "Failed" with a specific artifact. This is the spike's deliverable — the map travels back to the design doc or decomposition.
+
+**After Spike.** Routing logic for passes and fails. Passes unlock the next decomposition trunk. Fails identify which primitive broke and what the fallback is. Both outcomes are valuable — a failed spike prevents wasted implementation effort.
+
+```
+## What?
+{Assumption that blocks decomposition}
+
+## Why?
+{What breaks if the assumption is wrong}
+
+## Spike Primitives
+
+| # | Primitive | What's tested |
+|---|-----------|--------------|
+| 1 | {layer 1} | {isolated variable} |
+| 2 | {layer 2} | {builds on P1} |
+
+## Proof Point
+{Binary question — pass/fail}
+
+## Proven-vs-Assumed Map
+
+| Claim | Status | Evidence |
+|-------|--------|----------|
+| {claim 1} | Assumed | |
+| {claim 2} | Assumed | |
+
+## After Spike
+**Passes:** {next trunk / decomposition}
+**Fails:** {which primitive, fallback path}
+```
+
 ### Part 3: Design Doc Update Rules
 
 Design docs are updated only after proof points — not after every implementation session.
