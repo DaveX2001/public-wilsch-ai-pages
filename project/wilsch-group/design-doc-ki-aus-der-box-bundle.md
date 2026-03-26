@@ -44,7 +44,7 @@ The bundle follows Ulrich's 40-year IBM sales pattern: Hardware + Betriebssoftwa
 
 | Layer | What the customer gets | Price |
 |-------|----------------------|-------|
-| **1 — Hardware** | NVIDIA DGX Spark (GB10 Blackwell, 128 GB RAM, 4 TB NVMe). Runs models up to 200B parameters locally. Fits on a desk (150×150×50mm, 1.2 kg). | ~€5.000 (Richtpreis) |
+| **1 — Hardware** | NVIDIA DGX Spark (GB10 Blackwell, 128 GB RAM, 2 TB NVMe). Runs models up to 200B parameters locally. Fits on a desk (150×150×50mm, 1.2 kg). | ~€5.000 (Richtpreis) |
 | **2 — Software Expertise** | Production serving engine (vLLM), chat interface (Open WebUI / LibreChat), data connectors (MCP, Vector DB, DB Toolkits), authentication — configured for the customer's environment. | Included in setup |
 | **3 — Einrichtung** | 5 Manntage: infrastructure setup, platform + connectors, validation with real data, user training + handover. | ~€5.000 |
 
@@ -58,24 +58,43 @@ The bundle follows Ulrich's 40-year IBM sales pattern: Hardware + Betriebssoftwa
 
 The selling point is not the specific tool — it's that we've already figured it out across 4+ client projects. "Sie profitieren davon, dass Sie sich nicht selbständig mit diesen Neuerungen herumplagen."
 
-**Serving Engine:** vLLM via eugr/spark-vllm-docker. Production-grade, model-agnostic — swap any model in one command. Nightly builds, tested before publish. 1.4x faster than Ollama while running a 7.5x bigger model. Addresses the staleness fear: new model drops tomorrow, one command to update.
+**Serving Engine:** vLLM via eugr/spark-vllm-docker. Production-grade, model-agnostic — swap any model in one command. Nightly builds, tested before publish. Two advantages over the pre-installed Ollama: (1) 1.4x faster per request while running a 7.5x bigger model, and (2) continuous batching — 8 users can query simultaneously while Ollama queues them one at a time. Same hardware, the difference is software expertise. Addresses the staleness fear: new model drops tomorrow, one command to update.
 
-**Clustering:** Two DGX Sparks linked via ConnectX-7 → 256 GB unified memory, runs models up to 397B parameters (Qwen3.5-397B confirmed). Optional add-on (€5K second unit).
+**Clustering (add-on):** "Was ist, wenn das Modell nicht auf eine Box passt?" — two DGX Sparks linked via ConnectX-7 → 256 GB unified memory, runs models up to 397B parameters (Qwen3.5-397B confirmed). +€5K for the second unit. We know how to set it up — launch-cluster.sh handles the orchestration.
 
-**Chat Interface:** Open WebUI or LibreChat — the two leading open-source ChatGPT alternatives. Both proven in production. Selection criteria: Open WebUI for enterprise RBAC (SCIM 2.0, group-based model access), LibreChat for MCP-native tool calling + MIT license (rebrandable). We pick the right one for the customer's needs.
+**Chat Interface:** Both leading open-source ChatGPT-like chat interfaces are included:
+
+| Capability | Included |
+|-----------|----------|
+| ChatGPT-like UI | ✓ |
+| SSO / OIDC | ✓ |
+| Role-based access (Admin/User/Groups) | ✓ |
+| Model-level permissions per group | ✓ |
+| Speech-to-Text / Text-to-Speech | ✓ |
+| File upload + RAG | ✓ |
+| MCP tool calling | ✓ |
+| Code interpreter | ✓ |
+| Agent marketplace | ✓ |
+| MIT-licensable (rebrandable) | ✓ |
+
+We know both platforms and pick the right one for the customer's environment. Already proven across 4+ client projects.
 
 **Data Connectors — the Dolmetscher layer:** Four connector types, each for a different data problem:
 
-<img src="ki-aus-der-box-telefonzentrale.png" width="100%" alt="Telefonzentrale — KI routet Anfragen an die richtige Datenquelle" />
+<img src="https://mariuswilsch.github.io/public-wilsch-ai-pages/project/wilsch-group/ki-aus-der-box-telefonzentrale.png" width="100%" alt="Telefonzentrale — KI routet Anfragen an die richtige Datenquelle" />
 
 | Type | When to use | Example |
 |------|------------|--------|
 | MCP | Structured data with APIs | SQL, Confluence, SharePoint, email |
 | Vector DB | Unstructured semantic search | PDFs, file servers, product docs |
 | DB Toolkits (MindsDB) | Legacy databases, many connectors OOB | AS/400, Access via ODBC |
-| Skills | Teaching AI HOW to use the tools | Domain-specific query patterns |
+| Skills | Company knowledge as structured instructions | Product catalog logic, naming conventions, internal processes — the AI knows your company |
 
-Analogy: "Ihre Daten sprechen sechs Sprachen — wir liefern den Dolmetscher, der alle versteht."
+**Analogy — Dolmetscher:**
+
+Ulrich's one-liner: *"Ihre Daten sprechen sechs Sprachen — wir liefern den Dolmetscher, der alle versteht."*
+
+Extended: SQL spricht Deutsch, Confluence spricht Englisch, Ihre PDFs sprechen Bildsprache, die AS/400 spricht Plattdeutsch. Bisher mussten Sie selbst übersetzen — in jedem System einzeln suchen. Die KI ist der Dolmetscher. Wir liefern die Wörterbücher mit — und wissen, welches wo hingehört.
 
 **Berechtigungskonzept:** Three auth layers, all mapping to patterns enterprises already use:
 1. Chat UI groups — Open WebUI RBAC (Admin/User/Pending, group-based model access)
@@ -102,7 +121,7 @@ Analogy: "Ihre Daten sprechen sechs Sprachen — wir liefern den Dolmetscher, de
 
 **Ongoing maintenance:** "Permanente Aktualisierung verfügbar" — model updates, new connectors, performance tuning. Scoped per customer in Workshop 1 (free). Not priced on the website — signals availability, kills the staleness objection.
 
-**Reference case:** Ein Kunde aus der Fertigungsindustrie — 240 Seiten Dokumentenverarbeitung: 5 Tage auf Power 10, 13 Minuten auf DGX Spark. Faktor 200.
+**Reference case:** Ein Kunde aus der Fertigungsindustrie — 294 Seiten Dokumentenverarbeitung: 5 Tage auf Power 10, 13 Minuten auf DGX Spark. Faktor 200.
 
 ### Part 4 — Website Integration
 
@@ -113,6 +132,10 @@ Analogy: "Ihre Daten sprechen sechs Sprachen — wir liefern den Dolmetscher, de
 - Value stack: all three layers visible (Hardware + Software + Setup)
 - Price disclaimer: "Aktueller Richtpreis, kann sich ändern"
 - Urgency: seminar-specific framing
+
+**Scarcity:** "Nur 3 Pakete verfügbar" — or similar limited availability framing. Real constraint: Marius's setup capacity is finite (5 Manntage per customer).
+
+**Entry point:** Workshop 1 (free, 1-1.5 hours) is the natural next step after seeing the bundle. Customer calls → free workshop → bundle scoped to their environment. Already the standard sales process — the bundle gives it a concrete anchor.
 
 **CTA:** Links to existing infrastructure — "Jetzt anrufen" + "Gespräch vereinbaren." No new flow needed.
 
