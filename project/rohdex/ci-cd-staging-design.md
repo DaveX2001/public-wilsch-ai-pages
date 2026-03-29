@@ -5,7 +5,7 @@ publish: true
 # CI/CD & Staging Environment Design — Dokumentenverarbeitung
 [[project-rohdex]]
 
-Design for the CI/CD pipeline and staging environment of the email-based Dokumentenverarbeitung system. Production runs on RDX-APP-01, staging on Wilsch AI server.
+Design for the CI/CD pipeline and staging environment of the email-based Dokumentenverarbeitung system. Production runs on RDX-APP-01, staging on Wilsch AI server. Both deploy via git pull — single deployment model.
 
 ---
 
@@ -19,7 +19,8 @@ This design doc covers three areas: (1) how to isolate staging email from produc
 
 **Preconditions:**
 - RDX-APP-01 is sole production (migration #1046 complete, old server stopped)
-- No outbound GitHub access from RDX-APP-01 (Gmelch IT firewall)
+- RDX-APP-01 has outbound GitHub access (confirmed 2026-03-09: `curl github.com` → 200, `git clone` public → works, SSH port 22 → reachable)
+- Deploy key required on RDX-APP-01 for private repo access (ed25519, read-only)
 - VPN-only access to server (OpenVPN → 192.168.44.11)
 - Wilsch AI server available for staging (clean after #1046 cutover — no ROHDEX state)
 - Gmail account (rohdexautomation@gmail.com) available for staging email
@@ -54,62 +55,68 @@ The codebase already supports provider switching via `WHICH_IMAP` / `WHICH_SMTP`
 
 **Why Gmail instead of a second IONOS mailbox:** Wilsch AI cannot create IONOS mailboxes (app-only credentials). Gmail eliminates the external dependency on Rohdex/Gmelch IT entirely. The Gmail account and app password already exist from prior development.
 
-### Part 2: Deployment Mechanism
+### Part 2: Deployment Mechanism (Topology B — Run on Server)
 
-Staging and production run on separate servers. The Makefile is the single deployment interface — all deployments go through `make` targets, never raw rsync or docker commands. This follows the [Standardized Makefile ADR](https://github.com/veloxforce/velox-global-adrs/blob/main/docker-compose-makefile-targets-standardization.md).
+Both servers deploy via **git pull** — the same mechanism for staging and production. The Makefile is the single deployment interface — all deployments go through `make` targets, never raw docker commands. This follows the [Standardized Makefile ADR](https://github.com/veloxforce/velox-global-adrs/blob/main/docker-compose-makefile-targets-standardization.md).
 
-| Target | Server | Access | Compose File |
-|--------|--------|--------|-------------|
-| `make deploy` | RDX-APP-01 (prod) | VPN required | `docker-compose.prod.yml` |
-| `make staging` | Wilsch AI server | Direct SSH | `docker-compose.staging.yml` |
+**Topology B:** The developer SSHes into the target server, then runs `make` targets locally. The Makefile contains no SSH commands — it wraps `git pull` + `docker compose` directly. This avoids SSH alias mismatches, eliminates local-vs-remote target duplication, and works identically regardless of which developer deploys.
 
-#### Path A: rsync-push via Makefile (confirmed)
+| Target | Server | How to Deploy | Compose File |
+|--------|--------|---------------|-------------|
+| `make prod` | RDX-APP-01 (prod) | `ssh rohdex` → `cd ~/projects/rohdex-mvp` → `make prod` | `docker-compose.prod.yml` |
+| `make staging` | Wilsch AI server | `ssh wilsch-ai` → `cd /home/shared/rohdex` → `make staging` | `docker-compose.staging.yml` |
 
-Each make target wraps the full deployment sequence: rsync code to the target server, SSH in, build the Docker image, and restart the container. The developer runs one command locally.
+#### Deployment Commands
 
+The developer SSHes into the server first, then runs one command:
+
+```bash
+# Staging
+ssh wilsch-ai
+cd /home/shared/rohdex
+make staging
+
+# Production (VPN required)
+ssh rohdex
+cd ~/projects/rohdex-mvp
+make prod
 ```
-make deploy    →  VPN pre-check → rsync to RDX-APP-01 → SSH → docker compose build + up
-make staging   →  rsync to Wilsch AI → SSH → docker compose build + up
-```
+
+Each `make` target runs locally on the server: `git fetch` → `git pull` → `make build` (version.py + Docker image) → `docker compose down` → `docker compose up -d` → health check.
+
+**Why git pull on both:** RDX-APP-01 has confirmed outbound GitHub access (tested 2026-03-09). Git pull ensures the server always matches a committed state — the `git_sha` from `/health` proves exactly which commit is running. This answers "how do we know the code is correct?" — the git SHA is the verification.
+
+**Deploy key (RDX-APP-01):** Private repo access requires a deploy key (ed25519, read-only). Generated at `~/.ssh/github_deploy` with SSH config pointing `github.com` to the key. Wilsch AI server already has GitHub access via existing credentials.
 
 **Standard targets per ADR:**
 
 ```makefile
 .DEFAULT_GOAL := help  # Never deploys on bare `make`
 
-# Production (RDX-APP-01 via VPN)
-deploy          # rsync + SSH + docker compose -f docker-compose.prod.yml up -d --build
-logs            # SSH + docker compose logs -f
-status          # SSH + docker compose ps
+# Deploy (run ON the server)
+prod            # git pull + docker compose -f docker-compose.prod.yml build + up + health check
+staging         # git pull + docker compose -f docker-compose.staging.yml build + up + health check
 
-# Staging (Wilsch AI server, direct SSH)
-staging         # rsync + SSH + docker compose -f docker-compose.staging.yml up -d --build
-staging-logs    # SSH + docker compose logs -f
-staging-status  # SSH + docker compose ps
+# Docker operations (run ON the server)
+build           # Capture git_sha + build_time → version.py, build Docker image
+up / down       # Start / stop production containers
+staging-up / staging-down  # Start / stop staging containers
+logs / staging-logs        # Follow container logs
+status / staging-status    # Show container status
 
 # Utility
 help            # Display available commands (DEFAULT)
 ```
 
-`.env` files are server-local — excluded from rsync (alongside `.git` and `__pycache__`). Each server maintains its own `.env` based on `.env.example`.
+`.env` files are server-local — not transferred during deployment (not tracked in git). Each server maintains its own `.env` based on `.env.example`.
 
-**Tradeoffs:** Simple, no external dependencies, works today. Deploy is tied to the commit via `/health` endpoint (`git_sha`). No audit trail beyond git history.
-
-#### Path B: git-pull (future improvement)
-
-If Gmelch IT opens outbound HTTPS access to `github.com` from RDX-APP-01, production deployment simplifies to `ssh RDX-APP-01 && git pull && make deploy` — eliminating the rsync step. GitHub Actions could further automate this on merge.
-
-**Requirements for Gmelch IT:**
-- Outbound HTTPS (port 443) to `github.com` and `*.githubusercontent.com`
-- DNS resolution for these domains
-
-**Undefined:** Gmelch IT network change request — who initiates, through which channel, and how to frame the ask for Sikander. See [Meeting Agenda: Gmelch IT Network Access](ci-cd-staging-agenda).
+**Tradeoffs:** Simple, no external dependencies, works today. Deploy is tied to the commit via `/health` endpoint (`git_sha` + `build_time`). No audit trail beyond git history.
 
 #### Rollback
 
 If a deploy breaks production:
-1. `git checkout` the previous working commit
-2. rsync (or git pull) + `make deploy`
+1. SSH to server, `git checkout` the previous working commit
+2. `make build && docker compose -f docker-compose.prod.yml down && docker compose -f docker-compose.prod.yml up -d`
 3. Verify via `/health` endpoint (`git_sha` matches expected commit)
 
 Future improvement: tag Docker images before deploying (`docker tag rohdex-backend:latest rohdex-backend:$(git rev-parse --short HEAD)`) to enable instant rollback without rebuild.
@@ -118,8 +125,8 @@ Future improvement: tag Docker images before deploying (`docker tag rohdex-backe
 
 | Branch | Server | Email | Deploy Command |
 |--------|--------|-------|----------------|
-| `main` | RDX-APP-01 (prod) | IONOS (`export-ki@rohdex.com`) | `make deploy` |
-| `staging` | Wilsch AI (staging) | Gmail (`rohdexautomation@gmail.com`) | `make staging` |
+| `main` | RDX-APP-01 (prod) | IONOS (`export-ki@rohdex.com`) | `ssh rohdex` → `make prod` |
+| `staging` | Wilsch AI (staging) | Gmail (`rohdexautomation@gmail.com`) | `ssh wilsch-ai` → `make staging` |
 | `issue-*` | Local dev only | N/A | N/A |
 
 **`staging` is the default branch** (set during #1046 migration). All feature branches are created from and merged back to `staging`.
@@ -128,16 +135,16 @@ Future improvement: tag Docker images before deploying (`docker tag rohdex-backe
 
 ```
 feature branch (issue-XXX)
-  → PR to staging (Marius reviews)
-  → merge → manual deploy to staging
+  → PR to staging (David merges autonomously)
+  → merge → ssh wilsch-ai → cd /home/shared/rohdex → make staging
   → verify on staging (send test email, check generated documents)
-  → PR to main
-  → merge → manual deploy to production
+  → PR to main (Marius reviews)
+  → merge → ssh rohdex → cd ~/projects/rohdex-mvp → make prod
 ```
 
-**Review gate:** All PRs require Marius (SA) review before merge. This is the existing pattern from #1046 (PR #7 to staging).
+**Deploy authority:** David has authority to merge feature branches to staging and deploy to staging independently. Marius only reviews the staging → main promotion.
 
-**Deploy is always manual.** After merge, the developer runs `make deploy` or `make staging` via Claude Code terminal. The Makefile handles rsync, SSH, and docker compose — the developer does not run these commands individually.
+**Deploy is always manual.** After merge, the developer SSHes into the target server and runs `make prod` or `make staging`. The Makefile handles the full deployment sequence — the developer does not run git, docker compose, or build commands individually.
 
 #### Env Var Differences
 
@@ -151,7 +158,20 @@ Staging and production share the same `.env` structure. Only these values differ
 | `*_IMAP_PASSWORD` | IONOS credentials | Gmail app password |
 | Compose file | `docker-compose.prod.yml` | `docker-compose.staging.yml` |
 
-Each server maintains its own `.env` (not rsynced). The `.env.example` in the repo serves as the template. All other env vars are identical between environments.
+Each server maintains its own `.env` (not transferred during deployment). The `.env.example` in the repo serves as the template. All other env vars are identical between environments.
+
+---
+
+## Deploy Key Setup (RDX-APP-01)
+
+The private repo requires a deploy key for git pull access. Setup steps:
+
+1. **Key generated** (2026-03-09): `~/.ssh/github_deploy` on RDX-APP-01
+2. **SSH config written:** `~/.ssh/config` points `github.com` to the deploy key
+3. **Pending:** Public key must be added to GitHub repo (Settings → Deploy keys, read-only)
+   - Requires admin access to `MariusWilsch/rohdex`
+   - Public key: `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIW8GJ3zRB6N4XnNkwzz+JDsM34qEOMX0dmH6A22EMUp RDX-APP-01-deploy`
+4. **Verify:** After adding, test with `ssh -T git@github.com` from RDX-APP-01
 
 ---
 
@@ -163,7 +183,16 @@ Each server maintains its own `.env` (not rsynced). The `.env.example` in the re
 - **Design Doc:** [hosting-anforderungen](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rohdex/hosting-anforderungen) (system architecture reference)
 - **Codebase:** [MariusWilsch/rohdex](https://github.com/MariusWilsch/rohdex) (default branch: staging)
 - **Makefile ADR:** [Standardize Docker Compose Makefile Targets](https://github.com/veloxforce/velox-global-adrs/blob/main/docker-compose-makefile-targets-standardization.md)
+- **Deploy Design:** [docker-compose-backend-deployment-design](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/docker-compose-backend-deployment-design) (Topology B reference)
+- **GitHub access test:** Marius SSH session 2026-03-09 (curl → 200, git clone → works, SSH port 22 → reachable)
+- **Topology B migration:** [PR #13](https://github.com/MariusWilsch/rohdex/pull/13) — Makefile rewritten from Topology A (SSH from laptop) to Topology B (run on server)
 - **Rubber-duck session:** [9d1941ec](https://github.com/MariusWilsch/claude-code-conversation-store/blob/main/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/9d1941ec-6175-4d1e-9df0-2a0b1301d055.jsonl)
 - **v1 session:** [15641742](https://github.com/MariusWilsch/claude-code-conversation-store/blob/main/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/15641742-b196-41d6-85d2-13f45111ff65.jsonl)
 - **SA review session:** [3509ecb1](https://github.com/MariusWilsch/claude-code-conversation-store/blob/main/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/3509ecb1-9381-4268-a4f3-0d0657eb8b30.jsonl)
 - **v2 extraction pass:** [a96ef05d](https://github.com/MariusWilsch/claude-code-conversation-store/blob/main/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/a96ef05d-75d8-48f5-9e4b-233a9fab939a.jsonl)
+- **v3 AC session:** [6aea89cf](https://github.com/MariusWilsch/claude-code-conversation-store/blob/main/projects/-Users-daveFem-Desktop-claude-projects-04-ROHDEX--deliverable/6aea89cf-a05b-4794-88cb-fd310118856f.jsonl)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

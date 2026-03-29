@@ -22,3 +22,8 @@ publish: true
 - **Dec 10th deadline**: New client wants to start
 - **Paul's stance**: "Just make it work" - onboard with any path that delivers
 - **Strategy**: Stable baseline first, iterate from there (no more firefighting)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

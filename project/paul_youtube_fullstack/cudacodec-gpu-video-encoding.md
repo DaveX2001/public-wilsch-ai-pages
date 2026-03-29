@@ -231,3 +231,8 @@ print(f\"FPS: {total_frames/elapsed:.1f}, Projected 353 images: {elapsed * 35.3 
 - `Dockerfile` - Complete build configuration
 - `Video_Codec_SDK_12.1.14.zip` - NVIDIA SDK
 - `test_cudacodec_videowriter.py` - Validation script
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

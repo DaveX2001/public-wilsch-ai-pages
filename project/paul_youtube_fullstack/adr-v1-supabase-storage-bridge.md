@@ -104,3 +104,8 @@ This is **temporary infrastructure** bridging v1 and v2 during strangler migrati
 - [Light Tier Scope](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/paul_youtube_fullstack/light-tier-v2-feature-scope)
 - Issue: DaveX2001/deliverable-tracking#414 (Queue View - blocked by this)
 - Issue: DaveX2001/deliverable-tracking#421 (provides v1_process_id mapping)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

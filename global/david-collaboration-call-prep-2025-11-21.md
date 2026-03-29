@@ -79,3 +79,8 @@ publish: true
 - **7.1 Tracking client-waiting tasks:** *David owns this process*
 - **7.2 Priority:** Marius decides
 - **7.3 Escalation:** David can escalate + should hold Marius accountable when deadlines slip
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

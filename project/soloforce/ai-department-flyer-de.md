@@ -104,3 +104,8 @@ Starten Sie mit einem kostenlosen Scoping-Workshop — wir identifizieren Ihr KI
 - [Mayer Brown — Contracting for Agentic AI (Feb. 2026)](https://www.mayerbrown.com/en/insights/publications/2026/02/contracting-for-agentic-ai-solutions-shifting-the-model-from-saas-to-services)
 
 **Session:** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/360645e1-6da9-4573-ae3c-4c97363148d9.jsonl`
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

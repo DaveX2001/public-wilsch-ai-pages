@@ -64,3 +64,8 @@ Do we proceed with content creation starting February?
 - **Type:** Proposal / decision meeting
 - **Duration:** ~45 minutes
 - **Expectation:** Come having read the design doc. We discuss, then decide.
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

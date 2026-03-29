@@ -220,12 +220,14 @@ First iteration - subject to change based on testing.
 ### prompt_impl.md Structure
 
 Phases wrapped in XML tags (`<phase-0>` through `<phase-5>`):
-- Phase 0: Get Up to Speed (read tracking.md)
-- Phase 1: Select Task (Let Ralph Ralph - YOU decide priority)
-- Phase 2: Understand & Plan (layer→tool mapping for sanity checks)
-- Phase 3: Implement (resolve ambiguities per protocol)
-- Phase 4: Validate (run sanity checks)
-- Phase 5: Complete (mark done, commit, update CLAUDE.md)
+- Phase 0: Get Up to Speed (read tracking.md, navigate worktree)
+- Phase 1: Identify Current Pass (find first pass with unchecked items, verify prior passes complete)
+- Phase 2: Understand & Plan (layer→tool mapping for ALL items in current pass)
+- Phase 3: Implement (all DoD items in current pass, sanity check each)
+- Phase 4: Validate (sanity checks per item, fix and retry)
+- Phase 5: Complete Pass (mark all pass items [x], commit, switch_verify)
+
+**Unit of work:** One Pass per iteration (not one DoD item). Passes group related items sharing context and dependencies. Forced verification gate between passes catches issues before the next pass builds on top.
 
 ### CLAUDE.md Rules
 
@@ -312,3 +314,8 @@ Add hypotheses as new patterns emerge. Keep stateless.
 
 - [three-session-model.md](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/three-session-model)
 - [ac-dod-framework.md](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/ac-dod-framework)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

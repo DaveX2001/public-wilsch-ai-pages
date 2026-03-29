@@ -423,7 +423,7 @@ Per-page JSON schema:
     {
       "name": "Höhe",
       "value": "14,35 m (First); OK-Stütze +13,35 m",
-      "passage": "Gesamthöhe 14,35"
+      "passage": "Alle vier Ansichten (Westen, Norden, Osten, Süden) zeigen konsistente Höhenangaben: Geländeoberkante ±0,00, Hallenfirst bei +14,35, Bürobereich bei +7,25. Der Schnitt in BA-1000d bestätigt: 14,35 Gesamthöhe, +12,34 Unterkante Binder, +0,30 Sockelelement OK."
     }
   ]
 }
@@ -457,7 +457,7 @@ No noise filtering — the model processes all 43 PDFs (239 pages). Noise handli
 
 POC starts at 72 dpi. If extraction quality is insufficient (criteria hit rate drops >20% vs gold standard), escalate to 110 dpi and re-run.
 
-**Machines:** Power 10 (current: 5 cores × 8 SMT = 40 threads, 123 GB RAM), Mac Studio (128 GB RAM, Apple Silicon — benchmarks pending), MacBook Pro (128 GB RAM — fallback). Power 10 benchmarks exist; Mac Studio benchmarks to be run after script is operational.
+**Machines:** Power 10 (current: 5 cores × 8 SMT = 40 threads, 123 GB RAM), second Power 10 (specs TBD — potentially more cores/threads, pending [#866](https://github.com/DaveX2001/deliverable-tracking/issues/866)), Mac Studio (128 GB RAM, Apple Silicon — benchmarks pending), MacBook Pro (128 GB RAM — fallback). Power 10 benchmarks exist; Mac Studio and second Power 10 benchmarks to be run after script is operational.
 
 **Validated on Power 10** (March 2026 — SSH investigation on `wph-ki-tst`):
 
@@ -481,6 +481,110 @@ POC starts at 72 dpi. If extraction quality is insufficient (criteria hit rate d
 All llama.cpp-based runtimes share the same underlying binary and the same threading issue workaround. The Ollama container already includes the Power10-optimized backend (`libggml-cpu-power10.so`), but building from source with explicit `-mcpu=power10` flags may unlock additional MMA performance.
 
 **Undefined — Libel kernel optimization engagement:** [#713](https://github.com/DaveX2001/deliverable-tracking/issues/713) (IBM Power AI Inference Optimization Initiative) runs parallel to this validation. Libel's kernel-level optimization targets the 10x speedup from current to optimized performance. Engage ASAP — does not block #952 validation but determines production viability. → Meeting agenda (Thomas/Ulrich coordination).
+
+**POC Run 1 Results (Project 35764, March 2026)**
+
+Two extraction runs completed on Power 10 (20 threads, 72 dpi, think:false) using the three-lane architecture. Both models processed 135 of 240 manifest pages — 105 pages were missing from Power 10 (21 PDFs: 4 fixable via symlink, 17 never uploaded).
+
+| Metric | qwen3.5:4b | qwen3.5:9b |
+|--------|-----------|-----------|
+| Pages processed | 135 | 135 |
+| Criteria extracted | 287 | 273 |
+| Pages with real criteria | 96 (71%) | 71 (53%) |
+| Errors | 0 | 0 |
+| Avg generation speed | 6.5 tok/s | 5.7 tok/s |
+| Total wall time | 3.2 hrs | 3.9 hrs |
+| Criteria hit rate vs gold | 5/6 (0% degradation) | 5/6 (0% degradation) |
+
+Both models pass the ≤20% degradation threshold defined in the quality benchmark. All 5 positive extraction criteria found; Dachbegrünung correctly identified as absent. The 4B model is more aggressive (attempts criteria on 71% of pages vs 53% for 9B) but noisier. CSV criteria (Bauort, Kundenreferenz, Kalkulatorenwissen) extracted deterministically from Anfragen.csv.
+
+**Extraction quality — per-criterion assessment:**
+
+The hit rate metric (5/6) measures whether a criterion was found at all. A deeper analysis of extraction quality reveals per-criterion signal-to-noise ratios (SNR): of all non-null values extracted, what percentage are correct or useful?
+
+| Criterion | 4B SNR | 9B SNR | Gold value recoverable? |
+|-----------|--------|--------|------------------------|
+| Gebäudetyp | 96% | 99% | Yes — "Werkhalle" dominant signal (39×/56×), Bürotrakt mentioned separately |
+| Höhe | 32% | 12% | Partial — +14,35 m found (9B), +13,35 m found (4B), but Hakenhöhe 8,70 m never extracted |
+| Kran | 38% | 30% | Yes — ZLK 40t/10t, 50t total, optional 20t all present across pages |
+| Dachlasten | 43% | 64% | Yes — exact gold values (0,45/0,15/0,20 kN/m²; WLZ2; SLZ2) found 3× per model |
+| Baustoff | 93% | 98% | Mostly — Spannbeton, Portlandzement CEM I found; B500(A) only in passage text |
+| Dachbegrünung | n/a | n/a | Correctly negative — both models return absence |
+
+Gebäudetyp, Dachlasten, and Baustoff have strong signal (>90% SNR or exact gold values found). Höhe and Kran are noisy — the correct values exist across multiple pages but are buried among irrelevant numbers (crane data sheet dimensions, floor loads, span lengths). No single extraction entry contains the complete answer for any criterion except Dachlasten.
+
+The models have complementary strengths: 4B uniquely finds the optional 20t cranes and Bürotrakt +7,25 m height. 9B uniquely finds the ABUS manufacturer name and ST1660/1860 Spannstahl specification. A combined extraction (using both models' output jointly) would recover more of the gold standard than either model alone.
+
+**Aggregation implication:** A naive majority-vote over per-page extractions recovers only 2/6 criteria (Dachlasten, Dachbegrünung). The other 4 require semantic merging — an LLM-based aggregation pass that combines fragments across pages. Aggregation is outside the scope of this extraction POC (#1079) but is a prerequisite for producing Kriteriennachweis-quality output.
+
+**Performance analysis — timing breakdown and scaling behavior:**
+
+Aggregate timing for the 4B run (135 pages, 3.2 hrs) splits into three roughly equal parts:
+
+| Component | % of wall time | What it is |
+|-----------|---------------|------------|
+| Prompt eval | 37% | Vision encoder processing the page image |
+| Generation | 31% | Model writing the JSON criteria response |
+| Ollama internal | 32% | ~30s fixed cost per request inside Ollama, not inference |
+
+No single component dominates. The 32% overhead is entirely inside Ollama — HTTP and PDF rendering contribute zero measurable time. Each light page incurs a consistent 30s internal cost (29.3–32.3s, near-zero variance) that is neither prompt eval nor generation. Heavy pages show only 1.6s of this overhead. Root cause unconfirmed — likely vision pipeline initialization per API call on ppc64le. Investigation pending ([#1079 comment](https://github.com/DaveX2001/deliverable-tracking/issues/1079#issuecomment-4029578788)).
+
+**Super-linear scaling on vision tokens:** Page images tokenize to between 778 and 2,300 prompt tokens depending on visual complexity. Processing time scales super-linearly with token count:
+
+| Token bucket | Pages | Avg wall time | ms/token | % of total time |
+|-------------|-------|--------------|----------|----------------|
+| <800 (text docs, simple pages) | 123 (91%) | 75s | 25 | 80% |
+| 800–1800 (plans, drawings) | 8 (6%) | 133s | 81 | 9% |
+| >1800 (large technical drawings) | 4 (3%) | 329s | 126 | 11% |
+
+A 2.9× increase in tokens causes a 14.9× increase in processing time — a 5.1× amplification factor, consistent with quadratic attention cost in the vision encoder. The 12 expensive pages (technical drawings with rich visual detail) consume 20% of total runtime despite being only 9% of pages.
+
+**Page-type bottleneck split:** The two page types have fundamentally different bottlenecks:
+
+- **Fast pages** (91%): Ollama-internal-overhead-bound — 30s fixed cost per request dominates the 75s wall time. Parallel processing (NUM_PARALLEL=2 or two instances) pipelines this overhead.
+- **Expensive pages** (9%): prompt-eval-bound — 82% of per-page time is vision encoding. Image size reduction (lower DPI, cropping) would have outsized impact due to super-linear scaling.
+
+**Primary speed lever: parallelism.** Because 80% of total runtime comes from the overhead-bound fast pages, parallel processing (filling Ollama's internal idle time between inference stages) is the highest-impact optimization. Making the 12 expensive pages cheaper saves ~13%; doubling throughput via parallelism saves ~50%.
+
+**Run 2 design — head-to-head parallelism comparison:**
+
+Run 1 established that extraction quality is sufficient (0% degradation) and identified parallelism as the primary speed lever. Run 2 tests two approaches to achieving parallel throughput on the same 135 pages:
+
+| Config | Model | Parallelism | Threads | Expected throughput |
+|--------|-------|-------------|---------|-------------------|
+| **A** | qwen3-vl:8b | NUM_PARALLEL=2 (native) | 20 | ~3-4× (14.8 tok/s + pipeline) |
+| **B** | qwen3.5:4b | Two Ollama instances (ports 11434/11435) | 10 + 10 | ~2× (concurrent requests) |
+
+Config A is preferred: qwen3-vl's encoder-based vision architecture supports NUM_PARALLEL=2 natively (validated in pre-POC benchmarks at 1.8 pg/min). Its 14.8 tok/s generation speed is 2.3× faster than qwen3.5:4b (6.5 tok/s). Config B is the fallback if qwen3-vl's extraction quality is materially worse than qwen3.5.
+
+**Prompt tweaks (applied to both configs):**
+
+1. **Kill "nicht angegeben" padding:** Add instruction "Gib NUR Kriterien zurück, die du tatsächlich gefunden hast. Keine 'nicht angegeben' Einträge." Run 1 showed 35% of 4B's criteria output was padding — wasted generation tokens.
+2. **Tighten Dachbegrünung:** Add "Dachbegrünung: Nur wenn explizit im Text erwähnt. Grüne Farben in Zeichnungen sind kein Hinweis." Prevents false positives from visual interpretation of drawing colors.
+3. **Require numbers with context:** Replace "Extrahierter Wert mit Einheit" with "Wert muss eine konkrete Zahl mit Einheit enthalten. Beschreibender Kontext ist erwünscht." Reduces vague descriptions while preserving the rich descriptive style of the gold standard.
+
+**Controlled variables:** Same 135 pages, same manifest, same DPI (72), same extraction schema. Only model and parallelism config change. Output: JSONL per config, timing comparison, criteria quality comparison.
+
+The winning config becomes the standard for benchmarking on the remaining 3 systems (Power 10 Ostermann, Mac Ultra, Nvidia 4xxxx IITR) — each producing a row in the Systemvergleich comparison table.
+
+**Systemvergleich — commercial artifact framing ([#1081](https://github.com/DaveX2001/deliverable-tracking/issues/1081)):**
+
+The POC benchmark feeds into a Wilsch-branded system comparison document (Systemvergleich) for Thomas and Ulrich. Template: Ulrich's existing hardware comparison format (POW004/POW005 series — side-by-side specs, bar charts, percentage improvements). Reference: [Ticket #19884 Systemvergleich](https://mail.google.com/mail/u/0/#all/19cd6474c8b275d6).
+
+**Comparison matrix (4 systems × multiple models):**
+
+| System | Status | Access |
+|--------|--------|--------|
+| IBM Power WPH | ✅ Run 1 complete (4B + 9B) | SSH via VPN |
+| IBM Power Ostermann | Pending | Available |
+| Mac Ultra (Mac Studio) | Pending ([#1080](https://github.com/DaveX2001/deliverable-tracking/issues/1080)) | Local |
+| Nvidia 4xxxx IITR | Pending | Available |
+
+Same Ollama runtime on all systems. Same extraction script and prompt. The variable is hardware + model combination. Each benchmark produces one row per model.
+
+**Per-row metrics:** System specs (CPU, RAM), model used, wall time per project, prompt eval speed (tok/s), generation speed (tok/s), criteria hit rate (X/6).
+
+**Undefined — value-level quality presentation:** The hit rate metric (X/6) is clear for technical stakeholders. How to present per-criterion signal quality (SNR, value correctness) to Thomas/Ulrich in the Systemvergleich format is unresolved. The extraction data supports a detailed breakdown, but the commercial document needs a simpler representation. → Meeting agenda (Thomas/Ulrich alignment on quality metric presentation).
 
 ---
 
@@ -510,3 +614,9 @@ All llama.cpp-based runtimes share the same underlying binary and the same threa
 - `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-REKERS--poc/a661e34f-b89f-48bf-bc6c-bd590536fae4.jsonl` (Part 7 extraction pass — local model feasibility, Power 10 benchmarks)
 - `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-REKERS--poc/5459d299-6d80-466e-aca9-bedb19f41f8f.jsonl` (Part 7 extraction pass 2 — model selection, architecture, Power 10 SSH benchmarks, file inventory)
 - `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-REKERS--poc/50ea279f-b40e-4985-80cb-26f328aa43f5.jsonl` (Part 7 extraction pass 3 — POC validation script design, three-lane architecture, 35764 file inventory + hash dedup)
+- `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-REKERS--poc/f0df4a4a-830c-490c-8124-b7ea4a878756.jsonl` (Run 1 retrospective + Run 2 design — extraction quality analysis, super-linear scaling discovery, 30s Ollama overhead finding, Systemvergleich framing)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

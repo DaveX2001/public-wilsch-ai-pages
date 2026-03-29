@@ -87,3 +87,8 @@ Based on classification and clarifications:
 - **Type:** Working session - review and decide
 - **Duration:** ~45 minutes
 - **Expectation:** Review the classification doc beforehand
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -50,3 +50,8 @@ If schema alignment happened FIRST, frontend would have used correct names from 
 
 - [Issue #449: FDW Schema Alignment](https://github.com/DaveX2001/deliverable-tracking/issues/449)
 - [ADR: FDW Table Replacement Strategy](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/paul_youtube_fullstack/adr-fdw-table-replacement-strategy)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

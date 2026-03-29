@@ -134,3 +134,8 @@ When Chain 1B approaches deployment: **NVIDIA Orchestrator-8B** — tool-calling
 ---
 
 *Last updated: 2026-03-04*
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -432,3 +432,8 @@ The Developer owns decomposition — they break the epic into sub-issues based o
 - [#852 Archibus Step 1+2](https://github.com/DaveX2001/deliverable-tracking/issues/852) — 5 extraction passes (primary evidence)
 - [#513 AVO Soßen Sourcing](https://github.com/DaveX2001/deliverable-tracking/issues/513) — Design doc + meeting agenda pair
 - E-Myth interview session (2026-03-03) — System clustering and voice correction
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -74,3 +74,8 @@ With multiple terminals open, each running a worktree, you can work multiple sub
 **Key Resources:**
 - [Atlassian: Epics, Stories, and Initiatives](https://www.atlassian.com/agile/project-management/epics-stories-themes)
 - [GitHub Community: Handling Epics](https://github.com/orgs/community/discussions/7267)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

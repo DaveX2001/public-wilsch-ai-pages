@@ -128,3 +128,8 @@ traces = langfuse.api.trace.list(
 - [Langfuse Tracing Overview](https://langfuse.com/docs/tracing)
 - [Langfuse Data Model](https://langfuse.com/docs/tracing-features/data-model)
 - [Query via SDK](https://langfuse.com/docs/query)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -160,3 +160,8 @@ For each CAFM backend to support this pattern:
 **Related Documentation:**
 - [[rain-token-dynamic-auth]] - Current iframe token passthrough implementation (what exists today)
 - [[fm-assistant-extension-architecture]] - Feature gating and permission enforcement patterns
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

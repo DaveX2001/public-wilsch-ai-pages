@@ -231,3 +231,8 @@ All tables use **UUID** primary keys:
 - [Tier One Feature Scope](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/paul_youtube_fullstack/light-tier-v2-feature-scope)
 - [v2 Wizard Architecture](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/paul_youtube_fullstack/v2-wizard-architecture-snapshot-2026-01-04)
 - Issue: DaveX2001/deliverable-tracking#421
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

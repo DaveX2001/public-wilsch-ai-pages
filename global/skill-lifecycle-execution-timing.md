@@ -56,3 +56,8 @@ Skills focus on domain expertise. The lifecycle handles timing. Skills don't nee
 **Key Resources:**
 - Related: `claude-code-extension-invocation-taxonomy.md` (what skills are)
 - Implementation: `~/.claude/commands/implementation-clarity.md` (skill confirmation workflow)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

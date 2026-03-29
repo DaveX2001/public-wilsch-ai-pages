@@ -132,3 +132,8 @@ Flughafennähe wird explizit adressiert: „Anforderungen bzw. Auflagen etc. auf
 - **Datenverzeichnis:** `~/Documents/projects/billable/REKERS__poc/data/2026-01-28_testdaten/41634/`
 - **Design-Doc:** [Feasibility Report, Teil 2](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rekers/design-doc-feasibility-report)
 - **Session:** 98386095-a7e1-42c9-b3f8-f3fa1853eea7
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

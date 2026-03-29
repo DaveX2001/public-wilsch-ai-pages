@@ -169,3 +169,8 @@ Next start: [where next session should begin]
 ### Issue Comment (Re-entry)
 
 When ASSESS defers to next session, post an issue comment capturing context for the next start.
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

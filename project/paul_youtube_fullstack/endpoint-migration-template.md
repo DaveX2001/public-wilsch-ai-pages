@@ -112,3 +112,8 @@ Be concise. If something COULD be Supabase but feels like a workaround, recommen
 - [Strangler Pattern Sequencing](adr-strangler-pattern-sequencing.md) - Migration order strategy
 - [Pipeline Orchestration Design](pipeline-orchestration-design.md) - FastAPI layer design
 - [Supabase Schema Design](paul-supabase-schema-design.md) - Database migration
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

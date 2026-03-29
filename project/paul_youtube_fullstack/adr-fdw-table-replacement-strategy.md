@@ -182,3 +182,8 @@ All other columns     →      Match exactly
 - [Strangler Pattern Sequencing](adr-strangler-pattern-sequencing.md)
 - Issue #446: v2 Data Independence
 - Issue #421: v2-v1 Integration (FDW setup)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

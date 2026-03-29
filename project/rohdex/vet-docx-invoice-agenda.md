@@ -2,64 +2,66 @@
 publish: true
 ---
 
-# Meeting Agenda: VET DOCX + Invoice — Rohdex
+# Meetingagenda: VET DOCX + Rechnung — Rohdex
 [[project-rohdex]]
 
-**Date:** Tuesday, 2026-03-11, 12:30
-**Attendees:** Marius Wilsch, Konstantin Fitermann
-**Duration:** ~15–20 min
+**Datum:** Dienstag, 2026-03-11, 12:30
+**Teilnehmer:** Marius Wilsch, Konstantin Fitermann
 
-## Meeting Goal
+## Meetingziel
 
-Clarify two open items: (1) whether VET output should be Word instead of Excel, and (2) invoice timing for the completed migration.
+Zwei Entscheidungen die nächste Schritte am ROHDEX Dokumentenverarbeitungssystem freigeben.
 
----
+1. **VET-Ausgabeformat entschieden** — ob das Veterinärzertifikat zusätzlich zum Excel auch als DOCX generiert werden soll, letzter offener Punkt im Design Doc
+2. **Migrationsabnahme bestätigt** — Konstantin bestätigt dass Migration auf RDX-APP-01 abgeschlossen ist, Rechnung geht direkt raus
 
-## Topic 1: VET Document Output Format
+## Vorbereitungsmaterial
 
-**Background:** The system currently generates all 9 document types as Excel files. In December 2025, Konstantin sent a Word document ("Veterinär BUSAN.docx") as a veterinary certificate example. The system previously supported Word output but was migrated to Excel-only.
-
-**Question for Konstantin:** Does ROHDEX need the VET (veterinary certificate) output as a Word document (.docx) instead of / in addition to the current Excel output?
-
-**Talking Points:**
-- Current state: VET outputs Excel with all 7 dynamic fields (bundle count, weights, partie marks, container/seal/invoice numbers)
-- The BUSAN.docx Konstantin sent matches the data we already extract — the question is output FORMAT
-- If DOCX needed: Konstantin provides a Word template (or we create one based on BUSAN.docx)
-- If Excel is sufficient: no change needed, #1037 closes
-
-**Cost Estimate (if DOCX confirmed):**
-
-| Task | Effort |
-|------|--------|
-| Add DOCX library + create VetDocxStrategy | ~2h |
-| Template integration (if Konstantin provides template) | ~1h |
-| Template creation (if we build from scratch) | ~2–3h |
-| Testing with existing datasets | ~1–2h |
-| Integration into document pipeline | ~0.5h |
-| **Total (template provided)** | **~4–5h = €360–450** |
-| **Total (template from scratch)** | **~5–7h = €450–630** |
-
-Billed under SLA v4 (§4.1: €90/h, 30-min increments).
+- [Design Doc — Part 5: Bekannte Probleme](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rohdex/hosting-anforderungen) — VET-Abschnitt mit Undefined-Marker für Ausgabeformat
+- [SLA v4 Wartungsvertrag §1.1](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rohdex/sla-v4-wartungsvertrag) — Migrationsumfang (€720) und Abrechnungsbedingungen (§4.2)
 
 ---
 
-## Topic 2: Invoice for Migration
+## Diskussionsthemen
 
-**Background:** Migration to RDX-APP-01 is complete and live since March 5. SLA v4 §1.1 scopes the migration at €720 (8h), which includes the Tara bugfix (~1h). The Tara fix (#1047) is not yet done — it requires the staging environment first.
+*Einstiegspunkte, nicht abschließend.*
 
-**Question for Konstantin:** Can we invoice the €720 migration now, with the Tara bugfix billed separately under hourly T&M when completed? Or should the invoice wait until Tara is also fixed?
+### 1. VET-Ausgabeformat — Excel-only oder zusätzlich DOCX
+⏱️ 10 min
 
-**Talking Points:**
-- Migration is live — system processes emails on RDX-APP-01 (verified March 5)
-- Tara bugfix (packing list decimal error) is scoped at ~1h but blocked on staging setup
-- Option A: Invoice €720 now, Tara billed as T&M on next monthly invoice
-- Option B: Wait until Tara done, invoice €720 as complete package
-- SLA v4 §4.2: invoices monthly on 1st of following month, NET 14
+Das System generiert alle 8 Dokumenttypen als Excel-Dateien. Im Dezember 2025 sandte Konstantin ein Word-Dokument ("Veterinär BUSAN.docx") — ein Anschreiben an die Veterinärbehörde. Die VET-Template-Review bestätigt: alle 7 dynamischen Felder stimmen mit dem BUSAN-Referenzdokument überein. Die Frage ist nicht der Inhalt, sondern das Ausgabeformat.
+
+- VET-Excel-Output ist vollständig und verifiziert (7/7 Felder korrekt)
+- Das System hatte früher DOCX-Support, wurde auf Excel-only migriert
+- Falls DOCX gewünscht: Konstantin stellt Word-Template bereit oder wir erstellen eines basierend auf BUSAN.docx
+
+**To resolve:** Ob das VET-Ausgabeformat von Excel-only auf DOCX erweitert werden soll — und falls ja, ob Konstantin ein Template liefert oder wir eines erstellen.
+
+### 2. Migrationsabnahme und Rechnungsstellung
+⏱️ 5 min
+
+Die Migration auf RDX-APP-01 ist seit dem 5. März live. Das System verarbeitet E-Mails produktiv. SLA v4 §1.1 beziffert die Migration auf €720 (8h).
+
+- System läuft produktiv auf RDX-APP-01 (verifiziert 5. März)
+- Tara-Bugfix (Dezimalstellen in Packliste) wird diese Woche ebenfalls deployed
+- SLA v4 §4.2: Rechnungsstellung monatlich zum 1., Zahlungsziel NET 14
+
+**To resolve:** Bestätigung dass die Migration abgeschlossen ist — Rechnung (€720) wird direkt im Anschluss gestellt.
+
+## Meetingformat
+
+- **Typ:** Discovery
+- **Dauer:** ~15 min
+- **Erwartung:** Konstantin entscheidet beide Punkte — keine Vorbereitung nötig
+- **Ergebnis:** Zwei Entscheidungen die nächste Schritte freigeben
+
+## Verweise
+
+- **Issue:** [#1037 — ROHDEX: Clarify VET DOCX output request](https://github.com/DaveX2001/deliverable-tracking/issues/1037)
+- **Design Doc:** [Hosting-Anforderungen — Part 5](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rohdex/hosting-anforderungen)
+- **Epic:** [#909 — Dokumentenverarbeitung SLA & Wartung](https://github.com/DaveX2001/deliverable-tracking/issues/909)
 
 ---
 
-## References
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
 
-- [SLA v4 Wartungsvertrag](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rohdex/sla-v4-wartungsvertrag)
-- [Design Doc (Hosting/Migration)](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rohdex/hosting-anforderungen)
-- Related issues: [#1037](https://github.com/DaveX2001/deliverable-tracking/issues/1037), [#1047](https://github.com/DaveX2001/deliverable-tracking/issues/1047)

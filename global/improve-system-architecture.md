@@ -231,3 +231,8 @@ For `/flag-for-improvement`: When AI introspects "why did I do that?", expect po
 - ADR: [Three-Session Model](three-session-instruction-artifact-improvement.md)
 - Implementation tracking: [Issue #49](https://github.com/DaveX2001/deliverable-tracking/issues/49)
 - Theme-level workflow source: [CCI #607](https://github.com/DaveX2001/claude-code-improvements/issues/607) behavioral verification session
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

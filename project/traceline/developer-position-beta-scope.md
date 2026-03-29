@@ -285,3 +285,8 @@ The tutorial is stage 3 of the onboarding wizard (see Part 10). Users arrive her
   - `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/8e10a9bd-c494-4e3f-9d7b-58a780999d25.jsonl` (Extraction pass: resolved 3 undefined markers, enriched positioning concept, added release pipeline + onboarding wizard)
 - **Beta User List:** [Traceline Beta User List](https://docs.google.com/spreadsheets/d/1NL6ZeNIE67t7jE9JJfwQXlneN4UYrcASvlNVcIu5n68/edit)
 - **Reference:** [Sourcegraph: Revenge of the Junior Developer](https://sourcegraph.com/blog/revenge-of-the-junior-developer)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

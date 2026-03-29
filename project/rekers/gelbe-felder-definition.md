@@ -36,3 +36,8 @@ Kundenanfrage    →    Gelbe Felder    →    Preiskalkulation
 ## Quelle
 
 Definition aus Workshop 1: [Fireflies Transkript](https://app.fireflies.ai/view/01K7403385R85MGJ4FKJVSQE67)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

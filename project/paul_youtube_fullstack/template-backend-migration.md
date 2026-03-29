@@ -233,3 +233,8 @@ The only changes are:
 2. Optional client-side refactor (template-to-cli conversion)
 
 **Estimated effort:** 1-2 hours for auth update, ~92% of code stays unchanged.
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

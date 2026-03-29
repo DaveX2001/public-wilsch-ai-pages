@@ -121,3 +121,8 @@ Die Serverinfrastruktur wird bereits von Marius betrieben — die formelle Eigen
 ---
 
 *Quelle: Extraktionspass vom 24. Februar 2026. Session: /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/a79da5f4-1884-450e-8e7d-bc430a975b6f.jsonl*
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

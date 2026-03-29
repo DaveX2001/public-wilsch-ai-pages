@@ -147,3 +147,8 @@ Imagine the possibilities if everyone on your team knew exactly how you want thi
 ---
 
 *Copyright 2019 E-Myth Worldwide, Inc. All rights reserved.*
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

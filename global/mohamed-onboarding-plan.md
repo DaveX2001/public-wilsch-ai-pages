@@ -128,3 +128,8 @@ Final review
 - [Ralph Loop Integration](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/ralph-loop-integration)
 - [AC/DoD Framework](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/ac-dod-framework)
 - [Improve System Architecture](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/improve-system-architecture)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

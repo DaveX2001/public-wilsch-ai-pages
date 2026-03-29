@@ -89,3 +89,8 @@ IF success → docker compose -p paul-{issue} up -d
 ## Related
 
 - [[staging-uat-workflow]] - Current workflow (sequential staging)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

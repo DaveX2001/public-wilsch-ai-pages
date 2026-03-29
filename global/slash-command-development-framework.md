@@ -76,3 +76,7 @@ All commands must use Anthropic's 10-component structure mapped to ADR002 stages
 | **Metadata only** | Doesn't address template inconsistency root cause |
 | **Template only** | No version tracking or systematic generation |
 | **Different template system** | Anthropic template already proven and documented |
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

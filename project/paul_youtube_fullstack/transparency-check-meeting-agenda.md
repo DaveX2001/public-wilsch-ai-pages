@@ -55,3 +55,8 @@ Get visibility into channel metrics and costs. Gather data now, propose terms in
 - I control the platform and pay for it
 - Without platform, Paul can't produce at this efficiency
 - This isn't asking for a favor - it's establishing fair partnership terms
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

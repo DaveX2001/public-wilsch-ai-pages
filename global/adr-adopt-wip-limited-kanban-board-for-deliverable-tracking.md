@@ -118,3 +118,8 @@ Backlog (unlimited) → To-Do (5-10 max) → In-Progress (2-3 max) → Done
 - [Context Switching Costs](https://www.atlassian.com/blog/loom/cost-of-context-switching) - Research on productivity loss
 - [Backlog Refinement Best Practices](https://www.atlassian.com/agile/scrum/backlog-refinement) - Grooming principles
 - Related: `change-request-deliverable-tracking-system-2025-11-26.md` - Original operating model
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

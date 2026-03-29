@@ -124,3 +124,8 @@ Both need spec-design pass before estimating. Separate issue to be created.
 - Meeting transcript (Feb 9): [Google Drive](https://drive.google.com/file/d/1PtCYWZKiVPwz3Llykvju89R2suLZIk1W/view)
 - Design doc methodology: [hippocampus](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/design-doc-methodology)
 - Server cleanup: Disk 93% → 27% (Feb 13 — deleted unused Docker images)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -174,3 +174,8 @@ The Developer owns the **output** (working solution). The Dev Lead owns the Deve
 - Evidence: Issue #712 (Operations Manual update friction), Issue #805 (personality profiling)
 - Dev Lead observability extraction pass (2026-02-17) — gate signal mechanism, review queue design
 - Session: /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/478e31b8-5f19-4f85-b370-7fa437440795.jsonl
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

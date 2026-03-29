@@ -120,3 +120,8 @@ namespace MyCompany.Services
 - [Code on Time - Handling Login and Logout](https://codeontime.com/learn/security/handling-login-and-logout)
 - [Code on Time - Custom User Login Responses](https://codeontime.com/blog/2021/10/custom-user-login-responses)
 - [Code on Time - Open Authentication Configuration](https://codeontime.com/learn/integrated-content-management-system/open-authentication-configuration)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

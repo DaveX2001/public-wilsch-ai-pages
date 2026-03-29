@@ -229,3 +229,8 @@ Sobald Issue Lifecycle Router übergeben ist, geht Gründerzeit in:
 - E-Myth Strategisches Ziel Interview (2026-02-03)
 - E-Myth Strategisches Ziel Abschluss-Session (2026-02-04) — Für Wen, Territorium, Standards hinzugefügt
 - Framework: Michael Gerber, *The E-Myth Revisited*, Kapitel 13
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

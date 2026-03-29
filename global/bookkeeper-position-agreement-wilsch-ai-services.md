@@ -94,3 +94,8 @@ Position Agreement for the Bookkeeper position at Wilsch AI Services. Framework:
 - [Position Build Process](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/position-build-process) — Stage/lifecycle framework
 - [Organization Chart](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/organization-chart-wilsch-ai-services) — Position placement confirmed
 - [Xolo ADR-007](hippocampus/global/xolo-estonian-entity-service-provider) — Platform context
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

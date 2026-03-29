@@ -45,3 +45,8 @@ publish: true
 - **Priority:** Willing to learn > specific skills
 - **Model:** Ongoing contractor, work on client projects + internal tooling
 - **Process:** Train on AI workflow, execute tasks, Marius reviews
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

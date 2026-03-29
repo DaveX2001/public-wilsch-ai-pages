@@ -178,3 +178,8 @@ Centralizes thumbnail management for YouTube video workflows. Provides upload, r
 - Icons: Already uses lucide-react (same as Main)
 - Modals: Migrate custom ThumbnailPreviewModal to shadcn Dialog
 - Legacy: Delete ApiKeySetup.jsx/css (unused)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

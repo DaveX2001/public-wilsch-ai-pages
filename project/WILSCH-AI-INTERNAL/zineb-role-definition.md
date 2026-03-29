@@ -96,3 +96,8 @@ Check your [assigned issues](https://github.com/DaveX2001/deliverable-tracking/i
 
 - [Issue Lifecycle Router](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/issue-lifecycle-router) - Full team role definitions
 - [Process Refinement Ladder](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/process-refinement-ladder) - How friction feeds automation
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

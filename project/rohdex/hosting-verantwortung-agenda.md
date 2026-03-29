@@ -69,3 +69,8 @@ Das SLA setzt sich aus zwei Bereichen zusammen: App-Verantwortung (325 EUR) und 
 - **Design Doc:** [Hosting-Anforderungen](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rohdex/hosting-anforderungen)
 - **Issue:** [#766 Client Communication Transition](https://github.com/DaveX2001/deliverable-tracking/issues/766)
 - **SLA v3:** [Google Doc](https://docs.google.com/document/d/1zgJA0ToNX3GU0IoyM0yjnmlp4PV0cqS2LQTRjtpJg_U/edit)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

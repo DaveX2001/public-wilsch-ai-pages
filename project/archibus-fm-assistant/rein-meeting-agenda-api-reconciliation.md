@@ -101,3 +101,8 @@ Both ValidateAssets and ImportAssets accept the same payload and return the same
 - **Issue:** [#838 EPIC: AI Bulk Data Import Pipeline](https://github.com/DaveX2001/deliverable-tracking/issues/838)
 - **Design Doc:** [Step 3 Design](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/chain-1b-step3-design)
 - **API Spec:** API reference 2026-02-18.json (provided by Rein)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

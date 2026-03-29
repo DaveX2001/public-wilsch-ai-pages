@@ -153,3 +153,8 @@ RunPod handler image: `mariuswilsch/chatterbox-runpod:slice4-v1`
 - [TTS Pipeline AFTER RunPod](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/paul_youtube_fullstack/tts-pipeline-after-runpod) - Target architecture
 - Issue #198 (closed) - Documents why horizontal approach failed
 - Issue #257 - TTS RunPod Migration - Vertical Slices (current work)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

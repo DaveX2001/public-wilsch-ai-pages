@@ -72,3 +72,8 @@ Alle weiteren Schritte (Docker-Installation, Konnektivitätstest, App-Deployment
 Alle weiteren Schritte (Deployment, Konfiguration, Test, Inbetriebnahme) übernimmt Wilsch AI Services nach Erhalt des Zugangs.
 
 ---
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

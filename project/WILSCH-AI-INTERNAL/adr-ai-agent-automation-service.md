@@ -206,3 +206,8 @@ A: Minor changes during build are included. Major scope changes are quoted separ
 ---
 
 *VeloxForce - Bespoke AI Development*
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

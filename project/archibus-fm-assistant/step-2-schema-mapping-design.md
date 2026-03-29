@@ -102,3 +102,8 @@ These discussion topics are captured in the Rein meeting agenda.
 - FMM Asset Data Sample (2026-01-28)
 - Asset Import Schema (Rein's template)
 - Rubber duck session (2026-02-03)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

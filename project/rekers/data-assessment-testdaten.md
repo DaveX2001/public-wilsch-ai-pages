@@ -283,3 +283,8 @@ Anfragen (Project Requests)
 - **Issue:** [#629 — REKERS: KI-gestütztes Angebotssystem](https://github.com/DaveX2001/deliverable-tracking/issues/629)
 - **Design Doc:** [Feasibility Report](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rekers/design-doc-feasibility-report)
 - **Analysis Tool:** Claude Code (Sonnet 4.5), 2026-02-09
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

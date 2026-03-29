@@ -272,3 +272,8 @@ Added to Communication Standards in CLAUDE.md.
 | Context Graph: How to Build | https://x.com/akoratana/status/1872755487498289488 |
 | Context Graph: CRM to CRCG | https://www.linkedin.com/pulse/from-crm-crcg-practical-example-context-graphs-animesh-koratana-cxcpc |
 | Context Graph: Trillion $ | https://www.foundation.co/resources/ai-trillion-dollar-opportunity-context-graphs |
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

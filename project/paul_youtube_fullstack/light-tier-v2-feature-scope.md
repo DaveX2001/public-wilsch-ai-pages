@@ -253,3 +253,8 @@ When building Create Video UI, these entities will be needed:
 - **Migration Framework:** [supabase-migration-framework](./supabase-migration-framework.md)
 - **Strangler Pattern ADR:** [adr-strangler-pattern-sequencing](./adr-strangler-pattern-sequencing.md)
 - **Issue:** DaveX2001/deliverable-tracking#353
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -90,3 +90,8 @@ publish: true
 **Kundenstimme:** Laufender Time & Material Vertrag über mehrere Monate bestätigt nachhaltigen Mehrwert und Zufriedenheit
 
 **Call to Action:** Vereinbaren Sie ein unverbindliches Erstgespräch zur Evaluierung Ihrer KI-Potenziale
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

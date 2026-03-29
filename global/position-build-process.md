@@ -228,3 +228,8 @@ Fully Transitioned:
 - E-Myth Organizational Strategy interview (2026-02-04) — Stage 1 artifacts
 - Position Build Process rubber-duck session (2026-02-07) — Full lifecycle, BDP mapping, derivation chain
 - Framework: Michael Gerber, *The E-Myth Revisited*, Chapters 10, 14, 15, 18
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

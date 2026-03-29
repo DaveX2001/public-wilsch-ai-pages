@@ -103,3 +103,8 @@ Call to Action: _______________
 - **Design principle:** One big idea per slide, headline tells story without reading body
 - **Output formats:** Presentable slides + PDF for sending
 - **Pyramid principle:** Start with conclusion, then supporting evidence
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

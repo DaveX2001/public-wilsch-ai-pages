@@ -64,3 +64,8 @@ The scenarios we choose will inform which approach makes sense. Some scenarios m
 - Which element groups matter most to users? (Contracts? Costs? Notifications?)
 - What pain points do Mujahid/Ali see in day-to-day FM operations?
 - What would be most valuable for sales demos?
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

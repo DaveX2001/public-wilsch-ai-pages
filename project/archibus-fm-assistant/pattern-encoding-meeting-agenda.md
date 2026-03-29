@@ -183,3 +183,8 @@ Pain Point → Workflow → Best Practice Solution
 1. *"What's the pain?"* (data quality, navigation complexity, duplicates)
 2. *"What workflow does this live in?"* (asset creation, work request, cost entry)
 3. *"What's the best practice way to solve it?"* (the pattern to encode)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

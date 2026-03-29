@@ -184,3 +184,8 @@ Current client selection includes an instinctive filter: "Can they prove to me t
 - **Issue:** [#884 March capacity plan](https://github.com/DaveX2001/deliverable-tracking/issues/884)
 - **Design Doc:** [Monthly Planning System Design](monthly-planning-system-design)
 - **Contract Strategy:** [#847](https://github.com/DaveX2001/deliverable-tracking/issues/847)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

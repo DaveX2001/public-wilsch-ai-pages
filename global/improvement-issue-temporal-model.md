@@ -116,3 +116,8 @@ Used by BOTH capture and work stages.
 **Related:**
 - [improve-system-architecture](improve-system-architecture) - Current capture/fix workflow
 - [adr-adopt-epic-sub-issue-pattern](adr-adopt-epic-sub-issue-pattern-for-deliverable-tracking) - Parent-child pattern for deliverables
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

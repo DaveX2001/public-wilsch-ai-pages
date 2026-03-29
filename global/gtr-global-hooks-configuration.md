@@ -75,3 +75,8 @@ git config --global --unset-all gtr.hook.postCreate
 
 - Issue: DaveX2001/deliverable-tracking#241
 - GTR Docs: https://github.com/coderabbitai/git-worktree-runner
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

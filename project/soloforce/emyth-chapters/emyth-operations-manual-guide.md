@@ -215,3 +215,8 @@ If you want it to be *your* game, you need to take the time to tell people how t
 ---
 
 *Copyright 1984, 1994, 1997 by E-Myth Worldwide. All rights reserved.*
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

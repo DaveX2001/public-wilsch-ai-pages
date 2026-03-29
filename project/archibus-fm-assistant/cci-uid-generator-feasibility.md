@@ -93,3 +93,8 @@ OUTPUT: CO-GPB03
 - [CCI-EE Guidance PDF](https://ehituskeskus.ee/wp-content/uploads/2022/03/CCI-EE-guidance-material_14.02.2022_70-p_En.pdf) (English, 70 pages)
 - [CCI-EE Tables Portal](https://ehituskeskus.ee/cci/ee-tabelid/) (Estonian)
 - [FlowBIM CCI Introduction](https://flowbim.ee/cci-ee-context/introduction-cci-ee/)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

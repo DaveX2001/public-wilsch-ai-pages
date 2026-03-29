@@ -185,3 +185,8 @@ materials[].Ebenen["01"].percentage     → number   % contributed from this V
 - Transcript: [Fireflies](https://app.fireflies.ai/view/01KEXRBAF5495NKTGZ5N6FHFVE)
 - Screenshot evidence: Mattis screen share showing Ebenen structure
 - Visualization tool: [jsonviewer.tools/editor](https://jsonviewer.tools/editor)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

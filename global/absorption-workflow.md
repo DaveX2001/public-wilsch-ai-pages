@@ -114,3 +114,8 @@ First proof-of-concept using this workflow:
 - Issue #121: Frontend consolidation parent issue
 - ADR: Strangler pattern sequencing
 - Script-Writer feature doc: `hippocampus/project/paul_youtube_fullstack/script-writer.md`
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

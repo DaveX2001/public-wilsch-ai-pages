@@ -131,3 +131,8 @@ Das Fehlen der Dachlastwerte ist ungewöhnlich und liegt am nicht verfügbaren H
 - **Datenverzeichnis:** `~/Documents/projects/billable/REKERS__poc/data/2026-01-28_testdaten/40593/`
 - **Design-Doc:** [Feasibility Report, Teil 2](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rekers/design-doc-feasibility-report)
 - **Session:** 4f6e2de6-1482-49fd-b1e0-f660e55dfd9b
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

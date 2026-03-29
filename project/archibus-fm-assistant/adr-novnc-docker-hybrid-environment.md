@@ -100,3 +100,8 @@ We will use **noVNC + Docker** (chromote image) to stream a server-side Chrome b
 - [noVNC project](https://github.com/novnc/noVNC)
 - [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/)
 - Related: Issue #265 (Hybrid Environment Capability)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

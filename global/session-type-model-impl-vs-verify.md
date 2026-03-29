@@ -132,3 +132,8 @@ Session type awareness in Task Lifecycle:
 - [8 AI Code Generation Mistakes Devs Must Fix To Win 2026](https://vocal.media/futurism/8-ai-code-generation-mistakes-devs-must-fix-to-win-2026)
 - [Why Your AI Code Reviews Are Broken](https://www.qodo.ai/blog/why-your-ai-code-reviews-are-broken-and-how-to-fix-them/)
 - [Claude Code Best Practices](https://www.anthropic.com/engineering/claude-code-best-practices)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

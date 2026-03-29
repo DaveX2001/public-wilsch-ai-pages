@@ -95,3 +95,8 @@ publish: true
 | Google Workspace | €85.92/yr | ~€72/yr | €14 | **Do it** - essential |
 | Hetzner | €242/yr | Check pricing | ? | Research |
 | Xolo | €1,027/yr | N/A | - | No annual option |
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

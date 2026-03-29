@@ -128,3 +128,8 @@ Alle 9 Kriterien sind nachgewiesen — eines der wenigen Projekte mit vollständ
 - **Datenverzeichnis:** `~/Documents/projects/billable/REKERS__poc/data/2026-01-28_testdaten/41740/`
 - **Design-Doc:** [Feasibility Report, Teil 2](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rekers/design-doc-feasibility-report)
 - **Session:** d75f5d11-26e8-4ca4-a856-6dfafc97d900
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

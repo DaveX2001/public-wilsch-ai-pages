@@ -139,3 +139,8 @@ Better to interrupt than be stuck in silence.
 ## Related
 
 - [Mohamed Onboarding Plan](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/mohamed-onboarding-plan) (full plan for Marius)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

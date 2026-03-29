@@ -409,3 +409,8 @@ Move to next top-level element. The full cycle (validate → correct → dry run
 - `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-MariusWilsch--archibus-bulk-import/aee03387-ce21-4f51-9da1-b34b930d7247.jsonl`
 - `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-MariusWilsch--archibus-bulk-import/18b07a8c-a336-47a3-a705-c5ed77fb5da5.jsonl`
 - `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-MariusWilsch--archibus-bulk-import/719f17b2-3360-4099-a3ba-ffe732076e46.jsonl`
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

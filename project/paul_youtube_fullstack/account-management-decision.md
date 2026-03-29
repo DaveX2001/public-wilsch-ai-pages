@@ -77,3 +77,8 @@ WHERE email = 'user@example.com';
 ## Source
 
 Conversation: `13fa5968-4aeb-4970-abe7-14fc33c5bb08.jsonl`
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

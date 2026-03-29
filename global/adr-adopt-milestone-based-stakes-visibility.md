@@ -67,3 +67,8 @@ We will use a three-layer model for stakes visibility:
 - [[stakes-visibility-forcing-function]] - The WHY (forcing function framework)
 - [GitHub Milestones Docs](https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/about-milestones)
 - `gh milestone` extension: `gh extension install valeriobelli/gh-milestone`
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

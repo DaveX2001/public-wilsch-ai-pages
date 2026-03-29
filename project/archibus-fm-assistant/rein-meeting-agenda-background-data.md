@@ -95,3 +95,8 @@ What should we dive deeper into in a follow-up session?
 
 - **Type:** Orientation and terminology alignment
 - **Expectation:** This is the first of potentially multiple sessions - collaborative discovery, not a deep technical dive
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

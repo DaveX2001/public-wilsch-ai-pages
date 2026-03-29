@@ -93,3 +93,8 @@ Gerber built the franchise prototype concept. We're making it executable with AI
 - Rubber-duck session: `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-WILSCH-AI-INTERNAL--soloforce/77a5109b-b03d-46f9-af5c-09d693b77029.jsonl`
 - WhatsApp messages (2026-02-14): Vision development, AiTax SG reference, Gorden quote
 - AiTax SG tweet: https://x.com/phuakuanyu/status/2022015143958413509
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

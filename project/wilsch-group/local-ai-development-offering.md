@@ -158,3 +158,8 @@ Auch mit der Commercial API und Anthropics DPA bleiben folgende Punkte, die regu
 - **Qwen3.5:** [HuggingFace](https://huggingface.co/Qwen/Qwen3.5-397B-A17B) | [MLX 4-bit](https://huggingface.co/mlx-community/Qwen3.5-397B-A17B-4bit)
 - **MiniMax M2.5:** [HuggingFace](https://huggingface.co/MiniMaxAI/MiniMax-M2.5)
 - **Session:** ce7b3c88-8c2e-47cb-b165-daeae5aa8c10.jsonl
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

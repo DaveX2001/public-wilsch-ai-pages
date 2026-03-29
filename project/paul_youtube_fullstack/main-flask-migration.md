@@ -551,3 +551,8 @@ CREATE POLICY "users_own_channels" ON channels
 | **Total reduction** | **~2200** | **~44%** |
 
 The remaining ~56% becomes FastAPI services handling complex orchestration that cannot be simplified to Supabase direct access.
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

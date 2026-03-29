@@ -106,3 +106,8 @@ Research basis: Meincke et al. (2025) found persuasion techniques doubled LLM co
 - Scott Spence: "How to Make Claude Code Skills Activate Reliably" (200+ tests)
 - Meincke et al. (2025): Persuasion techniques in LLM compliance
 - Lee Han Chung: "Claude Agent Skills: A First Principles Deep Dive"
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

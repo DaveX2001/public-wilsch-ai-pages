@@ -70,3 +70,8 @@ We will use a three-session model for instruction artifact improvements:
 - Conversation extraction: `soloforce/research/scripts/extract_conversation.py`
 - Related: `skill-lifecycle-execution-timing.md` (skill discovery pattern)
 - Related: `skill-creator/SKILL.md` (skill modification workflow)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

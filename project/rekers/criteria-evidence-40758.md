@@ -137,3 +137,8 @@ Die DGNB Gold-Zertifizierung (NLO 23) mit Taxonomie-Konformität und die schwere
 - **Datenverzeichnis:** `~/Documents/projects/billable/REKERS__poc/data/2026-01-28_testdaten/40758/`
 - **Design-Doc:** [Feasibility Report, Teil 2](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rekers/design-doc-feasibility-report)
 - **Session:** de4f90c7-8925-4d44-a4c8-0ac36ff9de3f
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

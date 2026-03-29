@@ -144,3 +144,8 @@ See `/tmp/design-lab-*.png` files for captured screenshots during design session
 
 - [Paul v2 Data Model and UI Design](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/paul_youtube_fullstack/paul-v2-data-model-and-ui-design)
 - Issue #440: Channels-First Navigation
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

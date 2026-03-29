@@ -63,3 +63,8 @@ https://github.com/veloxforce/archibus-deploy
 
 *Last updated: 2026-01-09*
 *Related: [Issue #7](https://github.com/DaveX2001/deliverable-tracking/issues/7)*
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

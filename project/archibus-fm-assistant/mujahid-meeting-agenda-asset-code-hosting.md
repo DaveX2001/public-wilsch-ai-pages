@@ -54,3 +54,8 @@ What information is needed for the FMM Doha Airport quotation?
 - **Type:** Spec design review + info gathering
 - **Duration:** ~45 minutes
 - **Expectation:** Review design doc beforehand
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

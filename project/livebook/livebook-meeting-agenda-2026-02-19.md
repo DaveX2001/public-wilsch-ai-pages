@@ -3,7 +3,7 @@ publish: true
 ---
 
 # Livebook — First Alignment Meeting
-[[livebook]]
+[[client-stafford]]
 
 ## Meeting Goal
 
@@ -140,3 +140,8 @@ Story ownership and IP tokenization were discussed with enthusiasm. Marshall (Hy
 ## Related
 
 - **Design Doc:** [Livebook Design Doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/livebook/livebook-design-doc)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

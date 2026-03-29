@@ -51,3 +51,8 @@ Items stay in their current column (Backlog, To-Do, In-Progress) with the `block
 - [Why Avoid Using Blocked Columns on Kanban Boards](https://www.danieleteti.it/post/why_avoid_using_blocked_columns_on_kanban_boards/)
 - [Blocked Columns Obfuscate Workflow - naked Agility](https://nkdagility.com/resources/blog/blocked-columns-on-kanban-boards-obfuscate-workflow-and-undermine-effectiveness/)
 - [Jira Flag Documentation](https://support.atlassian.com/jira-software-cloud/docs/flag-an-issue/) - Jira recommends flags over status
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

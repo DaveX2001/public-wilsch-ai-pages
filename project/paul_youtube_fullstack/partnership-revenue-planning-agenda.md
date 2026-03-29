@@ -16,3 +16,8 @@ publish: true
 - **Pricing Model:** How do we charge customers?
 - **Offering Structure:** What do customers get for their money?
 - **Revenue Sharing:** How do we split the revenue?
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -40,3 +40,8 @@ The wow factor: "Here's messy data. Watch AI put it into Bruce."
 ---
 
 *Synthesis of Dec 29 + Dec 30 meetings.*
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

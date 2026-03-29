@@ -50,3 +50,8 @@ Full pricing comparison, GPU availability matrix, and source references:
 
 *Decision documented: 2025-12-03*
 *Related Issue: DaveX2001/deliverable-tracking#9*
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

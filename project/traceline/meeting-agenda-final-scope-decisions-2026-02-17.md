@@ -103,3 +103,8 @@ The setup script handles settings.json, CLAUDE.md protocol copy, dependencies (g
 - **Issue:** [CCI#504: Cloud Code Operating Launch](https://github.com/DaveX2001/claude-code-improvements/issues/504)
 - **Design Doc:** [Developer Position Beta — Plugin Scope & Delivery](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/traceline/developer-position-beta-scope)
 - **Previous Agenda:** [Beta Launch Scope (2026-02-16)](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/traceline/meeting-agenda-beta-launch-scope-2026-02-16)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -70,3 +70,8 @@ Nächstes Seminar am 6. März. Das Februar-FSO hatte 23 Teilnehmer und lief fast
 
 - **Issue:** [#650 — UWI/Portal Wilsch: Infrastructure & Automation Backlog](https://github.com/DaveX2001/deliverable-tracking/issues/650)
 - **Supportvertrag:** [Dezember 2025](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/wilsch-group/supportvertrag-dezember-2025)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

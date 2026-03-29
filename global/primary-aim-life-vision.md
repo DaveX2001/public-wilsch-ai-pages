@@ -230,3 +230,8 @@ That's the model. Build the system. Document it so completely that anyone can ru
 - E-Myth Primary Aim refinement: BDP loop, Caring, Cycle 1 definition (2026-02-03)
 - Framework: Michael Gerber, *The E-Myth Revisited*, Chapters 10 (Business Development Process) and 12 (Primary Aim)
 
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

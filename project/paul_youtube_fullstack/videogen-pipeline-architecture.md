@@ -231,3 +231,8 @@ listImages() → [OpenCV generates clips in parallel] → filter_complex (no zoo
 
 - Code investigation: Dec 23, 2024
 - Issue: [#329 VideoGen Scaling Spike](https://github.com/DaveX2001/deliverable-tracking/issues/329)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

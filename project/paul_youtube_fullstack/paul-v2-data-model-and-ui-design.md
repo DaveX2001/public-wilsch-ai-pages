@@ -280,3 +280,8 @@ v1 supports voice/speed override via Step 3 upload:
 - [Video Creation ERD](./video-creation-erd.md)
 - [v2 Wizard Architecture Snapshot](./v2-wizard-architecture-snapshot-2026-01-04.md)
 - [Strangler Pattern ADR](./adr-strangler-pattern-sequencing.md)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

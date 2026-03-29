@@ -78,3 +78,8 @@ Contention cost = 1 - (multiplier / concurrency)
 - [tts-optimization-learnings.md](tts-optimization-learnings.md)
 - [pipeline-scalability-analysis-2025-12-28.md](pipeline-scalability-analysis-2025-12-28.md)
 - [tts-pipeline-after-runpod.md](tts-pipeline-after-runpod.md)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

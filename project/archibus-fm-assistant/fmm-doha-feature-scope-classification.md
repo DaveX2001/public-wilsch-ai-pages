@@ -193,3 +193,8 @@ publish: true
 **Phase 2:** Get buy-in from Rein (API feasibility) and Miguel (business alignment)
 
 **Phase 3:** Figure out the work and cost
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

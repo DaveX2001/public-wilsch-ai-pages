@@ -143,3 +143,8 @@ See: [context-graph-langfuse.md](context-graph-langfuse.md)
 - [ ] What triggers "notify human if blocked"?
 - [ ] How to parallelize Design + Implementation with tmux?
 - [ ] Should Context Graph log all three session types?
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

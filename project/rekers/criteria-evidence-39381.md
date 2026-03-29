@@ -132,3 +132,8 @@ Das Hauptangebot Nr. 39381.4 vom 02.11.2022 ist nicht als separate Datei im Date
 - **Datenverzeichnis:** `~/Documents/projects/billable/REKERS__poc/data/2026-01-28_testdaten/39381/`
 - **Design-Doc:** [Feasibility Report, Teil 2](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rekers/design-doc-feasibility-report)
 - **Session:** b11ae83f-ff41-45ec-8d16-58a82f2b45a8
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

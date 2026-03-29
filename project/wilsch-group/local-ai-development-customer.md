@@ -133,3 +133,8 @@ Für lokale Verarbeitung (Stufe 2 und 3) schließen wir eine individuelle Datenv
 
 **Quellenverweise:** [Anthropic Commercial Terms](https://www.anthropic.com/legal/commercial-terms) | [DPA](https://www.anthropic.com/legal/data-processing-addendum) | [Regional Compliance](https://claude.com/regional-compliance)
 
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

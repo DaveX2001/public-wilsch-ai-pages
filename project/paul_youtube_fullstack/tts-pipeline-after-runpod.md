@@ -211,3 +211,8 @@ Total: 3 rounds × 8s = 24s + overhead ≈ 30-40s
 - [ ] Verify exaggeration=0.3 produces same output
 - [ ] Benchmark parallel speedup
 - [ ] Test queue behavior with >20 chunks
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

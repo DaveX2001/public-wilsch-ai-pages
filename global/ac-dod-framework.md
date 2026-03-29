@@ -315,3 +315,8 @@ All details live in tracking file. Issue body is a pointer.
 - [Martin Fowler: Given-When-Then](https://martinfowler.com/bliki/GivenWhenThen.html)
 - [Mike Cohn: Testing Pyramid](https://www.agilecoachjournal.com/2014-01-28/the-agile-testing-pyramid)
 - [AltexSoft: AC Best Practices](https://www.altexsoft.com/blog/acceptance-criteria-purposes-formats-and-best-practices/)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -57,3 +57,8 @@ WISO-IP-Telefonsystem wird abgeschaltet. Vollständige Migration auf Dialpad nö
 ## Verknüpfungen
 
 - **Issue:** [#650 — UWI/Portal Wilsch: Infrastructure & Automation Backlog](https://github.com/DaveX2001/deliverable-tracking/issues/650)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

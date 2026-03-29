@@ -257,3 +257,8 @@ This enables timeline view of all agent actions for a specific issue.
 2. **Implement Phase 1** - Schema + Agent updates
 3. **Test in Langfuse** - Verify rich traces appear
 4. **Plan Phase 2** - Langfuse MCP design
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

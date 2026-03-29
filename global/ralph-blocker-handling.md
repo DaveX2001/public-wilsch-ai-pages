@@ -106,3 +106,8 @@ Add to `~/.claude/ralph/prompt_impl.md`:
 - [AC Verification Decision Trace](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/ac-verification-decision-trace)
 - [mcp-feedback-enhanced](https://github.com/Minidoracat/mcp-feedback-enhanced)
 - [SEP-1686: Tasks](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1686)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

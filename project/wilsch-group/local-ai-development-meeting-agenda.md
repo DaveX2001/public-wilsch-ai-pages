@@ -54,3 +54,8 @@ Der Mac Studio M3 Ultra (512GB) kostet ~9.500€ als Sofortkauf. Ein Upgrade auf
 
 - **Issue:** [#834: Evaluate Local AI Development Hardware & Offering](https://github.com/DaveX2001/deliverable-tracking/issues/834)
 - **Design Doc:** [Lokale KI-Entwicklung](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/wilsch-group/local-ai-development-offering)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

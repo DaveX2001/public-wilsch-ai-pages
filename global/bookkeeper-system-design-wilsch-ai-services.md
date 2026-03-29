@@ -259,3 +259,8 @@ Before AI delegation is viable, the portal access bottleneck (Part 2) must be re
 **Extraction pass:**
 - Session: /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-CLAUDE-CODE-IMPROVEMENTS--improvements/03d9d2f4-977e-4c9d-8dd8-1e17634e0a04.jsonl
 - CCI: [#606](https://github.com/DaveX2001/claude-code-improvements/issues/606)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

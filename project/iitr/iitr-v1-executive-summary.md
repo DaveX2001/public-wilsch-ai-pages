@@ -21,3 +21,8 @@ Die Lösung erreichte 85% Automatisierung eingehender Anfragen mit einer gemelde
 **Technische Grundlage**
 
 Aufgebaut auf sicherer On-Premise-Infrastruktur mit vollständiger Datenhoheit. Die Architektur kombiniert Vektordatenbank-Technologie für intelligente Dokumentensuche mit einem spezialisierten deutschen Sprachmodell, optimiert für Rechtsterminologie. Multi-Umgebungs-Setup (Entwicklung, Staging, Produktion) gewährleistet zuverlässige Deployments und kontinuierliche Qualitätsverbesserung.
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

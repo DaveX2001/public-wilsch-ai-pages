@@ -60,3 +60,8 @@ These country values have a trailing space — exact match fails without it:
 - API endpoint: `POST Assets/ValidateAssets` with `country: "Netherlands"` (no trailing space) → error response includes full enum
 - Discovered: 2026-02-19, issue #841 verification session
 - Related: [Step 3 Field Tier Mapping](bruce-bem-country-enum-quirks.md) field #17 (Country)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

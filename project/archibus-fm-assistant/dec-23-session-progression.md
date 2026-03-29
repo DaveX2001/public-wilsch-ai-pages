@@ -151,3 +151,8 @@ Chains remain valid. Focus emerged from Dec 23 discussion.
 
 - [Dec 18 Assets Session Summary](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/dec-18-assets-session-summary)
 - [Pattern Encoding ADR](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/adr-pattern-encoding-methodology)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

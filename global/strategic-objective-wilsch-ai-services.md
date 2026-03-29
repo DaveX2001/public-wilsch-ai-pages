@@ -265,3 +265,8 @@ Once Issue Lifecycle Router is handed off, founder time goes to:
 - E-Myth Strategic Objective interview (2026-02-03)
 - E-Myth Strategic Objective completion session (2026-02-04) — added For Whom, Territory, Standards
 - Framework: Michael Gerber, *The E-Myth Revisited*, Chapter 13
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

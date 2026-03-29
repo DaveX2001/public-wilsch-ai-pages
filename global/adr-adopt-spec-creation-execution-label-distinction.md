@@ -94,3 +94,8 @@ See [Issue Lifecycle Router](https://mariuswilsch.github.io/public-wilsch-ai-pag
 
 - [Issue Lifecycle Router](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/issue-lifecycle-router) - Implementation workflows
 - [Don't Waste Your Backpressure](https://banay.me/dont-waste-your-backpressure/) - Feedback mechanisms
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

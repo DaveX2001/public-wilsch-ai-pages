@@ -180,3 +180,8 @@ direct relationship. Next project depends on IITR's priorities after DS-Kit is d
 - **Email:** [Sebastian Kraska — u.a. Staging System, Vergütung (Mar 3)](https://mail.google.com/mail/u/0/#all/19cb5178aea60dd3) — confirms March 4 meeting, contract review
 - **Email:** [Sebastian Kraska — Austausch KI-System (Mar 3)](https://mail.google.com/mail/u/0/#all/19cb5170512d9850) — Zoom invite for March 4
 - **Session:** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/2c6e2b5f-7d4a-493a-8bc7-d441c20c6090.jsonl
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

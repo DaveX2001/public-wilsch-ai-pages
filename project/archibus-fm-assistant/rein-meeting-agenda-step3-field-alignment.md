@@ -116,3 +116,8 @@ Focus on Approach sections 4, 5, and 6.
 
 - **Issue:** [#373 — ARCHIBUS: AI Bulk Data Entry Prototype](https://github.com/DaveX2001/deliverable-tracking/issues/373)
 - **Design Doc:** [Chain 1B: Step 3 Fill Level-by-Level](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/chain-1b-step3-design)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

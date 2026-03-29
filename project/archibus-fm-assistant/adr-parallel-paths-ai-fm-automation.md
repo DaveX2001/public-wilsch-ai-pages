@@ -60,3 +60,8 @@ We will separate framework development from marketing quick wins as **parallel t
   - Example: #373 AI Bulk Data Entry Prototype
 - **Quick Wins Path Parent:** #594 YouTube Marketing Funnel
   - Examples: #591 CCI codes, #605 Equipment codes
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

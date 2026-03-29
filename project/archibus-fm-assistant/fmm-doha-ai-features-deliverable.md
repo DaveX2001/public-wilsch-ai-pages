@@ -84,3 +84,8 @@ Clarify the FMM-specific inputs above. Some may require escalation to Miguel.
 
 1. **Schedule pricing call** - 30 min to finalize costs
 2. **Demo MH8** - Work Requests via Chat available for demonstration
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

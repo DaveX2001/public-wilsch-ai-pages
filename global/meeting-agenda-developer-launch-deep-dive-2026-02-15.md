@@ -145,3 +145,8 @@ The actual depth: each markdown artifact goes through iteration after iteration,
 
 - Transcript (2026-02-14): [Fireflies](https://app.fireflies.ai/view/01KHDFK5XCE8K07J8MFH5DV51K)
 - Rubber-duck session: this conversation
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

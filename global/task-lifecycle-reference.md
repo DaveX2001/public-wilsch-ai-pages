@@ -51,3 +51,8 @@ Quick reference for task lifecycle phases and modes.
 - [improve-system-architecture.md](improve-system-architecture.md)
 - [three-session-instruction-artifact-improvement.md](three-session-instruction-artifact-improvement.md)
 - Research: [Issue #144](https://github.com/DaveX2001/deliverable-tracking/issues/144)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

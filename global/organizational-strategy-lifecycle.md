@@ -175,3 +175,8 @@ Covers the complete lifecycle: Stage 1 (Structure) → Stage 2 (Prototype via BD
 
 - E-Myth Organizational Strategy interview (2026-02-04)
 - Framework: Michael Gerber, *The E-Myth Revisited*, Chapter 14
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

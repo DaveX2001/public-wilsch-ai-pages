@@ -44,7 +44,7 @@ Entry point for all position-specific Operations Manuals at Wilsch AI Services. 
 
 | Position | Position Agreement | Operations Manual TOC | Plugin |
 |----------|-------------------|----------------------|--------|
-| **Dev Lead** | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/dev-lead-position-agreement-wilsch-ai-services) | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/dev-lead-operations-manual-toc) | TBD |
+| **Dev Lead** | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/dev-lead-position-agreement-wilsch-ai-services) | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/dev-lead-operations-manual-toc) | [Draft](https://github.com/MariusWilsch/Developer-Position/tree/main/plugins/dev-lead-position-plugin) |
 | **Developer** | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/developer-position-agreement-wilsch-ai-services) | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/developer-operations-manual-toc) | [Draft](https://github.com/MariusWilsch/claude-code-team-marketplace/tree/main/plugins/developer-position-plugin) |
 | **Solution Architect** | TBD | TBD | TBD |
 | **Junior Architect** | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/junior-architect-position-agreement-wilsch-ai-services) | [Draft](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/junior-architect-operations-manual-toc) | [Draft](https://github.com/MariusWilsch/junior-architect-position-plugin) |
@@ -98,3 +98,8 @@ Entry point for all position-specific Operations Manuals at Wilsch AI Services. 
 
 - E-Myth Management Strategy interview (2026-02-15, 2026-02-16)
 - Framework: Michael Gerber, *The E-Myth Revisited*, Chapters 14, 15, 18
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

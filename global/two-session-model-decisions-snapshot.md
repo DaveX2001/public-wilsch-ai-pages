@@ -144,3 +144,8 @@ Commit: [hash]
 > "When you use the same AI system to both write and review code, you're not getting a second opinion. You're getting confirmation bias at scale."
 
 > "Task Completed is like a blockchain checkpoint - proof that work happened, regardless of correctness."
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

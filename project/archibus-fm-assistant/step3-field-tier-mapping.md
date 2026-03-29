@@ -71,3 +71,8 @@ Empty fields: **omit from JSON body** (preferred — shorter JSON). API treats m
 - [Feb 11 — Rein/Marius meeting](https://app.fireflies.ai/view/01KH67KMEA533C0VVJWH7FE63D)
 - [AssetImportDescription.xlsx → Fields Assets sheet](https://github.com/MariusWilsch/ARCHIBUS__archibus-poc/blob/staging/.claude/tracking/issue-373/AssetImportDescription.xlsx)
 - Session: /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-ARCHIBUS--archibus-fm-assistant/494332f2-3f40-4c9b-9d96-43e84c3f2441.jsonl
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

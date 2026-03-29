@@ -64,3 +64,8 @@ Current iframe approach works (Bruce BEM passes tokens). Standalone OAuth blocke
 AI navigates Chrome visually so users see actions happen. Split-screen wrapper combines chat + VNC view.
 
 **Decision:** Kill / Pivot / Continue
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

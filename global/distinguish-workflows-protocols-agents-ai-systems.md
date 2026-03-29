@@ -86,3 +86,7 @@ We will maintain strict architectural distinctions between workflows, protocols,
 | **Everything as Workflows** | Loses adaptability and judgment for dynamic situations |
 | **Protocols as Standalone** | Protocols without execution layer are just documentation |
 | **No Clear Distinctions** | Current state - leads to architectural mismatches and failed implementations |
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

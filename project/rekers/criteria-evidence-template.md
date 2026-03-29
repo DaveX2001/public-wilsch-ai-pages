@@ -120,3 +120,8 @@ When producing evidence documents, agents MUST know:
 
 - **Based on:** [Criteria Evidence — 37369](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rekers/criteria-evidence-37369)
 - **Session:** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-REKERS--poc/772b96f8-d646-428c-bde6-9eeddf0418b5.jsonl` (Part 2 extraction pass)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

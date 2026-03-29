@@ -293,3 +293,8 @@ Disable via environment variable: `OPENCV_KEN_BURNS=false`
 - [VideoGen Pipeline Architecture](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/paul_youtube_fullstack/videogen-pipeline-architecture)
 - [Ken Burns Optimization Spike](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/paul_youtube_fullstack/opencv-cuda-ken-burns-solution)
 - Issue: [#329 VideoGen Scaling Spike](https://github.com/DaveX2001/deliverable-tracking/issues/329)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

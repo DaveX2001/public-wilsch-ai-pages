@@ -53,3 +53,8 @@ su - paul -c "ls /home/marius/projects/chatterbox-runpod"
 - SGID bit ensures new files inherit `paul_faceless_yt` group
 - No workflow change needed for marius - files auto-inherit
 - Parent directories (`/home/marius`, `/home/marius/projects`) need execute bit for traversal
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

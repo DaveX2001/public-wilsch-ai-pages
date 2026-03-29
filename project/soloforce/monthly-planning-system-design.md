@@ -307,3 +307,8 @@ All three must pass. This mirrors the three-layer evaluation for new work (Part 
   - [Archibus Retainer Agreement](hippocampus/project/archibus-fm-assistant/) (6-month renewal, Feb–Aug 2026)
   - [Rekers Order S184773](hippocampus/project/rekers/Order%20S184773%20Rekers%20Betonwerk.pdf) (€5,635 workshop, 50/50 split via UWI)
   - [UWI Supportvertrag](hippocampus/project/wilsch-group/supportvertrag-dezember-2025.md) (€2,500/month + SLA)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -86,3 +86,8 @@ Two scenarios the team should be aware of. Neither is in scope for the current d
 - **Epic:** [#838: AI Bulk Data Import Pipeline](https://github.com/DaveX2001/deliverable-tracking/issues/838)
 - **Design Doc:** [Step 3 Fill Level-by-Level](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/chain-1b-step3-design)
 - **Session:** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-MariusWilsch--archibus-bulk-import/719f17b2-3360-4099-a3ba-ffe732076e46.jsonl`
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

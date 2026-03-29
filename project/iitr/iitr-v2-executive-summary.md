@@ -21,3 +21,8 @@ Die Kombination beider Systeme ermöglicht vollständige Rechtsrecherche: v1 als
 **Technische Grundlage**
 
 Separates System mit Hybrid-Suche (semantisch + Volltext) für optimale Präzision bei Rechtsfallrecherche. Spezialisierte Zitaten-Extraktion gewährleistet rechtskonforme Quellenangaben. Architektur ergänzt v1-System ohne Abhängigkeiten, beide Datenquellen bleiben unabhängig wartbar und erweiterbar.
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

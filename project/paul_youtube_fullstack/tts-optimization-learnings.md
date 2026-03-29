@@ -93,3 +93,8 @@
 | **4090** | **5** | **2.8 min** | **$0.05** |
 
 **Conclusion:** 4090 with 5 workers is fastest AND cheapest.
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

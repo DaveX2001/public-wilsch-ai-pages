@@ -228,3 +228,8 @@ Break-even: Self-hosted becomes worthwhile at very high volume OR if third-party
 - [awesome-talking-head-generation](https://github.com/harlanhong/awesome-talking-head-generation)
 - [Awesome-Talking-Head-Synthesis](https://github.com/Kedreamix/Awesome-Talking-Head-Synthesis)
 - [talking-face-arxiv-daily](https://github.com/liutaocode/talking-face-arxiv-daily)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

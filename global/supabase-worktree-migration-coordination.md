@@ -118,3 +118,8 @@ git add supabase/migrations/ && git commit
 - Issue: DaveX2001/claude-code-improvements#152
 - Issue: DaveX2001/claude-code-improvements#202 (Auto-link Supabase CLI)
 - Issue: DaveX2001/claude-code-improvements#203 (Supabase CLI error recovery)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

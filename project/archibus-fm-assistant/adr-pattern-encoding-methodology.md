@@ -60,3 +60,8 @@ We will use **Pattern Encoding** methodology to systematically extract high-valu
 - [Pattern Encoding Meeting Agenda](pattern-encoding-meeting-agenda.md) - Facilitation guide for extraction sessions
 - [Bruce Platform Elements](bruce-elements-diagram.png) - Mandala FM architecture
 - [Hybrid Environment ADR](adr-novnc-docker-hybrid-environment.md) - AI + UI integration approach
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

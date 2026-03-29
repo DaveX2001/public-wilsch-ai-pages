@@ -99,3 +99,8 @@ Two connected problems, one topic. Internal AI behavior maintenance is solved �
 - **Previous Agendas:**
   - [Final Scope Decisions (2026-02-17)](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/traceline/meeting-agenda-final-scope-decisions-2026-02-17)
   - [Beta Launch Scope (2026-02-16)](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/traceline/meeting-agenda-beta-launch-scope-2026-02-16)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

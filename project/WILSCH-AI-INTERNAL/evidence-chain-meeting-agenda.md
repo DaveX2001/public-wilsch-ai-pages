@@ -44,3 +44,8 @@ Phase 1 captures individual agent failures on-demand. Over time, evidence commen
 
 - **Issue:** [#851: Evidence Chain System](https://github.com/DaveX2001/deliverable-tracking/issues/851)
 - **Design Doc:** [Evidence Chain System Design](evidence-chain-system-design)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

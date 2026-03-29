@@ -124,3 +124,8 @@ Based on clarity workflow needs:
 
 - [1337 Resumes Folder](1337-resumes-2025-12/)
 - [Original Outreach Message](../../../global/1337-hiring-outreach-message-2025-12-05.md)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

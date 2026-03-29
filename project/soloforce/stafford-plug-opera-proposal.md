@@ -3,7 +3,7 @@ publish: true
 ---
 
 # Plug/Opera — Your Fractional AI Department
-[[project-index-847]]
+[[project-index-847]] [[client-stafford]]
 
 Proposal for Stafford — how Wilsch AI Services delivers the AI infrastructure for Plug/Opera. Walk-through document for next conversation.
 
@@ -129,3 +129,8 @@ This is a retainer deliverable. The agent is built during the engagement and get
 - [Mayer Brown — Contracting for Agentic AI (Feb 2026)](https://www.mayerbrown.com/en/insights/publications/2026/02/contracting-for-agentic-ai-solutions-shifting-the-model-from-saas-to-services)
 - Transcript: [Marius x Stafford negotiation (2026-02-20)](https://app.fireflies.ai/view/01KHXJSM63VJB0JT88KS8E4NZJ)
 - Session: `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/fe55b5ce-9f72-49c8-8348-99f48176ae27.jsonl`
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

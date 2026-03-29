@@ -180,3 +180,7 @@ TTS (1) ──┬──→ Scene Extraction (2) → Image Gen (3) → Video Segm
 | 3: Integration | Implementation | Avatar working in pipeline |
 
 **Key insight:** Phases 1-2 are "paid discovery" with uncertain outcomes. Phase 3 is predictable engineering once discovery passes.
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -96,3 +96,8 @@ Pure LLM approaches achieve ~86% on academic benchmarks (Spider 1.0) but only ~6
 - [Vanna AI](https://vanna.ai/) | [GitHub](https://github.com/vanna-ai/vanna)
 - [Spider 2.0](https://spider2-sql.github.io/)
 - [TableRAG](https://arxiv.org/html/2506.10380v1)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

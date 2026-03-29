@@ -140,3 +140,8 @@ Recommends best technician based on skills and availability.
 
 ### SLA Root Cause
 **Query:** "Why did SLA compliance drop last month?"
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

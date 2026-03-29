@@ -90,3 +90,8 @@ If the decision is to commit, the forcing function needs a shape. What cadence c
 ## Source
 
 - **Session:** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-MariusWilsch__archibus-bulk-import/e3f4964a-6d5e-4f44-ba34-0c4fe264af25.jsonl`
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -187,3 +187,8 @@ Before building, one core question: **How standardized is the data we'll receive
 ## Source
 
 - Mujahid <> Marius meeting (2026-01-22)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

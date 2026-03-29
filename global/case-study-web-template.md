@@ -221,3 +221,8 @@ Template structure finalized 2026-01-14 based on:
 - AVO as reference implementation
 
 See [[case-study-slide-template]] for presentation slide version.
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

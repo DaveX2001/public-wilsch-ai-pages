@@ -215,3 +215,8 @@ The three-slice ownership model (agent, operator, improvement loop) creates mult
 
 - **Issue:** [#847 — Design Contract Strategy & Retainer Model](https://github.com/DaveX2001/deliverable-tracking/issues/847)
 - **Design Doc:** [Contract Strategy & Retainer Model Design](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/soloforce/contract-strategy-retainer-model-design)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

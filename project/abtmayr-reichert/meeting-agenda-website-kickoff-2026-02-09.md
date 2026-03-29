@@ -103,3 +103,8 @@ Die Domain renovierungsverein.de ist bei IONOS registriert. Über den Verein und
 
 - **Issue:** [#612 — Abtmayr-Reichert: Website Development Kickoff Meeting](https://github.com/DaveX2001/deliverable-tracking/issues/612)
 - **Rahmenvertrag:** [T&M Vertrag](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/abtmayr-reichert/rahmenvertrag-tm-2025-12-16)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

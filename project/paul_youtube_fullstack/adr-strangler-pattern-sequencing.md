@@ -63,3 +63,8 @@ During migrations, prefer **additive changes** over **breaking changes**. Additi
 **Key Resources:**
 - [Pipeline Orchestration Design](pipeline-orchestration-design.md) - Strangler pattern phases
 - [Paul Supabase Schema Design](paul-supabase-schema-design.md) - Migration sequence strategy
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -112,3 +112,8 @@ Walk out of this meeting with:
 - Andre Lutz Power 11 benchmark: [LinkedIn Post](https://www.linkedin.com/pulse/compiling-ollama-openwebui-ibm-power-ppc64le-andre-lutz)
 - BitNet: [github.com/microsoft/BitNet](https://github.com/microsoft/BitNet)
 - vllm-spyre: [github.com/vllm-project/vllm-spyre](https://github.com/vllm-project/vllm-spyre)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

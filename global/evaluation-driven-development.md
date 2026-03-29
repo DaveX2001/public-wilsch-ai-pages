@@ -65,3 +65,7 @@ We will adopt **evaluation-driven development** as the standard approach for AI 
 - Proof case: This methodology achieved 6.25x improvement (8% → 50%) through measured iterations
 - Core principle: "If you can't measure it accurately, fix the measurement infrastructure first"
 - Validation: Each improvement cycle revealed ground truth closer than previous perception
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -197,3 +197,8 @@ Background data tables are KNOWN and STABLE → encode into AI context.
 | 9 | Loop Mechanism | Architecture | Batch / Streaming / Interactive |
 
 These are implementation-specific.
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

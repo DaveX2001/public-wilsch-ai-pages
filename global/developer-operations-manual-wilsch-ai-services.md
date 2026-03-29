@@ -83,6 +83,31 @@ For now, reference:
 
 ---
 
+### Step 0: Decompose from Epic
+
+**When:** You pick up an epic with a published JA design doc — no sub-issues exist yet. At least one grooming session has passed since the JA sub-issue closed.
+
+**Purpose:** Break the design doc into actionable sub-issues using trunk-first decomposition. Maximum 2-3 issues to the first proof point.
+
+**Proof point:** The assumption in the design doc whose failure would invalidate the most downstream work. Examples: "Does this OSS library support retrieval?" (technical), "Does the client's data match our schema?" (data dependency). Full types table in [ILR — Starting-Point Sub-Issues](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/issue-lifecycle-router#starting-point-sub-issues).
+
+```
+/decompose → reads design doc → trunk boundary → spike or issues
+```
+
+**The `/decompose` skill guides you through:**
+1. Read the design doc (mentally build the full issue tree)
+2. Identify the biggest unknown (trunk boundary)
+3. Spike-or-issues decision (human judgment: "confident or spike first?")
+4. Create 2-3 sub-issues (dev/design) up to the proof point
+
+After the proof point passes or fails, the human decides: decompose further or route back to JA for design revision.
+
+→ Methodology: [ILR — Starting-Point Sub-Issues](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/issue-lifecycle-router#starting-point-sub-issues)
+→ Evidence: [IITR Post-Mortem](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/iitr/iitr-post-mortem), [Archibus Post-Mortem](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/archibus-post-mortem)
+
+---
+
 ### Path A: Spec-Design Issue
 
 **Purpose:** Transform unclear requirements into clear, implementable specification.
@@ -494,12 +519,89 @@ Merge to staging branch. The worktree's draft PR (created during Implementation 
 
 **Step 7: Deploy to Staging**
 
-```bash
-ssh WILSCH-AI-SERVER
-cd ~/projects/billable/{project}/ && git pull && make staging
+#### Server Directory Convention
+
+On **multi-user servers** (multiple deployers), projects live in a shared path — not user home directories:
+
+```
+/home/shared/{project}/     ← canonical project path
+├── .env                    ← server-specific config
+├── docker-compose.*.yml    ← compose files
+└── Makefile                ← deployment interface
 ```
 
-*(Gap: Staging environment setup is a prerequisite per project — containers, configs, so Developer can deploy without Marius)*
+**Why:** User home checkouts (`/home/marius/...`, `/home/david/...`) cause container name conflicts, permission issues, and stale Makefiles. One canonical path eliminates duplication.
+
+**Permissions:** Create a project-specific Unix group (e.g., `rohdex`), add all deployers, set the directory with setgid so new files inherit the group:
+
+```bash
+sudo groupadd {project}
+sudo usermod -aG {project} {user1} {user2}
+sudo mkdir -p /home/shared/{project}
+sudo chown root:{project} /home/shared/{project}
+sudo chmod 2775 /home/shared/{project}   # setgid
+```
+
+**Single-user servers** (e.g., RDX-APP-01 with one deployer): keep `~/projects/{project}/` — no shared path needed.
+
+**Migrating existing projects:**
+1. Create group + `/home/shared/{project}/` (permissions above)
+2. Clone repo into shared path, copy `.env` from old checkout
+3. Stop containers from old checkout
+4. Remove stale checkouts (all user home copies)
+5. Start containers from new path, verify `/health`
+6. Update Makefile `STAGING_DIR` / `PROD_DIR` to point to shared path
+
+---
+
+Identify which deployment pattern(s) apply, then execute:
+
+| Project type | Pattern | Key command |
+|-------------|---------|-------------|
+| Backend on VPS (auto) | Docker Compose + GHA | Push to `staging` branch (GHA auto-deploys via SSH) |
+| Backend on VPS | Docker Compose | `ssh {SERVER}` → `cd /home/shared/{project}` → `make staging` |
+| Frontend on Vercel | Vercel Hobby | Push to `staging` branch (GHA auto-deploys) |
+| Needs subdomain | Caddy | `sudo caddy validate` → `sudo systemctl reload caddy` |
+
+**Combining patterns:** Deploy services first (Docker Compose / Vercel), then configure Caddy last (it needs a running target to proxy to).
+
+**Docker Compose Backend:**
+```bash
+ssh {SERVER}
+cd /home/shared/{project}
+make staging
+# Makefile runs git pull + docker build + docker compose up locally on the server
+# Verify: curl health endpoint (Makefile prints result on success)
+```
+→ Full pattern: [Docker Compose Design Doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/docker-compose-backend-deployment-design)
+
+**Vercel Hobby Multi-Dev:**
+```bash
+git push origin staging  # GHA deploys automatically via deploy token
+# Verify: check GHA run status in GitHub Actions tab
+```
+→ Full pattern: [Vercel Hobby Design Doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/vercel-hobby-multi-dev-deploy)
+
+**Caddy Subdomain (if new subdomain needed):**
+```bash
+ssh {SERVER}
+sudo nano /etc/caddy/conf.d/{SERVICE}.conf
+sudo caddy validate --config /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+# Verify: curl -I https://{SERVICE}.wilsch-deployment.com
+```
+→ Full pattern: [Caddy Subdomain Design Doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/caddy-subdomain-routing-design)
+
+**CLAUDE.md Deployment Identity (first deploy):**
+
+When deploying a project for the first time, add a deployment identity section to the project's CLAUDE.md. This prevents future sessions from guessing container names, ports, or server paths.
+
+Minimum fields:
+- **Container name** on server (e.g., `archibus_bulk_import`)
+- **Port mapping** (e.g., `3081:8003`)
+- **Server path** (e.g., `/home/shared/archibus-bulk-import/`)
+- **Rebuild command** (`make staging` or `docker compose -f ... up -d --build`)
+- **`.mcp.json`** for local MCP server discovery (if applicable)
 
 ---
 
@@ -680,8 +782,8 @@ If approved → merge to production. Marius is the final gatekeeper.
 - [ ] Priority visibility in GitHub
 
 ### Infrastructure Gaps
-- [ ] **Staging environment setup** (prerequisite per project — containers, configs, so Developer can deploy without Marius)
-- [ ] Deploy to staging procedure (project-specific Makefile targets)
+- [x] ~~Staging environment setup~~ — filled by [Deployment Pattern Standardization](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/deployment-pattern-standardization-design) (Step 7 routing table)
+- [x] ~~Deploy to staging procedure~~ — filled by Step 7 deployment patterns (Docker Compose, Vercel Hobby, Caddy)
 - [ ] Smoke test checklists (project-specific, per core flow)
 
 ### Company-Wide Gaps
@@ -723,3 +825,8 @@ If approved → merge to production. Marius is the final gatekeeper.
 - E-Myth Management Strategy interview (2026-02-06) — Path B Implementation Session corrections + Verification Session
 - Framework: Michael Gerber, *The E-Myth Revisited*, Chapter 15
 - Template: E-Myth Operations Manual Guide (MG-0080)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

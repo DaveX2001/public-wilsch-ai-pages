@@ -105,3 +105,8 @@ From the [Bruce Platform elements diagram](bruce-elements-diagram.png):
 - [Anthropic Advanced Tool Use](https://www.anthropic.com/engineering/advanced-tool-use) - Tool Search, PTC, Examples
 - [Bruce Platform](https://bruceplatform.com/) - e-Collaboration platform overview
 - [BruceBEM](https://brucebem.com/) - Built Environment Manager application
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

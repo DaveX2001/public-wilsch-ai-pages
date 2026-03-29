@@ -28,3 +28,8 @@ Marius
 - Part of December Focus Plan (Issue #32)
 - Confirming leads discussed with UWI sales person
 - January 2025 kickoff for both leads
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

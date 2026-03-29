@@ -73,3 +73,8 @@ Ulrich: "Hat jemand eine Frage an die Datenbank?"
 - `make tunnels` + `make remote-test` vor der Präsentation
 - mcpo instabil → bei Fehler: `ssh IBM-POWER 'make mcpo-stop && sleep 2 && make mcpo-start'`
 - OpenWebUI: http://localhost:3000
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

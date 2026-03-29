@@ -38,3 +38,8 @@ mcp__trustgraph__text_completion with prompt "What is 2+2?"
 ```
 
 Expected: `{"response": "4"}`
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

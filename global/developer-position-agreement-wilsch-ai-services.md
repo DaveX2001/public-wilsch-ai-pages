@@ -151,3 +151,8 @@ Position Agreement for the Developer position at Wilsch AI Services. Framework: 
 - E-Myth Organizational Strategy interview (2026-02-05)
 - Framework: Michael Gerber, *The E-Myth Revisited*, Chapter 14
 - Template: E-Myth Writing Position Agreements guide
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

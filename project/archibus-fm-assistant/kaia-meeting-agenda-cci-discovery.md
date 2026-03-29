@@ -57,3 +57,8 @@ Next step: Create a design document based on this discussion.
 
 - **Duration:** ~45 minutes
 - **Format:** Walkthrough with screen share if helpful
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

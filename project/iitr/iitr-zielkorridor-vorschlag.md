@@ -48,3 +48,8 @@ Die Serverinfrastruktur wird bereits operativ von mir betrieben. Ich schlage vor
 ## Nächster Schritt
 
 Einigung auf die zweiwöchentliche Taktung und Festlegung des Startdatums für den ersten Zyklus.
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

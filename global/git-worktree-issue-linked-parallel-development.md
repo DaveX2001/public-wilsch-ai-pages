@@ -59,3 +59,8 @@ We will adopt git worktrees for parallel AI development with three architectural
 - GitHub closing keywords: [Linking PRs to issues](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue)
 - Related: `skill-lifecycle-execution-timing.md` (when worktree skill executes)
 - Related: `git-worktree-missing-after-push.md` (worktree troubleshooting)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

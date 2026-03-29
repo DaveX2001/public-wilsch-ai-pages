@@ -279,3 +279,8 @@ Items requiring further discussion:
 - [Three-Session Model ADR](../../global/three-session-instruction-artifact-improvement.md)
 - [Improve System Architecture](../../global/improve-system-architecture.md)
 - [BLOOM Framework](https://github.com/safety-research/bloom/) - Potential Session C automation
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

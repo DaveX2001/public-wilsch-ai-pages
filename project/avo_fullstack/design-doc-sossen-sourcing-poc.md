@@ -262,3 +262,8 @@ All three outcomes are valid POC results. A negative finding is still a finding.
 - **Session (Part 1 extraction + Part 2 simplification):** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-AVO--poc/953e038a-ae96-4265-a20b-b7d9d1763d87.jsonl`
 - **Session (Part 4 extraction):** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-AVO__poc/67641e8a-a998-4c2c-b7b6-67f7191bc2f4.jsonl`
 - **Session (Extraction pass — all parts, proxy architecture):** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-AVO__poc/883714f4-7ce5-43be-8a46-a238f9feb2e8.jsonl`
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

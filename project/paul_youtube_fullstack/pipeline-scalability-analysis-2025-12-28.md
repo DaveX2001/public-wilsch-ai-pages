@@ -34,3 +34,8 @@ status: snapshot
 | Cold starts hurt more than contention | Parallel keeps workers warm |
 | `MAX_CONCURRENT_TASKS=2` works | Both videos run stages in parallel |
 | Handler change is small | Preserve segment timing instead of discarding |
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

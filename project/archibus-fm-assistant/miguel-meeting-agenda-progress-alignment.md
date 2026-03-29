@@ -48,3 +48,8 @@ Revenue share structure (Section 2.2) - schedule follow-up to define mechanics
 
 - **Type:** Review + discussion
 - **Duration:** ~30 minutes
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -245,3 +245,8 @@ These topics were discussed but require dedicated reasoning with fresh context:
 **Participants:** Marius, Christoph
 **Transcript:** `yce-egwc-yhc-transcript-2025-12-21T17-11-55.997Z.srt` (Google Drive)
 **Conversation Path:** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-WILSCH-AI-INTERNAL--soloforce/29abd834-c4d0-44ab-864d-d6fdf68a77e5.jsonl`
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

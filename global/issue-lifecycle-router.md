@@ -144,9 +144,9 @@ Each position has a distinct accountability toward the same epic. All positions 
 
 **Decomposition is still the Developer's act — not the JA's.** The JA's ja/design sub-issue produces a design doc. The Developer reads it and creates sibling sub-issues (labeled dev/design). At least one grooming session separates the JA's design doc completion from the Developer's decomposition — the handoff goes through the existing gate mechanism. The Dev Lead's starting-point gate measures Developer comprehension — if the JA pre-decomposes, the gate becomes a rubber stamp.
 
-**Undefined:** JA-to-Developer handoff ceremony — should there be a formal "read design doc + briefing session" step before the Developer decomposes? Or is the grooming session sufficient?
+**JA-to-Developer handoff:** The grooming session is sufficient — no formal ceremony needed. The published design doc is the contract between JA and Developer. Context partitioning (each sub-issue has its own trace line) means the Developer reads the design doc, not the JA's extraction history. The Dev Lead's comprehension gate catches misunderstanding at the starting-point review.
 
-**Undefined:** Decomposition mechanics — the exact process by which the Developer breaks a design doc into sub-issues is being operationalized as a skill. The Starting-Point Sub-Issues section stays at principle level until the skill makes it concrete.
+**Decomposition mechanics:** Operationalized as a `/decompose` skill (Developer-invoked, similar to `/ac-create`). The skill guides the Developer through trunk-first decomposition — see [Starting-Point Sub-Issues](#starting-point-sub-issues) for the methodology. The skill encodes the methodology; the ILR defines the rules.
 
 **Dev Lead gates are comprehension signals.** The starting-point review and tracking.md review measure whether the Developer understands the design doc — not just whether tasks were completed. A poor decomposition signals either a design doc clarity problem (JA) or a comprehension gap (Developer growth opportunity).
 
@@ -194,14 +194,31 @@ The review cycle counter makes rejection frequency visible on the sub-issue itse
 
 ### Starting-Point Sub-Issues
 
-The Developer reads the design doc and creates the first sub-issues they can see. This is not a full decomposition — it's a starting point. More sub-issues emerge naturally as work progresses.
+The Developer reads the design doc, mentally decomposes the full issue tree, then creates sub-issues only up to the first proof point — maximum 2-3 issues. Everything after the proof point stays in the design doc, not on the board.
 
-- **Simple epics** (e.g., 3 clear workstreams): The starting point may be the full set of sub-issues
-- **Complex epics** (e.g., design doc with evolving scope): The starting point is the first 1-2 actionable sub-issues — the rest spawns from doing the work
+**Why trunk-first:** Creating 6 issues from a design doc that passes review but contains unvalidated assumptions produces approved-but-invalid issues. Trunk-first limits blast radius to 2-3 issues per proof point cycle. Evidence: [IITR Post-Mortem](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/iitr/iitr-post-mortem), [Archibus Post-Mortem](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/archibus-post-mortem).
 
-Creating ten sub-issues where seven will be closed is bad practice. The Developer should look as far as they can see and start doing.
+**Proof point types:**
 
-**Undefined:** Detailed decomposition mechanics for complex epics — pending empirical evidence from applying this to issue #373.
+| Type | Example |
+|------|---------|
+| **Technical assumption** | "Does this OSS library support retrieval?" |
+| **Data dependency** | "Does the client's data match our schema?" |
+| **Client decision** | "Will they accept this approach?" |
+| **Runtime capability** | "Can the target environment run this?" |
+
+The Developer identifies the biggest unknown during mental decomposition and draws the trunk boundary there — the assumption whose failure would invalidate the most downstream work.
+
+**Spike-or-issues gate:** At the proof point, a human decision: "Confident to proceed, or spike first?" When uncertain — first time using a technology, runtime behavior that can't be validated through research — create a spike issue (`maker/spike`, no ACs, single-cycle). When confident — proven technology, straightforward integration — create trunk issues directly. The spike deliverable is a proven-vs-assumed map that feeds the next decomposition.
+
+**After the proof point:**
+- **Passes:** Human decides — decompose the next 2-3 issues, or route back to JA if findings require design doc revision.
+- **Fails:** Close the 2-3 trunk issues. Pivot the design doc. Blast radius is 2-3 issues, not 6.
+
+**Proof point comments** route to the child issue (the proof point itself), not the parent epic — making the spike self-documenting for the developer who picks it up.
+
+- **Simple epics** (e.g., 3 clear workstreams): The starting point may be the full set of sub-issues — no trunk boundary needed.
+- **Complex epics** (e.g., design doc with unvalidated assumptions): The starting point is 2-3 sub-issues to the first proof point.
 
 ### Sub-Issue Quality Criteria
 
@@ -677,3 +694,11 @@ The JA's ja/design sub-issue closes when the design doc is complete. The design 
 - Sub-issue lifecycle extraction pass (2026-02-28) — two-gate transition model, dual-cycle diagram, position-specific labels (ja/design, dev/design, dev/implement), Developer triple role (decompose/design/implement), grooming question framings, sub-issue quality criteria (empirical)
 - Session: /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/a38692bf-0233-4e71-ac7f-6e4f7d00d5a8.jsonl
 - Evidence: Empirical analysis of 41 open deliverable-tracking issues, Developer PA gap analysis (4 points missing/contradicted)
+- Trunk-first decomposition extraction pass (2026-03-21) — resolved Undefined markers (handoff ceremony, decomposition mechanics), expanded Starting-Point Sub-Issues with trunk-first methodology (proof points, spike-or-issues gate), absorbed from CCI #657 General Decomposition Design
+- Session: /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/d2f2ef3a-11ef-437d-b7fe-cabfd52a4272.jsonl
+- Evidence: CCI #657 (position epic), IITR #1093 + Archibus #852 decomposition comments, session 08a718d6 (REKERS decomposition), Developer Operations Manual, CCI #604 + #605 observations
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

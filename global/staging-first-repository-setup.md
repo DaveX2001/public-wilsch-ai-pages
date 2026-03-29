@@ -97,3 +97,8 @@ gh api repos/{owner}/{repo} --jq '.delete_branch_on_merge'
 
 - [[staging-uat-workflow]] - Testing pyramid and UAT process
 - [[feature-branching-environment-isolation]] - Environment architecture
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

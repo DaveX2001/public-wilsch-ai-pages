@@ -126,3 +126,8 @@ Das Angebot für eine private AI-Arbeitsumgebung mit OpenWebUI + Ollama ([#735](
 - **Insurance Billing:** [#1016](https://github.com/DaveX2001/deliverable-tracking/issues/1016)
 - **BrokerBin:** [#1036](https://github.com/DaveX2001/deliverable-tracking/issues/1036)
 - **AI Workspace:** [#735](https://github.com/DaveX2001/deliverable-tracking/issues/735)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

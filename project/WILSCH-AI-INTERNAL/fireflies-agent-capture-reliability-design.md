@@ -198,3 +198,8 @@ Three transcript examples from 2026-01-23 demonstrate the problem:
 1. Should the confidence threshold be lowered (0.9 → 0.5) or should medium items go to review?
 2. What is the expected volume increase from 100% capture?
 3. How does AssemblyAI topic detection compare to LLM for Fireflies transcripts specifically?
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

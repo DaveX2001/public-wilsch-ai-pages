@@ -361,3 +361,8 @@ LLM-basierte Entity-Extraktion via OpenRouter API mit strukturierten Prompts. Fa
 - **Entity Extraction** (Project D): Format-agnostische Dokumentenverarbeitung
 
 Meine Rolle als Solo-Developer/Tech Lead umfasst alle Aspekte von Requirements-Gathering über technische Implementierung bis zum Produktions-Deployment. Der workshop-getriebene Ansatz ermöglicht schnelle Projektstarts mit klaren Erfolgskriterien.
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

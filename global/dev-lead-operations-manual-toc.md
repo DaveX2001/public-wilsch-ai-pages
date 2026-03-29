@@ -77,3 +77,8 @@ Structure follows [MG-0080 Operations Manuals](https://www.emyth.com) (E-Myth Ma
 | Ship with Confidence | Draft | [ship-with-confidence](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/ship-with-confidence) |
 
 **Logic:** MG-0080 Operations Manuals guide. Systems section is the "tool kit" — all processes and procedures for running the position.
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

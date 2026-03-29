@@ -62,3 +62,8 @@ Die Datenlieferung enthielt eine CSV mit 4.307 Angebotszeilen (141 Spalten), die
 - **Vorgang:** [#629 — REKERS: KI-gestütztes Angebotssystem - Workshop 2](https://github.com/DaveX2001/deliverable-tracking/issues/629)
 - **Entwurfsdokument:** [Machbarkeitsbericht](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rekers/design-doc-feasibility-report)
 - **Datenauswertung:** [Testdaten-Bericht](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/rekers/data-assessment-testdaten)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -66,3 +66,8 @@ Wir brauchen kurzfristig einen Mac Studio M3 Ultra (mindestens 256 GB).
 3. **Hire Intelligence** — 0345 600 7272 → "Konfigurationen? Lieferung nach Deutschland?"
 4. **Leasingshop.de** — 0451 / 58603366 → "9-Monats-Preis für 256 GB?"
 5. **Falls nichts klappt:** Apple.de Direktkauf prüfen
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

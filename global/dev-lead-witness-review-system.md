@@ -300,3 +300,8 @@ The PR is the Dev Lead's entry point. Open the PR → read the Tour → spot-che
 - **Session (Empirical #849 ceremony — first witness test):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-klimafolgenschutz-website/92fcc982-ab32-406a-b2ed-1c09e085c821.jsonl
 - **Session (Empirical #757 ceremony — second witness test):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-klimafolgenschutz-website/9428d73a-196f-453e-8d23-73e905325d03.jsonl
 - **Session (Part 6 redesign from empirical data — pass 1):** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-00-WILSCH-AI-INTERNAL--soloforce/e9b37733-feca-4a2b-9d62-4a61f74f5962.jsonl
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

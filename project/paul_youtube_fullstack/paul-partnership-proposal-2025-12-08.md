@@ -64,3 +64,8 @@ Paul's system today:
 - Calls to transfer YouTube strategy knowledge to my team
 - Evaluated agenda quarterly (continue/reduce based on progress)
 - My team takes client-facing work off Paul's team in exchange
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

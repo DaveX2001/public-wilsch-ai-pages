@@ -223,3 +223,8 @@ Michael is open on design direction — developer proposes, Michael selects.
 - **Payment extraction pass session (Feb 12, 2026):** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-WILSCH-AI-INTERNAL__soloforce/e84a8954-8792-49d9-a061-dfd0b75a353c.jsonl`
 - **Scoping estimate:** [Ballpark](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/abtmayr-reichert/scoping-estimate-klimafolgenschutz-website)
 - **Scoping session (Feb 13, 2026):** `/Users/verdant/.claude/projects/-Users-verdant-Documents-projects-WILSCH-AI-INTERNAL__soloforce/5b5fc3d1-06ae-4f97-a8c4-945ade6484b6.jsonl`
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

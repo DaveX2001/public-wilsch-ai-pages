@@ -53,11 +53,11 @@ Column names alone are insufficient. Client data uses domain-specific naming (e.
 
 **Scope boundary:** AI maps only what exists in the client's data. It does not suggest adding hierarchy levels that the data doesn't contain. The value proposition is translating client data into BEM's language, not restructuring the client's data model.
 
-**Non-contiguous hierarchies:** BEM's data model supports level-skipping — a Room can be a direct child of a Building with no intermediate Floor. The AI works with what the client provides: if the data has no floor column, the hierarchy is Building → Room. No phantom levels, no proposals to add missing layers. *(Confirmed: Rein, Feb 27 2026)*
+**Non-contiguous hierarchies:** BEM's data model supports level-skipping — a Room can be a direct child of a Building with no intermediate Floor. The AI works with what the client provides: if the data has no floor column, the hierarchy is Building → Room. No container levels, no proposals to add missing layers. *(Confirmed: Rein, Feb 27 2026)*
 
 **Rejection flow:** If the implementer disagrees, they provide context ("AREA means campus zones, not buildings") and the AI re-proposes. The correction loop is conversational — no re-upload, no UI reassignment. Loop runs until explicit confirmation.
 
-**Output:** Confirmed mapping of client columns → BEM hierarchy levels. Step 3 uses this mapping to generate phantom location assets (Building, Floor, Room records that don't exist in the client's Excel but are required by BEM's parent-child structure).
+**Output:** Confirmed mapping of client columns → BEM hierarchy levels. Step 3 uses this mapping to generate container assets (Building, Floor, Room records that don't exist in the client's Excel but are required by BEM's parent-child structure).
 
 #### Proposal Artifact
 
@@ -316,7 +316,7 @@ The backpressure loop lives in the AI layer, not in the tool. The tool executes 
 
 #### Model Requirements
 
-The pipeline targets small-model compatibility for production deployment. Development uses Claude Sonnet for rapid iteration. Production targets Qwen 3.5 (9B preferred, 30B-A3B acceptable) via OpenRouter (development API access). Future: self-hosted on RunPod with FP8 quantization (standard) or FP4 (Blackwell-architecture GPUs). OpenRouter abstracts quantization — the design constraint is small-model compatibility (9B), not quantization specifics.
+The pipeline targets small-model compatibility for production deployment. Development uses Claude Sonnet for rapid iteration. Production targets Qwen 3.5 (9B preferred, 30B-A3B acceptable). Future: self-hosted on RunPod with FP8 quantization (standard) or FP4 (Blackwell-architecture GPUs). The design constraint is small-model compatibility (9B), not quantization specifics.
 
 This model target constrains the design: API error responses must be structured and unambiguous (`{id, field, value, reason, valid_values}`) so a 9B model can execute the backpressure loop — reading errors, correcting the contract, and retrying — without large-model reasoning. The tool's structured output format serves both correctness (traceable errors) and small-model compatibility (no interpretation required). *(Source: Marius, Mar 4 2026 — #852 comment)*
 
@@ -602,22 +602,21 @@ When the BEM database already contains location assets (buildings, floors, rooms
 
 ### Part 5: Test Rubric
 
-Defines how to witness the Setup Phase pipeline as a single end-to-end run. The rubric applies across all sub-issues (#1055, #1056, #1057, #1064) — one continuous conversation from file upload through contract assembly.
+Defines how to witness the Setup Phase pipeline. One evaluation surface: the **contract output** — the mapping contract JSON compared against a known-good expected contract for the CAFM sample. Same input, same BEM reference data → same contract. The output is deterministic.
 
-**Two evaluation surfaces:**
-1. **Contract output** — the mapping contract JSON compared against a known-good "expected contract" for the CAFM sample
-2. **Conversation shape** — the AI's responses compared against the Happy Case Walkthrough (Messages 2–8 in Part 4) for interaction structure and quality
+**Audience:** The witness ceremony's ultimate goal is to impress Miguel (Product Owner), not just pass a technical check. Miguel cares about intelligent results — readable asset names, no process leakage, no template-feeling rigidity. The SA reviews technically first; Miguel judges whether the system is ready for client-facing demos.
 
-#### Environment Setup
+#### Environment
 
-Two environments, by artifact type:
+[LibreChat](https://www.librechat.ai/) — deployed locally, connected to the Anthropic API (Sonnet). The AI runs in an isolated chat environment that doesn't know it's being tested. LibreChat's native [MCP support](https://www.librechat.ai/docs/features/mcp) connects the archibus-bulk-import FastMCP server. A LibreChat [agent](https://www.librechat.ai/docs/features/agents) provides the pre-prompted persona with MCP tools attached.
 
-| What to test | Environment | Setup |
-|-------------|-------------|-------|
-| **MCP tool output** (BEM context data, Excel analysis structure) | MCP Inspector | Start server: `cd archibus-bulk-import && uv run fastmcp dev server.py`. Verify tool responses match BEM reference data |
-| **Prompt-driven conversation** (Steps 0→1→2a→2b) | Claude Code | Connect MCP server via `mcpServers` config (stdio). Load `prompts/step-0-1.md` as context. Reference test fixture file path |
+**Setup:**
+1. Deploy LibreChat (Docker)
+2. Connect Anthropic API key (Sonnet)
+3. Add MCP server in LibreChat's yaml config → points to archibus-bulk-import FastMCP server
+4. Create a LibreChat agent with the bulk import persona + MCP tools
 
-The Dev Lead executes the witness live — acting as the implementer, uploading the test file, and walking through the conversation. The Dev Lead verifies AI responses against the expected contract and the Happy Case message format.
+The Dev Lead opens a chat, uploads the test fixture, and walks through Steps 0→1→2 as the implementer. Tool calls and responses are visible inline in the conversation.
 
 #### Test Fixtures
 
@@ -625,106 +624,422 @@ The Dev Lead executes the witness live — acting as the implementer, uploading 
 |---------|----------|---------|
 | `cafm-asset-upload-sample.xlsx` | `data/` | Primary — happy case end-to-end (200 rows, 15 columns, 4 buildings) |
 | `fmm-qatar-housekeeping.xlsx` | `data/` | Optional — Step 0 rejection (non-equipment detection) |
+| `Asset Data (1).xlsx` | [#852 attachment](https://github.com/DaveX2001/deliverable-tracking/issues/852) | Phase 2 — 3 sheets, 2,649 rows, dual Condition+Status enums, multi-sheet test (from Mujahid) |
 
-Both fixtures are checked into the repo. No external provisioning needed.
+Primary fixture and rejection fixture are checked into the archibus-bulk-import repo. Phase 2 fixture is an issue attachment pending repo commit.
 
-#### Expected Contract (CAFM Sample)
+#### Expected Contract
 
-The "expected contract" is the ground truth mapping contract for the CAFM sample. The witness compares the AI's actual contract output against this reference.
+The golden contract lives at [`data/expected-contract.json`](https://github.com/MariusWilsch/archibus-bulk-import/blob/staging/data/expected-contract.json) in the archibus-bulk-import repo. It defines the canonical mapping contract for the CAFM sample — the exact output the AI should produce.
 
-**Element 1 — Hierarchy:**
-```json
-{
-  "hierarchy": [
-    {"clientColumn": "Location",  "bemLevel": "Building"},
-    {"clientColumn": "Floor",     "bemLevel": "Floor"},
-    {"clientColumn": "Room No.",  "bemLevel": "Room"}
-  ]
-}
-```
+The contract contains three elements matching Parts 1–3 of this design doc: hierarchy assignments (Element 1), field mappings (Element 2), and enum rules (Element 3).
 
-**Element 2 — Field Mappings (12 non-hierarchy columns):**
-
-| Client Column | → BEM Field | Category | Notes |
-|--------------|-------------|----------|-------|
-| Asset Name | Name | direct_passthrough | Mandatory field |
-| Serial No. | SerialNumber | direct_passthrough | |
-| Model | ModelSpecific | direct_passthrough | |
-| Manufacturer | BrandSpecific | direct_passthrough | |
-| Purchase Date | DatePurchased | direct_passthrough | |
-| Warranty Expiry | WarrantyTo | direct_passthrough | |
-| Asset Type | AssetType | enum_mapping | Resolved in Step 2b |
-| Status | Status | enum_mapping | Resolved in Step 2b |
-| Asset ID | StatusDetail | flagged_unmappable | Conflicts with Asset Name on Name field |
-| Condition | StatusDetail | flagged_unmappable | Status wins enum slot when both present |
-| Maintenance Frequency | *(excluded)* | excluded | No BEM field |
-| Assigned To | *(excluded)* | excluded | No BEM field for team labels |
-
-**Element 3 — Enum Rules:**
-```json
-{
-  "enumRules": {
-    "assetType": {
-      "map": {"Safety": "Safety Equipment", "HVAC": "HVAC equipment",
-              "IT Equipment": "IT Equipment", "Electrical": "Other EPE",
-              "Plumbing": "Plumbing equipment", "Mechanical": "Mechanical Equipment",
-              "Vertical Trans.": "Vertical Transportation"},
-      "default": "Equipment"
-    },
-    "status": {
-      "map": {"Active": "Active", "Inactive": "Out of Service"},
-      "default": "Unknown"
-    }
-  }
-}
-```
-
-The exact enum value mappings may vary based on AI semantic matching — the anchors are: (1) all 7 AssetType values resolved, (2) "Inactive" → "Out of Service" confirmed by Rein, (3) defaults assigned. Minor variations in fuzzy matches (e.g., "Electrical" → "Other EPE" vs "Electrical Equipment") are findings, not failures.
-
-#### Conversation Quality
-
-The AI's responses are evaluated against the Happy Case Walkthrough (Part 4, Messages 2–8). The rubric checks interaction structure, not exact wording.
-
-| Message | Step | What to verify |
-|---------|------|---------------|
-| **2** | Step 0 + Step 1 Beat 1 | Data type announced without gate. Hierarchy proposal in table format with BEM Level, Client Column, Sample Values, Confidence. Explicit question: "Does this match?" |
-| **3** | Step 1 Beat 2 | Name enrichment as **separate confirmation** (not combined with hierarchy). Table with Raw Value → Enriched Name → Rule. Three discrimination categories visible: pass-through, enrich, flag |
-| **4** | Step 2a fast lane | Batch table with all confident mappings. Hierarchy columns called back to Step 1. Flagged items listed with count. **One confirmation gate** for the batch (not per-column) |
-| **5** | Step 2b enum resolution | Per-field resolution table. Match types shown (Exact, Suggested, No match). Ranked suggestions for unmatched values. Sequential: one enum field at a time |
-| **6** | Step 2a slow lane | Individual flagged column presentation. Default recommendation (Exclude) with escape hatch (StatusDetail). One decision per column |
-| **7** | Contract summary | Hierarchy levels, mapped field count, enum resolution count, excluded columns. Final confirmation gate before Step 3 |
-
-**Key structural checks:**
-- No auto-advancing past confirmation gates
-- Progressive disclosure: confident work in batches, uncertain work 1-by-1
-- Fast lane before slow lane
-- Each enum field resolved sequentially (not batched across fields)
+**Undefined:** Condition enum values — the `condition` field mapping exists in Element 2 and a placeholder entry exists in Element 3's enumRules, but the BEM condition enum values are pending Rein's API schema delivery. The golden contract will be updated when the condition enum is finalized.
 
 #### Evaluation
 
-The witness run produces two artifacts for comparison:
+A run **passes** when the AI's contract output matches `data/expected-contract.json` exactly. Field-by-field comparison across all three elements.
 
-1. **Contract diff** — the AI's final mapping contract JSON compared field-by-field against the Expected Contract above. Mismatches are findings routed back to prompt refinement.
+A run **fails** when any element deviates from the expected contract. Failures are findings routed to prompt refinement — the Dev Lead never fixes the prompt directly.
 
-2. **Message format check** — each AI response compared against the corresponding Happy Case Message for structural compliance (table format, gate placement, lane separation).
+**Rubric evolution:** Exact-match is the starting rubric. If enum mappings prove non-deterministic across runs (e.g., the AI reasonably maps the same value to different BEM enums), the rubric evolves to structure-exact with SA-judged enum tolerance. Start strict, loosen based on evidence.
 
-A run **passes** when: (1) the contract output matches the expected contract on all anchor fields, and (2) the conversation follows the structural checks from the quality criteria above.
-
-A run **fails with findings** when: the contract deviates from anchors, or the conversation skips gates, batches what should be 1-by-1, or violates the fast-lane/slow-lane split. Findings route to prompt refinement — the Dev Lead never fixes the prompt directly.
+**Test scope:** The first witness ceremony tests against ONE golden contract (`cafm-asset-upload-sample.xlsx`). When Mujahid delivers additional CAFM examples, new golden contracts are created and added to the test suite. Additive — new examples do not block the first ceremony.
 
 #### Optional Spot-Checks
-
-Beyond the primary happy case run, the Dev Lead may spot-check:
 
 | Spot-Check | How | What to verify |
 |------------|-----|---------------|
 | **Non-equipment rejection** | Upload `fmm-qatar-housekeeping.xlsx` | AI announces non-equipment data and stops — does not advance to hierarchy |
-| **Correction loop** | Intentionally disagree with one hierarchy mapping (e.g., "Location is actually a Campus, not a Building") | AI re-proposes with `*(updated)*` markers, accepts correction, loops until explicit confirmation |
+| **Correction loop** | Intentionally disagree with one hierarchy mapping | AI re-proposes, accepts correction, loops until explicit confirmation |
 | **Multi-sheet handling** | Upload a multi-sheet Excel file | AI defaults to active sheet, notes available sheets, offers to switch |
 
-Spot-checks are optional — they cover scenarios already verified during development (#1056 AC2, AC4). The Dev Lead picks based on judgment.
+Spot-checks are optional — the Dev Lead picks based on judgment.
 
-*(Source: Extraction pass 2026-03-08 — probing session on test rubric design. Resolutions: live execution witness, Claude Code + MCP Inspector environments, single end-to-end run, expected contract as ground truth, Happy Case Messages as conversation standard, optional correction loop spot-check.)*
+*(Source: Extraction pass 2026-03-08 — SA feedback on test rubric. Resolutions: contract output as sole evaluation surface, LibreChat as isolated test environment, golden contract as git-committed JSON file, exact-match evaluation, conversation quality deferred to fine-tuning phase.)*
+
+#### Prompt Architecture
+
+The Step 2 prompt (`prompts/step-2.md`) serves as the managed artifact stand-in until the real managed artifact system is implemented. It encodes both behavioral and mechanical guidance.
+
+**Behavioral layer (PSM-derived):** The AI's persona emerges from its operating environment, not a label. The ETL agent is a character who:
+- Knows BEM deeply — confident, decisive, explains rationale without being asked
+- Adapts to arbitrary input — no rigidity, no template-feeling interactions
+- Improves data intelligently — does not pass through raw Excel values; adds semantic understanding
+
+These traits follow Anthropic's Persona Selection Model: the AI behaves like a competent human colleague in this environment. Designing interactions that match how you would brief a senior CAFM data engineer is effective, not naive.
+
+**Mechanical layer (10-section recipe):** The prompt TARGET follows Anthropic's prompt engineering structure. The current `prompts/step-0-1.md` (617 lines) partially implements this — see [prompt audit](https://github.com/DaveX2001/deliverable-tracking/blob/main/.claude/tracking/issue-1075/prompt-audit.md) for gap analysis. Gaps are addressed through iterative testing per ADR 002, not upfront rewrite.
+
+| Section | Content for Step 2 |
+|---------|-------------------|
+| 1. Task context | Column classification: map client Excel → BEM schema |
+| 2. Tone context | PSM persona traits (above) |
+| 3. Background data | BEM context (fields, types, enums) via MCP tool |
+| 4. Rules | Mapping categories, exclusion rules, enum handling |
+| 5. Examples | Golden contract JSON (`data/expected-contract.json`) |
+| 6. Conversation history | N/A (single-turn classification) |
+| 7. Immediate task | "Classify these columns" with Excel analysis output |
+| 8. Think step by step | Explicit reasoning before committing mappings |
+| 9. Output formatting | JSON contract structure (3 elements) |
+| 10. Prefilled response | Opening JSON brace to anchor output format |
+
+**Anti-hallucination:** The prompt instructs the AI to say "I don't know" for uncertain mappings (flag as `excluded` with reasoning), answer only when confident in the BEM field match, and think before committing — reasoning traces surface in the conversation for implementer review.
+
+**XML structure:** All context sections use XML delimiters (`<bem_context>`, `<excel_analysis>`, `<mapping_rules>`) for clear boundaries and token efficiency.
+
+*(Source: Extraction pass 2026-03-09 — PSM behavioral model + Anthropic prompt engineering recipe. Miguel transcript: audience expectations. Prompt audit: extraction pass 2026-03-09 session ff776065.)*
+
+---
+
+### Part 6: Pipeline Integration & Deployment
+
+Parts 1–5 designed the interactive mapping phase (Steps 0→2) and the execution phase (Step 3) independently. Two working systems exist: the MCP/Skill system produces a mapping contract through conversation, and the CLI pipeline builds nested JSON and submits to the BEM API. This part connects them and defines how the complete pipeline deploys for the client demo.
+
+#### 6.1 Bridge Tool — Contract Consumption
+
+The interactive phase (Steps 0→2) produces a mapping contract. The execution phase (Step 3) transforms data and submits to the BEM API. Today these phases run independently — Step 3 uses hardcoded column names and enum maps instead of consuming the contract. The bridge tool closes this gap.
+
+**What it does:** Takes the confirmed mapping contract and source data, executes the [Step 3 pipeline](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/chain-1b-step3-design) (filter → hierarchy → deduplicate → generate locations → build JSON → validate/insert via API) using the contract's mappings instead of hardcoded values. Returns the API result — either success with importID or a structured error for the AI to act on.
+
+**Backpressure:** The bridge tool implements the backpressure loop from the [Step 3 design](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/chain-1b-step3-design) — API errors feed back to the AI, which decides whether to self-correct (update the contract) or escalate to the implementer.
+
+**Backpressure correction mechanism:** When the API rejects an enum value, the AI corrects the contract on disk using the filesystem MCP's `edit_file` tool — a surgical diff-based text replacement validated in Spike A (#1167). The bridge tool re-reads the corrected file on the next invocation. This keeps the bridge tool simple (always reads from file, single code path) and is compatible with Qwen 3.5 (9B production target) — the AI writes a targeted edit (e.g., `"Inactive"` → `"Out of Service"`), not a full contract JSON serialization. The corrected contract persists on disk, surviving session drops and enabling audit trails. *(Confirmed: Extraction pass 2026-03-18 — edit_file validated in Spike A Finding 2 revision.)*
+
+**Form factor:** Registered as a FastMCP tool on the existing `archibus-bulk-import-tools` MCP server, alongside `bem_context` and `excel_analysis`.
+
+**Contract handoff:** The interactive phase (Steps 0→2) saves the confirmed contract to disk via the filesystem MCP's `write_file` tool at a session-scoped path (`/app/uploads/{session_id}/contracts/confirmed.json`). No custom `save_contract` tool needed — a generic file write with a path convention in the skill instructions replaces the purpose-built tool. The bridge tool receives a `contract_id` argument and reads from the same shared volume. The AI passes `contract_id` to the bridge tool. Path resolution (`/app/uploads/{contract_id}/contracts/confirmed.json`) is internal to the tool — the conversation carries only the identifier, not the path or object. This ensures the contract survives session drops, MCP reconnections, and phase transitions. *(Updated: Spike validation 2026-03-16 — `save_contract` is `write_file` in disguise. Marius, Mar 16 2026.)*
+
+**Golden contract (dev testing):** The `data/expected-contract.json` file serves dual purpose: Part 5's test rubric evaluation surface AND a bridge tool input fixture that bypasses Steps 0–2. Its schema is identical to what `save_contract` produces — the bridge tool reads both via `contract_id` without code bifurcation. For dev testing, place the golden contract at `contracts/golden.json` and pass `contract_id="golden"`. *(Confirmed: Extraction pass 2026-03-15.)*
+
+**Multi-building processing:** The bridge tool handles building iteration internally — one tool call, not one per building. Signature: `process_buildings(buildings: list[str] | "all", contract_id: str, dry_run: bool)`. Each building is processed in isolation with independent try/except. If Building A succeeds and Building B fails, A's `importID` is logged to `completed_buildings.json` and never resubmitted. Failed buildings accumulate in `failed_buildings.json` for retry or escalation. Batch size: groups of 5 to stay within MCP timeout (~60s).
+
+**Progress reporting:** Uses FastMCP's `ctx.report_progress(current, total, "Processing {building_name}")`. Silently no-ops if the runtime client doesn't support progress tokens.
+
+**Error format:** API errors return via FastMCP `ToolError` with structured messages containing `field`, `value`, `reason`, and `valid_values` — parseable by the AI for self-correction decisions.
+
+**Implementation path:** The bridge tool is a thin wrapper around the existing CLI pipeline. `cli.py` lines 162–182 contain the core `_build_and_transform()` logic. This function is extracted into a shared `pipeline.py` module; the bridge tool imports and calls it with contract-derived parameters instead of CLI arguments. All existing modules (parser, hierarchy, generator, builder) are reused unchanged.
+
+*(Source: Gap analysis extraction pass 2026-03-12. Updated: Extraction pass 2026-03-15 — escalation thresholds relocated to §6.2 (skill content concern, not bridge tool concern).)*
+
+#### 6.2 Skills Architecture — Persona + Two Skills
+
+The pipeline has two distinct modes: interactive (Steps 0→2, lots of back-and-forth with the implementer) and autonomous (Step 3, near-zero questions, execution + backpressure). Mixing both modes in a single prompt confuses the AI about when to ask vs when to act. The architecture separates them into layers.
+
+**Three layers:**
+
+| Layer | What | When loaded |
+|---|---|---|
+| **Persona** (system prompt) | PSM-derived behavioral identity — knows BEM deeply, adapts to arbitrary input, improves data intelligently. 5 beliefs + tone context. | Always present |
+| **Skill 1: bem-setup** (interactive) | Recipe for Steps 0→2. Guides the AI through detection → hierarchy → column mapping → enum resolution → contract assembly. Conversational, gates on implementer confirmation. | Loaded when implementer uploads Excel |
+| **Skill 2: bem-backpressure** (autonomous) | Recipe for Step 3's backpressure loop. Teaches the AI how to interpret API errors, decide whether to self-correct the contract or escalate to the implementer, and retry. The bridge tool executes; this skill teaches the AI what to do with the results. | Loaded when contract is confirmed |
+
+**Design intent:** Skills follow Anthropic's progressive disclosure model — descriptions load light (~100 tokens), full content loads on invocation. This prevents the AI from being overburdened with instructions for both modes simultaneously. The persona stays constant; the active skill determines the AI's behavior.
+
+**MCP tools remain the same regardless of which skill is active:** `bem_context` (schema reference), `excel_analysis` (file profiling), `step3_execute` (bridge tool from §6.1). Skills tell the AI WHEN and HOW to use these tools. MCP provides the kitchen; skills provide the recipes.
+
+**Authoring format:** Skills are authored in the [agentskills.io](https://agentskills.io) open standard — a directory-based format (`SKILL.md` + optional `scripts/`, `references/`, `assets/`). This format is portable across 32+ tools including Claude Code, Cursor, Gemini CLI, and OpenHands. The agent loads only the `description` field at startup (~100 tokens), then loads the full body on invocation. The `allowed-tools` field (experimental) pre-approves MCP tools the skill can invoke.
+
+**Skill loading mechanism:** The AI controls when skills load — not the runtime. FastMCP v3's `SkillsDirectoryProvider` serves skill directories as MCP resources. The `ResourcesAsTools` transform bridges tool-only clients (like LibreChat) by exposing `list_resources` and `read_resource` as callable tools. The AI calls `list_resources` → sees skill names with descriptions (~100 tokens). When the AI determines it needs a full recipe, it calls `read_resource("skill://bem-backpressure/SKILL.md")` → the full skill content enters the conversation as a tool response. This is progressive disclosure at the MCP layer — no custom `load_skill` tool, no runtime framework support required. *(Spike validated 2026-03-16: 3 lines of Python — `SkillsDirectoryProvider` + `ResourcesAsTools` — produce working `list_resources` and `read_resource` tools. Tool-only clients discover and load skills.)*
+
+**Frontloaded context (Spike A optimization):** The system prompt frontloads skill metadata — name, description, and trigger condition for each skill — plus the workspace path (`/app/uploads`). This eliminates 2 tool calls (`list_allowed_directories` + `list_resources`) that otherwise repeat identically at the start of every conversation. The AI calls `read_resource` directly when it recognizes a trigger condition, without needing to discover what skills exist first. This matches Claude Code's native behavior: skill metadata is always present in the system prompt, full content loads on demand. The `list_resources` mechanism remains available as a fallback for runtime flexibility. *(Confirmed: Extraction pass 2026-03-18 — Spike A witness Findings 3+4.)*
+
+**Skill accumulation:** Loaded skills remain in context — no unloading. The AI can reference both `bem-setup` and `bem-backpressure` simultaneously if needed. Context window management is a future optimization, not a design constraint. The Anthropic API sends `system=` fresh with every request, so the runtime can include any combination of loaded skills per turn.
+
+**Undefined (narrowed):** The backpressure skill's production content — Marius iterates via #1094. Minimum viable version: 4-step loop (read structured error → locate failing field via `error.id` → pick closest match from `valid_values` → update contract's enumRules → retry bridge tool). Created by David via `/skill-creator` as a DoD item for the bridge tool issue. *(Narrowed: Extraction pass 2026-03-15.)*
+
+**Escalation thresholds** (relocated from §6.1): Escalation is a skill content concern — the backpressure skill instructs when the AI should stop retrying and ask the implementer. The bridge tool returns errors; the skill decides what to do. Starting values: 3 attempts per field / 5 per building, tuned empirically. No industry standard exists. *(Relocated: Extraction pass 2026-03-15 — escalation belongs in AI-layer skill, not code-layer tool.)*
+
+*(Source: [Anthropic Skills Guide PDF](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) Category 3 pattern. Gap analysis extraction pass 2026-03-12. Updated: Extraction pass 2026-03-15.)*
+
+#### 6.3 Deployment — Runtime & File Lifecycle
+
+The complete pipeline requires capabilities across five layers. Most are commodity — the interesting question is which layer has unsolved gaps.
+
+| Layer | What it provides | Status |
+|-------|-----------------|--------|
+| **Runtime** | Web UI, auth, file upload, session management, model routing, skill loading | **Gap — see below** |
+| **MCP Server** | Tool calling (bem_context, excel_analysis, bridge), structured errors, progress | Exists (archibus-bulk-import-tools) |
+| **System Prompt** | PSM persona — always-on behavioral identity (§6.4) | Exists (prompts/system-prompt.md) |
+| **Skills** | On-demand recipes loaded by AI — bem-setup, bem-backpressure (§6.2) | Content partially written |
+| **Model** | Reasoning, semantic matching, multi-turn coherence | Claude (demo), Qwen (production target) |
+
+The runtime layer has three gap primitives — capabilities that coding-oriented tools (Claude Code, Cursor) provide natively but web-deployable runtimes do not:
+
+1. **Bidirectional file I/O** — browser upload becomes a filesystem path the MCP tool reads; tool output becomes a downloadable file
+2. **Progressive skill loading** — the AI loads/swaps instruction sets mid-conversation based on workflow state
+3. **Long-running tool support** — tool calls that exceed ~60s without framework-imposed timeout
+
+This gap is not unique to ARCHIBUS. Any team deploying MCP tools for non-developer end users hits the same three primitives — it is an unspoken market category without a packaged solution.
+
+##### 6.3.1 File Lifecycle
+
+The `excel_analysis` MCP tool expects a local filesystem path (`file_path` parameter). In a web-based runtime, an Excel file uploaded via the browser must become a path accessible to the MCP server process.
+
+**LibreChat gap (confirmed March 2026):** LibreChat stores uploads to `./uploads/` (Docker volume mounted at `/app/uploads/`) but does NOT pass file paths to MCP tools. Three GitHub issues confirm the gap (#10739 closed without fix, #8060 open, PR #11094 unmerged). The `@modelcontextprotocol/server-filesystem` workaround requires the unmerged PR to expose `filepath` in LLM context — a three-point failure surface with no official documentation.
+
+**Chainlit resolution:** Chainlit's `AskFileMessage` returns uploaded files with a `.path` attribute — the actual filesystem path. No workaround needed. Stdio MCP is natively supported.
+
+**Path injection — "tell the AI":** The runtime injects uploaded file paths into conversation context. When the implementer uploads files, the runtime appends path metadata (filename → filesystem path) to the message. The AI uses the correct path when calling MCP tools. This works because the AI has semantic understanding of which file is what — it can distinguish the main data file from reference files by name and content.
+
+**Multi-file uploads:** Implementers bring multiple files — the primary data file plus reference files (asset types, enum mappings). The runtime surfaces all file paths; the AI determines which file goes to which tool.
+
+**Three deployment options for file I/O:**
+
+| Option | How it works | Path certainty | Complexity |
+|--------|-------------|----------------|-----------|
+| **In-process** | Runtime + MCP server in same Python process (FastMCP in-memory transport). Shared filesystem — `.path` is directly accessible. | Exact (programmatic) | Lowest — single container |
+| **Docker shared volume** | Runtime and MCP server in separate containers, mounting the same host directory (`./uploads:/app/uploads/`). Runtime injects the path into conversation context. | Exact (programmatic) | Medium — two containers, volume config |
+| **Convention-based** | AI knows filenames from chat, assumes uploads land at a known directory (e.g., `/uploads/{filename}`). No path injection needed. | Inferred (fragile if runtime renames files) | Lowest code — but fragile |
+
+**Filesystem MCP — validated approach (2026-03-16):** A standard filesystem MCP server (e.g., `@modelcontextprotocol/server-filesystem` or equivalent FastMCP tools) mounted on the shared Docker volume provides `write_file`, `read_file`, `list_directory`, and `create_directory` tools. The AI discovers uploaded files via `list_directory` rather than requiring the runtime to pass file paths — this sidesteps LibreChat's file→MCP gap entirely.
+
+**Session-scoped directories:** Each conversation writes to `/app/uploads/{session_id}/`. The AI knows its session ID (from system prompt or runtime context) and calls `list_directory` to discover files within its scope. No cross-session leakage, no filename guessing.
+
+```
+/app/uploads/
+  ├── {session_A}/
+  │   ├── cafm-sample.xlsx      ← uploaded by implementer
+  │   └── contracts/
+  │       └── confirmed.json     ← written by AI via write_file
+  ├── {session_B}/
+  │   └── another-file.xlsx
+```
+
+**Impact on save_contract:** Replaced. The `save_contract` MCP tool from the original design is a `write_file` call with a path convention (`{session_id}/contracts/confirmed.json`). The path convention lives in the skill instructions, not in custom tool code. No schema validation at write time — validation happens when the bridge tool sends data to the API (backpressure).
+
+**Impact on excel_analysis:** Fixed. The broken `excel_analysis` tool (which requires a filesystem path) works when the AI discovers the uploaded file via `list_directory` and passes the path as an argument.
+
+**Remaining L2 validation:** Docker compose integration — does LibreChat write uploads to the shared volume path? Does the AI receive uploaded filenames in conversation context? *(Spike validated L1 only — local Python, not Docker.)*
+
+*(Source: LibreChat issues [#10739](https://github.com/danny-avila/LibreChat/issues/10739), [#8060](https://github.com/danny-avila/LibreChat/issues/8060), [PR #11094](https://github.com/danny-avila/LibreChat/pull/11094). Rein transcript 2026-03-11: "before the demo, you need to utilize the upload option." Runtime harness research, session 802ad55e. Updated: Spike validation 2026-03-16.)*
+
+##### 6.3.2 Skills Delivery
+
+LiteLLM does NOT support Agent Skills — `container.skills` and `/v1/skills` are not present in LiteLLM's documentation or codebase. Option A from the prior design pass is invalid.
+
+**System prompt baking** remains viable for the demo: embed skill instructions in the LibreChat agent's system prompt. For Claude Sonnet (demo model), context window is not a constraint. For Qwen 3.5 (production target), baking both skills may exceed the model's reliable instruction-following capacity — one agent per mode is the workaround (implementer selects the right LibreChat agent).
+
+**LibreChat Agent Skills** (the native progressive disclosure feature) is on the Q1 2026 roadmap ([Issue #11106](https://github.com/danny-avila/LibreChat/issues/11106)) with no active PR — likely slips to Q2 2026.
+
+**FastMCP SkillsDirectoryProvider — validated approach (2026-03-16):** FastMCP v3's `ResourcesAsTools` transform solves the skill delivery gap at the MCP layer, independent of the runtime. Skills authored as `SKILL.md` files are served as MCP resources. The transform generates `list_resources` and `read_resource` tools — any tool-capable client (including LibreChat) can discover and load skills without native resource support. Progressive disclosure works: `list_resources` returns names and descriptions only; `read_resource` loads the full recipe on demand.
+
+**Demo vs. production path:** For the demo, system prompt baking remains viable (one skill, Claude Sonnet, large context window). For production with Qwen 3.5, the FastMCP skill provider enables progressive loading — the AI loads only the skill it needs, keeping context lean. This eliminates the need for separate LibreChat agents per mode.
+
+**Behavioral gap (unvalidated):** Skill content delivered as a tool response (not system prompt) may have reduced persistence in very long conversations. For the backpressure loop (2-5 turns), tool response delivery is sufficient. For multi-skill sessions spanning 30+ turns, persistence needs empirical testing.
+
+**Chainlit** handles skills via Python code — the developer programmatically loads skill instructions based on conversation state. Full control, no waiting on upstream features.
+
+**Resolved mechanism — AI-controlled loading (Pattern B):** The system prompt includes short skill descriptions. The AI invokes a `load_skill` tool when it determines the full recipe is needed. The runtime reads the skill file and includes its content in the system prompt for subsequent API calls. The Anthropic API sends `system=` fresh with every request — the runtime can include any combination of loaded skills per turn without framework constraints. This matches Claude Code's native skill behavior: descriptions loaded at startup, full content on invocation, skills accumulate in context.
+
+**LibreChat alternative:** System prompt baking — embed both skill instructions upfront. Viable for Claude (context window accommodates both). For Qwen 3.5 (production target), one LibreChat agent per mode (setup vs. execution) avoids instruction-following degradation. No progressive loading — all instructions present from the start.
+
+##### 6.3.3 Runtime Candidates
+
+Four runtimes were evaluated against the full requirements stack:
+
+| Criterion | LibreChat + FastMCP | OpenWebUI | Chainlit | Dify |
+|-----------|-------------------|-----------|----------|------|
+| File → MCP tool | ⚠️ Filesystem MCP + shared volume (L1 validated) | ⚠️ Open Terminal + shared volume (needs L2 validation) | ✅ Native `.path` | ⚠️ HTTP only |
+| MCP transport | ✅ stdio/SSE/HTTP | ⚠️ Streamable HTTP only — FastMCP `transport="http"` compatible | ✅ stdio/SSE/HTTP | ⚠️ HTTP only |
+| Skills loading | ✅ FastMCP SkillsDirectoryProvider (L1 validated) | ✅ Native `view_skill` lazy loading — matches Anthropic best practices | ✅ Code-defined | ⚠️ Workflow nodes |
+| Multi-file skills | ✅ SKILL.md + references + scripts | ❌ Single markdown per skill | ✅ Code-defined | ❌ |
+| Web UI | ✅ Polished, ChatGPT-like | ✅ Polished, already deployed (IITR) | ⚠️ Framework build | ✅ Visual workflow |
+| Non-developer UX | ✅ Best | ✅ Good | ⚠️ Build-dependent | ✅ Good |
+| Qwen 3.5 support | ✅ OpenAI-compatible | ✅ OpenAI-compatible | ✅ Any model | ✅ Any model |
+| Session isolation | ✅ Convention-based (`{session_id}/` paths) | ❌ Shared `/home/user` — per-user containers planned | ✅ Per-user | ⚠️ Unknown |
+| Demo-ready | ⚠️ L2 Docker validation pending | ⚠️ L2 Docker + file chaining validation pending | ✅ Works today | ✅ Works today |
+
+**Rejected:** Claude Agent SDK (no built-in web UI, Anthropic models only), Claude Code (not self-hostable), [PI](https://github.com/badlogic/pi-mono) (author is explicitly anti-MCP — no MCP support by design; best skill-loading of all candidates but dealbreaker for MCP-based pipeline). *(PI evaluated: Extraction pass 2026-03-15.)*
+
+**Re-evaluated (2026-03-17):** OpenWebUI was previously rejected ("MCP via proxy, no file forwarding"). Since v0.6.31 (March 2026), OpenWebUI added native MCP support (Streamable HTTP), native skills with lazy loading (`view_skill` builtin tool), and [Open Terminal](https://docs.openwebui.com/features/extensibility/open-terminal/) (full OS access via Docker container). Re-added as candidate. Key strengths: skills progressive disclosure matches [Anthropic best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) natively. Key weaknesses: no per-session filesystem isolation (shared `/home/user`), file upload → MCP `__files__` parameter bugged on Streamable HTTP (v0.6.41). *(Sources: [OpenWebUI Skills](https://docs.openwebui.com/features/ai-knowledge/skills), [OpenWebUI MCP](https://docs.openwebui.com/features/extensibility/mcp), [Open Terminal](https://docs.openwebui.com/features/extensibility/open-terminal/). Marius, Mar 17 2026.)*
+
+**UX paradigm — conversational, not workflow:** Miguel's demo expectation is the interactive ETL — the AI reads the implementer's data, proposes mappings, and the implementer confirms through conversation. This is free-form conversational, not deterministic workflow. Dify's guided workflow paradigm creates friction for this interaction pattern.
+
+**FastMCP v3 — complementary layer, not runtime:** FastMCP v3 added Client (programmatic MCP client with Anthropic/OpenAI/Gemini sampling handlers), Apps (interactive UIs rendered in conversation), and Elicitation (structured user input mid-tool). These are powerful MCP-layer primitives but explicitly "building blocks for higher-level systems" — not a web UI or conversation runtime. FastMCP provides the MCP server and client; the runtime provides the conversation shell around it.
+
+**Critical path — bridge tool first, then runtime:** The demo blocker is the bridge tool (contract → pipeline execution), not the runtime. Build order: (1) bridge tool, (2) golden example validation with CAFEM contract, (3) backpressure loop testing, (4) skills content. The runtime decision feeds into this path but does not block step 1.
+
+**Runtime Bake-Off — Results (2026-03-18)**
+
+Two spikes compared the leading candidates. Dev Lead witnessed both deployed environments.
+
+| Spike | Runtime | Result | Evidence |
+|-------|---------|--------|----------|
+| A ([#1167](https://github.com/DaveX2001/deliverable-tracking/issues/1167)) | LibreChat + FastMCP + Filesystem MCP | **ALL 6 PASS** | S1-S3 skills + F1-F3 filesystem + F4 convention-based |
+| B ([#1168](https://github.com/DaveX2001/deliverable-tracking/issues/1168)) | OpenWebUI + Open Terminal + FastMCP | **FAIL** | MCP Streamable HTTP incompatible — missing Accept header → 406 |
+
+**Decision: LibreChat + FastMCP selected as demo runtime.** Spike B not pursued — under time pressure, pursuing a failing candidate adds no value. All 6 witness criteria pass for Spike A. The mechanism differs from Claude Code (tool-mediated vs. native), but the outcomes match.
+
+**5 witness findings incorporated:**
+1. Spike research trail — tracking.md needs tool evaluation documentation, not just pass/fail
+2. Edit gap does NOT exist — `edit_file` is native to `@modelcontextprotocol/server-filesystem` (surgical diff-based replacement)
+3. System prompt guidance needed — AI must know WHEN to use skill discovery (→ frontloaded metadata, see §6.2)
+4. Frontload static context — workspace path + skill list in system prompt eliminates 2 discovery calls per conversation (→ §6.2)
+5. Session isolation achievable — `{{LIBRECHAT_BODY_CONVERSATIONID}}` resolves in MCP headers during tool calls (undocumented but functional)
+
+**Session isolation — demo vs production:**
+- **Demo:** Convention-based (`/app/uploads/{session_id}/`). Single-user demo to Miguel — concurrent session conflicts are not a risk.
+- **Production:** FastMCP MCP Proxy Provider wraps Filesystem MCP — receives conversation ID via header, scopes all file operations to `/app/uploads/{conversationId}/`. ~20 lines of Python. Deferred until multi-user deployment.
+
+*(Source: [Spike A witness ceremony](https://github.com/DaveX2001/deliverable-tracking/issues/1167#issuecomment-4080694147). [Spike B findings](https://github.com/DaveX2001/deliverable-tracking/issues/1168). [LibreChat 2026 Roadmap](https://www.librechat.ai/blog/2026-02-18_2026_roadmap). [Chainlit MCP docs](https://docs.chainlit.io/advanced-features/mcp). [Dify v1.6.0 MCP](https://dify.ai/blog/v1-6-0-built-in-two-way-mcp-support). [agentskills.io](https://agentskills.io). Runtime harness research, session 802ad55e. Extraction pass 2026-03-18.)*
+
+#### 6.4 PSM Persona — Behavioral Layer
+
+The AI's behavioral quality is demo-blocking. Miguel judges whether the AI acts intelligently — readable asset names, proactive semantic insights, no process leakage, no template-feeling rigidity.
+
+**Design approach:** The persona uses Anthropic's Persona Selection Model (PSM). Instead of procedural rules ("do X, then Y"), PSM derives core beliefs from the question "what kind of person would naturally do this well?" — then lets those beliefs guide behavior. Empirical evidence from CCI #629 showed that beliefs hold under pressure while rules get reinterpreted. The persona stays constant across both skills (§6.2) — the active skill changes the procedure, not the disposition.
+
+**Undefined:** The persona's current beliefs and identity. Three PSM passes have been completed on the ARCHIBUS Setup agent (#1094), but the beliefs are still iterating. The authoritative source is the system prompt (`prompts/system-prompt.md`), not this design doc.
+
+*(Source: [Anthropic PSM](https://alignment.anthropic.com/2026/psm/). [CCI #629](https://github.com/DaveX2001/claude-code-improvements/issues/629) — PSM methodology. Session `9e7fda08` — ARCHIBUS persona design. Session `24d94df5` — belief #5 addition. Issue [#1094](https://github.com/DaveX2001/deliverable-tracking/issues/1094).)*
+
+### Part 7: Deployment Topology — Infra/App Convention
+
+Parts 1–6 designed what the pipeline does. This part defines how it deploys — applying the [Deployment & Runtime State convention](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/deployment-runtime-state-design) (CCI #646 Part 3) to Archibus. The convention splits every Docker project into two compose files: shared infrastructure (`docker-compose.infra.yml`) and isolated application services (`docker-compose.yml`). This eliminates the organic multi-stack wiring that caused deployment failures.
+
+**Scope:** This section covers `archibus-bulk-import` only. The `archibus_full-stack` FM-Assistant (live BEM operations — search assets, create work requests) is a separate product with zero shared code, different APIs, and an independent deployment lifecycle. It receives its own infra/app treatment separately.
+
+#### 7.1 Current State — Organic Multi-Stack Architecture
+
+Three compose stacks share a single server via a manually-created external network. No compose file owns the network — services join it via `docker network connect` or `external: true` declarations.
+
+```
+/home/shared/projects/
+├── archibus-bulk-import/         # Stack 1
+│   └── docker-compose.yml        → LibreChat (:3020), FastMCP (:8010), MongoDB
+│       network: archibus-agent (internal)
+│       + docker network connect librechat-shared (invisible)
+│
+├── archibus_full-stack/          # Stack 2
+│   └── docker-compose.yml        → FM-Assistant MCP prod (:8000), staging (:8001)
+│       network: librechat-shared (external: true)
+│
+└── (standalone)                  # Not in any compose
+    ├── LibreChat-staging (:3081)
+    ├── chromote (CDP browser)
+    └── trustgraph_rest
+```
+
+**The `librechat-shared` network is the hub:**
+
+| Container | Origin | How it joined |
+|-----------|--------|--------------|
+| LibreChat-staging | Standalone | Manual start on network |
+| archibus-bulk-import-fastmcp | Stack 1 | `docker network connect` (invisible — not in compose) |
+| archibus_fastmcp_staging | Stack 2 | `external: true` (declared in compose) |
+| chromote | Standalone | Manual start on network |
+| trustgraph_rest | Other stack | Unknown |
+
+**Server investigation (2026-03-23):**
+
+Live `librechat-shared` containers confirmed: `trustgraph_rest`, `LibreChat-staging`, `chromote`, `archibus_fastmcp_staging`, `archibus-bulk-import-fastmcp-1`. After the refactor, only LibreChat-staging + archibus_fastmcp_staging remain (fm-assistant's concern).
+
+**Dead services to remove:**
+- `chromote` — unhealthy for 6+ weeks, browser automation not used by bulk-import
+- `trustgraph_rest` — purpose unknown, no dependency identified
+
+**Orphan volumes (13):** From old `COMPOSE_PROJECT_NAME` values (`archibus-custom`, `archibus-dev`, `librechat`). No running container mounts them. Cleaned up as part of the refactor: `archibus-custom_dev_*` (3), `archibus-dev_dev_*` (3), `archibus-staging_pgdata2` (1), `librechat_dev_*` (3), `librechat_pgdata2` (1), `librechat_staging_*` (2).
+
+**Why this breaks:** When one session runs `docker compose down` on any stack, containers on the shared network lose their peers. The cross-stack wiring via `docker network connect` is invisible state — not declared in any compose file, not recoverable from git, not visible to the next session. *(Evidence: CCI #646, CCI #635 — two sessions on the same server, one destroyed containers the other depended on.)*
+
+#### 7.2 Infra/App Classification
+
+The CCI #646 convention proposed LibreChat as infra (shared). Investigation of the actual development pattern reverses this: LibreChat is **app** (isolated per branch).
+
+**Why LibreChat is app, not infra:** Every pipeline step (#1055, #1056, #1057, #1064, #1180, #1189) included a LibreChat agent definition as a deliverable — system prompt, skill loading config, model selection. These definitions live in MongoDB, not in git. If two branches share one LibreChat instance, their agent definitions conflict. Volume cloning (CCI #646 Part 3 pattern) gives each worktree preview its own LibreChat + MongoDB with agent definitions cloned from staging.
+
+**Resulting classification for `archibus-bulk-import`:**
+
+| File | Services | Rationale |
+|------|----------|-----------|
+| **`docker-compose.infra.yml`** | *(none)* | No shared GPU services, no shared databases. Convention degrades gracefully — if no infra file exists, app compose runs standalone. |
+| **`docker-compose.yml`** | LibreChat, FastMCP, MongoDB | Full pipeline stack. Isolated per branch via `COMPOSE_PROJECT_NAME`. MongoDB carries agent definitions (volume-cloned from staging). |
+
+**What changes from today:**
+
+| Today | Convention |
+|-------|-----------|
+| `librechat-shared` external network | Eliminated — each stack has its own internal network |
+| `docker network connect` for FastMCP | Eliminated — LibreChat and FastMCP are in the same compose |
+| Standalone LibreChat-staging (:3081) | Absorbed into the app compose |
+| Cross-stack dependency on chromote | FM-Assistant concern, not bulk-import |
+
+**Volume cloning on preview deploy:** When the deploy script creates a preview environment (CCI #646 Part 4), it clones the app volumes from staging — including MongoDB with its agent definitions. The preview starts with a working copy of staging's agent configs. Agent definition changes in the preview don't affect staging. *(Bootstrap exception: first deploy with no staging — agent definitions are created manually once.)*
+
+**Migration path (from current state to convention):**
+
+1. Replace the multi-stack architecture with a single self-contained compose file per the infra/app classification above
+2. Migrate the chat interface from the shared instance to a project-owned instance
+3. Update routing to point at the new instance
+4. Sever the `librechat-shared` network dependency
+5. Remove dead services and orphan volumes
+
+fm-assistant stays untouched — receives its own treatment separately.
+
+#### 7.3 Health Endpoints
+
+Every service in `docker-compose.yml` must include a `healthcheck` block. The deploy script (CCI #646 Part 4) runs `docker compose up --wait` — if any health check fails, the deployment fails and the deploy-linker reports the failure to the issue.
+
+**Prescriptive health checks for `archibus-bulk-import`:**
+
+| Service | Check | Endpoint | Interval |
+|---------|-------|----------|----------|
+| **LibreChat** | HTTP GET | `http://localhost:3080/` → 200 | 30s, 10s timeout, 3 retries |
+| **FastMCP** | HTTP GET | `http://localhost:8000/sse` → 200 | 30s, 10s timeout, 3 retries |
+| **MongoDB** | Shell command | `mongosh --eval "db.runCommand('ping')"` → exit 0 | 30s, 10s timeout, 3 retries |
+
+**Compose healthcheck blocks (copy-paste):**
+
+```yaml
+services:
+  librechat:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  fastmcp:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/sse"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mongodb:
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+**Four-level backpressure** (from CCI #646 Part 4) applied to Archibus:
+
+| Level | Check | What it catches |
+|-------|-------|-----------------|
+| 1 | `docker compose config` | Invalid compose file syntax |
+| 2 | `docker compose up --wait` | Health check failures (above) |
+| 3 | `curl -f $PREVIEW_URL` | Routing/reachability broken (Caddy config) |
+| 4 | `docker compose logs \| grep error` | Runtime errors in application logs |
+
+Each level returns an exit code. GHA reads it: 0 = success, non-zero = failure. Binary, deterministic, no AI interpretation.
+
+**Note:** This is infrastructure-level backpressure (deploy-time health verification). The application-level backpressure (§6.1 — edit_file correction loop for API rejections) is a separate concern operating at a different layer.
+
+#### 7.4 Project-Specific Scripts
+
+Archibus does not require project-specific scripts. The convention's script categories and their applicability:
+
+| Script Category | Needed? | Reasoning |
+|----------------|---------|-----------|
+| **Data ingestion** | No | Pipeline runs on-demand via `step3_execute` tool (§6.1). No background ingestion, no cron, no data files to index. |
+| **Seed data** | No | MongoDB self-initializes on first start. LibreChat creates its DB schema. `data/` and `skills/` directories are bind-mounted from git — no copy step. |
+| **Bootstrap** | No (manual) | First deploy with no staging to clone from: agent definitions are created manually once via the LibreChat UI. Subsequent deploys clone volumes. Not worth scripting for a one-time operation. |
+| **Config import** | No | All MCP configuration is in `docker-compose.yml` (environment variables) and skill files (git). No external config to import. |
+
+*(Source: Extraction pass 2026-03-22 — server investigation + RESOLVE with David. [Grooming transcript 2026-03-22](https://app.fireflies.ai/view/01KMB243RF95QP9ZFG9VGBWFX9). [CCI #646 Design Doc](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/deployment-runtime-state-design). Session cdfaca64-7d32-4552-ac68-af0b947881f3. Pass 3: Session aa9eb012 — Archibus exemplar validation, self-contained compose, migration path, orphan volume cleanup.)*
 
 ---
 
@@ -733,8 +1048,10 @@ Spot-checks are optional — they cover scenarios already verified during develo
 - **Design docs:**
   - [Chain 1B: Bulk Entry Design](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/chain-1b-bulk-entry-design) (parent router)
   - [Step 3: Fill Level-by-Level](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/chain-1b-step3-design)
+  - [Deployment & Runtime State Convention (CCI #646)](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/deployment-runtime-state-design)
 - **Transcripts:**
   - [AI Data Entry Demo (Feb 23, 2026)](/Users/verdant/Downloads/AI Data Entry Demo Transcript.txt)
+  - [Grooming 2026-03-22](https://app.fireflies.ai/view/01KMB243RF95QP9ZFG9VGBWFX9)
 - **Data artifacts:**
   - [AssetImportDescription (36 fields)](https://docs.google.com/spreadsheets/d/12xs98WKdpTLHz8U6mccOXo5clFwCqvOviuEch_VNMTw/edit)
   - [Housekeeping Tracker (FMM)](/Users/verdant/Downloads/Housekeeping Tracker Jan 2026 v1.xlsb) — second Excel sample for hierarchy inference testing
@@ -754,3 +1071,43 @@ Spot-checks are optional — they cover scenarios already verified during develo
 - **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/986d5873-591d-4309-b641-7feacf9378ef.jsonl
 - **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/0914cc69-d3b3-4937-838c-d3140990c480.jsonl
 - **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/831e4df9-3e17-4516-87f3-e27d5cc65115.jsonl
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/0ffc456e-f9f5-49dc-bcd1-cb55c815b788.jsonl
+- **Transcript:** [AI Data Entry Demo (Feb 23, 2026)](https://github.com/user-attachments/files/25829896/AI.Data.Entry.Demo.Transcript.-.Meeting.Report.txt) — Miguel's ETL expectations, audience criteria, terminology ("container" not "phantom")
+- **Reference:** [Anthropic PSM — Persona Selection Model](https://alignment.anthropic.com/2026/psm/) — behavioral layer for prompt architecture
+- **Reference:** [Anthropic Prompt Engineering Course](https://www.youtube.com/watch?v=ysPbXH0LpIE) — 10-section mechanical prompt recipe
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/d39c2d40-a2af-4063-ae8e-ebacd36a83ae.jsonl
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/ff776065-b200-4fda-98bf-c957873ae951.jsonl
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/cdfaca64-7d32-4552-ac68-af0b947881f3.jsonl
+- **Transcript:** [Rein <> Marius (Mar 11, 2026)](https://app.fireflies.ai/view/01KKE7GE79F1AYWE4AJCCEHYFK) — Step 2b enum resolution, extended properties, asset types scope, demo requirements
+- **Reference:** [Anthropic Skills Guide PDF](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) — Category 3 MCP Enhancement pattern, progressive disclosure architecture
+- **Reference:** [LiteLLM Skills docs](https://docs.litellm.ai/docs/skills) — `container.skills` parameter, `/v1/skills` endpoint
+- **Session:** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-MariusWilsch--archibus-bulk-import/f2a480c1-4a8c-497b-9d1f-ea898e84ce00.jsonl
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/802ad55e-fa15-4e0d-ad65-b05ced810e1c.jsonl
+- **Reference:** [agentskills.io specification](https://agentskills.io/specification) — Agent Skills open standard, 32+ tool implementations
+- **Reference:** [LibreChat Agent Skills Issue #11106](https://github.com/danny-avila/LibreChat/issues/11106) — Q1 2026 roadmap, no PR as of March 2026
+- **Reference:** [LibreChat file→MCP gap Issue #8060](https://github.com/danny-avila/LibreChat/issues/8060) — signed URL proposal, unresolved
+- **Reference:** [Chainlit MCP documentation](https://docs.chainlit.io/advanced-features/mcp) — native stdio/SSE/HTTP, `.path` attribute
+- **Reference:** [Dify v1.6.0 two-way MCP](https://dify.ai/blog/v1-6-0-built-in-two-way-mcp-support) — HTTP transport only
+- **Reference:** [Chainlit Ask User API](https://docs.chainlit.io/advanced-features/ask-user) — AskFileMessage, AskElementMessage (consent-gated forms)
+- **Reference:** [Chainlit Commands](https://docs.chainlit.io/concepts/command) — dynamic UI actions, set_commands()
+- **Reference:** [Chainlit MCP Cookbook](https://github.com/Chainlit/cookbook/tree/main/mcp) — end-to-end MCP + Claude integration example
+- **Reference:** [FastMCP v3 Apps](https://gofastmcp.com/apps/overview) — interactive UIs rendered in conversation
+- **Reference:** [FastMCP v3 Sampling](https://gofastmcp.com/clients/sampling) — built-in Anthropic/OpenAI/Gemini handlers
+- **Session:** /Users/verdant/.claude/projects/-Users-verdant-Documents-projects-billable-MariusWilsch--archibus-bulk-import/82c5d45b-eb25-4f94-a806-e081fc46d0cb.jsonl
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/73f6fb9f-3b9f-46d2-9da7-473a46f593d3.jsonl
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/a9e661cd-8665-48d9-84f9-fb97a68e973d.jsonl
+- **Spike:** FastMCP SkillsDirectoryProvider + ResourcesAsTools (L1 validated, 2026-03-16)
+- **Spike:** Filesystem MCP + shared volume simulation (L1 validated, 2026-03-16)
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/6903d780-ce27-47c8-8d92-df316aebc5bc.jsonl
+- **Spike A implementation:** [issue-1167 worktree](https://github.com/DaveX2001/deliverable-tracking/tree/issue-1167/spike-a) — LibreChat + FastMCP Docker setup (ALL 6 PASS)
+- **Spike B implementation:** [issue-1168 worktree](https://github.com/DaveX2001/deliverable-tracking/tree/issue-1168/spike-b) — OpenWebUI + FastMCP Docker setup (FAIL)
+- **Session:** /Users/daveFem/.claude/projects/-Users-daveFem-Desktop-claude-projects-01-ARCHIBUS--deliverable/fabb74be-8370-4ad2-8074-b7b1b207a765.jsonl
+- **Reference:** [OpenWebUI Skills](https://docs.openwebui.com/features/ai-knowledge/skills) — native `view_skill` lazy loading, markdown-based skills
+- **Reference:** [OpenWebUI MCP](https://docs.openwebui.com/features/extensibility/mcp) — Streamable HTTP only, native since v0.6.31
+- **Reference:** [OpenWebUI Open Terminal](https://docs.openwebui.com/features/extensibility/open-terminal/) — full OS access via Docker
+- **Reference:** [mcpo proxy](https://github.com/open-webui/mcpo) — stdio→HTTP bridge, v0.0.20, production-ready
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

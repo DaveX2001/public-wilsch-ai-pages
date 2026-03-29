@@ -144,3 +144,8 @@ Bruce BEM returns:
 - [OAuth Security RFC 6819 §5.3.5](https://datatracker.ietf.org/doc/html/rfc6819#section-5.3.5) - Security best practices
 - [LibreChat OAuth docs](https://www.librechat.ai/docs/configuration/authentication/OAuth2-OIDC) - Configuration reference
 
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

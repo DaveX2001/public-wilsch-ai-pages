@@ -115,3 +115,8 @@ Validate field-level decisions from the Feb 14 extraction pass. The design doc's
 - **Issue:** [#373 — ARCHIBUS: AI Bulk Data Entry](https://github.com/DaveX2001/deliverable-tracking/issues/373)
 - **Design Doc:** [Chain 1B: Step 3 Fill Level-by-Level](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/archibus-fm-assistant/chain-1b-step3-design)
 - **Fields Assets Sheet:** [AssetImportDescription (Google Drive)](https://docs.google.com/spreadsheets/d/12xs98WKdpTLHz8U6mccOXo5clFwCqvOviuEch_VNMTw/edit)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

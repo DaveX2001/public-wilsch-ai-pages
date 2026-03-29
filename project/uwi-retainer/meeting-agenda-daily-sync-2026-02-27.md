@@ -140,3 +140,8 @@ Stellmacher hat am 26. Feb schriftliche Rahmenbedingungen angefragt ([Email](htt
 - **Milestone:** [[UWI] 2026-03-04 — Ulrich sync](https://github.com/DaveX2001/deliverable-tracking/milestone/10)
 - **Milestone:** [[IITR] 2026-03-02 — Contract ready](https://github.com/DaveX2001/deliverable-tracking/milestone/16)
 - **Letzte Agenda:** [Daily Sync 25. Feb](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/uwi-retainer/meeting-agenda-daily-sync-2026-02-25)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

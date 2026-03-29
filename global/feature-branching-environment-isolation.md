@@ -71,3 +71,7 @@ Testing          Integration    │    Live System
 ### ⚪ Neutral
 - Database migration strategy must account for both staging and production schema changes
 - CI/CD pipeline complexity increases with dual environment deployment targets
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

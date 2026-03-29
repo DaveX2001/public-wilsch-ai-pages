@@ -98,3 +98,8 @@ Rechnung wird diese Woche versendet. Kurzer Status zum aktuellen Vertrag und dem
 
 - **Issue:** [#650 — UWI/Portal Wilsch: Infrastructure & Automation Backlog](https://github.com/DaveX2001/deliverable-tracking/issues/650)
 - **Monthly Plan:** [February 23 – March 31, 2026](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/soloforce/monthly-plan-2026-02-23-to-2026-03-31)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -371,3 +371,8 @@ Die Analyse zeigt, dass **Baustoff** und **Kran** die stärksten Differenzierung
 
 - **Evidence-Docs:** 14 × Kriteriennachweis-Dokumente pro Anfrage-ID
 - **Strukturierte Daten:** Anfragen.csv (Testdaten 2026-01-28)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

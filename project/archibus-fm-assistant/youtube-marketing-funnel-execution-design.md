@@ -108,3 +108,8 @@ Execution capacity beyond Marius - who handles social media management (YouTube/
 
 - Kaia <> Marius meeting (2026-01-22)
 - All Hands meeting transcript
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -213,3 +213,8 @@ Four layers that define how people operate within the game.
 - Framework: Michael Gerber, *The E-Myth Revisited*, Chapter 16
 - Cultural reference: Warren Berger, *A More Beautiful Question*
 - Assessment tool: [PrinciplesYou](https://principlesyou.com/) (Ray Dalio)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

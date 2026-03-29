@@ -50,3 +50,8 @@ When looking at any task, three elements must be visible:
 ---
 
 *This document captures the forcing function thinking from the 2025-12-10 rubber duck session. The core insight: tasks need stakes visibility to enable conscious prioritization.*
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

@@ -71,3 +71,8 @@ Can Rein intercept state in Code on Time?
 - [Code on Time: Handling Login and Logout](https://codeontime.com/print/learn/security/handling-login-and-logout) - UserLogin override documented
 - [Code on Time: Custom Login Form](https://codeontime.com/learn/security/custom-login-form)
 - [LibreChat OAuth handler](services/librechat/packages/api/src/mcp/oauth/handler.ts)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

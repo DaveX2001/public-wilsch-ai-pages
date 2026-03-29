@@ -406,3 +406,8 @@ AVO (Mitwirkungspflicht \- client responsibility)
 6. Repeat until acceptance criteria met
 
 **Responsibility:** Wilsch AI Services implements evaluation, AVO validates results  
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

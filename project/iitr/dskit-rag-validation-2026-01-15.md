@@ -405,3 +405,8 @@ Client must provide: Website review service description + pricing (180€).
 
 ### Client Decision (1 item)
 1. **Q5:** Feature description vs frequency - which is preferred answer?
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

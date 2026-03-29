@@ -65,3 +65,8 @@ What challenges exist in determining hierarchy?
 
 - **Issue:** [#373 - AI Bulk Data Entry Prototype](https://github.com/DaveX2001/deliverable-tracking/issues/373)
 - **Schema Reference:** [Asset Import Schema (SharePoint)](https://aschs-my.sharepoint.com/:x:/g/personal/rein_suurvali_asc-hs_com/IQCZWnERRmHxRb3r4bb3BZzRAfjwreav4FEP85btLlaVWNI)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

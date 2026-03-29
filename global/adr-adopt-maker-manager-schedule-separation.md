@@ -85,3 +85,8 @@ During evening selection, apply the maker question:
 - [Maker's Schedule, Manager's Schedule](https://paulgraham.com/makersschedule.html) - Paul Graham (2009)
 - [WIP-Limited Kanban ADR](./adr-adopt-wip-limited-kanban-board-for-deliverable-tracking.md) - Board system design
 - [Cal Newport's Shutdown Ritual](https://calnewport.com/drastically-reduce-stress-with-a-work-shutdown-ritual/) - Evening planning concept
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

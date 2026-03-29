@@ -167,3 +167,8 @@ Frontend does not directly access database tables. All operations through backen
 - Issue #227: Absorb Config into Main (2/4)
 - Issue #121: Frontend Consolidation parent issue
 - ADR: Strangler Pattern Sequencing
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

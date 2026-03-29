@@ -300,3 +300,8 @@ Set `NUM_NVENC_STREAMS=1` to disable parallelization instantly.
 - Issue: [#357 Ken Burns RunPod Serverless](https://github.com/DaveX2001/deliverable-tracking/issues/357)
 - Related: [cudacodec-gpu-video-encoding.md](./cudacodec-gpu-video-encoding.md)
 - Conversation: Dec 29, 2024
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

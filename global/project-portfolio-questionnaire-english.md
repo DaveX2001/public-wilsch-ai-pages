@@ -349,3 +349,8 @@ Over a period from April 2024 to present, I have completed 11 client projects in
 - **Entity Extraction** (Project D): Format-agnostic document processing
 
 My role as Solo-Developer/Tech Lead encompasses all aspects from requirements gathering through technical implementation to production deployment. The workshop-driven approach enables rapid project starts with clear success criteria.
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

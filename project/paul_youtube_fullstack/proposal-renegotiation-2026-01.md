@@ -138,3 +138,8 @@ All infrastructure costs (hosting, GPU, API calls) split equally, matching our r
 ---
 
 *This proposal reflects our January 2026 conversation about restructuring the partnership for the next phase.*
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

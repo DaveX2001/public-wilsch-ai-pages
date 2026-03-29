@@ -138,3 +138,8 @@ The AI searches Langfuse using filters extracted from the `/flag` input:
   - [Context Graph ADR](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/context-graph-langfuse)
   - [Issue Lifecycle Router](https://mariuswilsch.github.io/public-wilsch-ai-pages/global/issue-lifecycle-router)
   - [Fireflies Agent Design](https://mariuswilsch.github.io/public-wilsch-ai-pages/project/WILSCH-AI-INTERNAL/fireflies-agent-capture-reliability-design)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

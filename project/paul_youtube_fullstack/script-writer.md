@@ -99,3 +99,8 @@ Decouples script writing workflow from video queue processing. Allows admins to 
 ### Backend Files
 - `script_job_endpoints.py` - Script Jobs + My Assignments (`/api/scripts/*`, `/api/my-assignments/*`)
 - `script_writer_endpoints.py` - Script Files (`/api/script-writer/*`)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

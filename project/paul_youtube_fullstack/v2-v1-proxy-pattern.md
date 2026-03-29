@@ -107,3 +107,8 @@ For production (nuca-systems), same pattern but with production v1 URL.
 ## Commit Reference
 
 Implementation: https://github.com/MariusWilsch/christmas-paul-package/commit/32fc530
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+

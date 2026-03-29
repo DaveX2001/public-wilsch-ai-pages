@@ -47,3 +47,8 @@ OpenCV computes the affine transform matrix **once**, then applies it to all fra
 - [OpenCV Vertical Slices](videogen-opencv-vertical-slices.md)
 - [GPU NVENC Parallelization](gpu-nvenc-parallelization.md)
 - [cudacodec GPU Video Encoding](cudacodec-gpu-video-encoding.md)
+
+---
+
+© 2026 Wilsch AI Services OÜ. All rights reserved. Licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+
